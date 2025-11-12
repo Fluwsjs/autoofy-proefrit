@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tenant {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  createdAt DateTime  @default(now())
+  users     User[]
+  testrides Testride[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+}
+
+model Testride {
+  id            String    @id @default(cuid())
+  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId      String
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  address       String
+  startTime     DateTime
+  endTime       DateTime
+  date          DateTime
+  carType       String
+  licensePlate  String?
+  startKm       Int
+  endKm         Int?
+  signatureUrl  String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+}
+
+enum Role {
+  ADMIN
+  STAFF
+}
+
+model SuperAdmin {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+

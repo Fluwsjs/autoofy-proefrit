@@ -1,0 +1,9 @@
+{
+  "crons": [
+    {
+      "path": "/api/testrides/cleanup",
+      "schedule": "0 2 * * *"
+    }
+  ]
+}
+

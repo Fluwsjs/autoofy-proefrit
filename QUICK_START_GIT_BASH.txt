@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════
+  QUICK START - Kopieer deze commando's naar Git Bash
+═══════════════════════════════════════════════════════════
+
+1. Open Git Bash in je project folder
+   (Rechtsklik op folder → "Git Bash Here")
+
+2. Git configureren (eenmalig):
+   ────────────────────────────────────────────────────────
+   git config --global user.name "Jouw Naam"
+   git config --global user.email "jouw@email.com"
+   ────────────────────────────────────────────────────────
+
+3. Repository initialiseren:
+   ────────────────────────────────────────────────────────
+   git init
+   git add .
+   git commit -m "Autoofy Proefrit App - Ready for Netlify"
+   ────────────────────────────────────────────────────────
+
+4. Maak GitHub repository aan op github.com
+   (Zie GIT_BASH_COMMANDOS.md voor details)
+
+5. Push naar GitHub:
+   ────────────────────────────────────────────────────────
+   git remote add origin https://github.com/JOUW-USERNAME/JOUW-REPO-NAAM.git
+   git branch -M main
+   git push -u origin main
+   ────────────────────────────────────────────────────────
+
+═══════════════════════════════════════════════════════════
+

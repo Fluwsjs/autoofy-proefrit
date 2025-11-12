@@ -1,0 +1,32 @@
+Kopieer deze environment variables naar Netlify:
+
+===========================================
+DATABASE_URL
+===========================================
+postgresql://postgres:Italy024!@@db.cttgctesyubfmhxwzfez.supabase.co:5432/postgres
+
+===========================================
+NEXTAUTH_URL
+===========================================
+https://jouw-site.netlify.app
+(⚠️ PAS AAN NA EERSTE DEPLOYMENT naar je echte Netlify URL!)
+
+===========================================
+NEXTAUTH_SECRET
+===========================================
+a5515096fd53df882c00e422a08dcdb8
+
+===========================================
+CRON_SECRET (Optioneel)
+===========================================
+cron-secret-key-2024
+
+===========================================
+
+INSTRUCTIES:
+1. Ga naar Netlify → Site settings → Environment variables
+2. Klik "Add variable" voor elk van bovenstaande
+3. Kopieer Key en Value
+4. Selecteer "All scopes" (Production, Deploy previews, Branch deploys)
+5. Klik "Save"
+
