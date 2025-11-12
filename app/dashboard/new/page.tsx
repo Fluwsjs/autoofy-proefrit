@@ -9,17 +9,9 @@ import { FormInput } from "@/components/FormInput"
 import { SignaturePad } from "@/components/SignaturePad"
 import { IdPhotoUpload } from "@/components/IdPhotoUpload"
 import { TimePicker } from "@/components/TimePicker"
-import { ArrowLeft, Plus } from "lucide-react"
+import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Label } from "@/components/ui/label"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import { useToast } from "@/components/ui/toast"
 
 interface DealerPlate {
@@ -37,9 +29,6 @@ export default function NewTestridePage() {
   const [idPhotoUrl, setIdPhotoUrl] = useState("")
   const [dealerPlates, setDealerPlates] = useState<DealerPlate[]>([])
   const [loadingPlates, setLoadingPlates] = useState(true)
-  const [isAddPlateDialogOpen, setIsAddPlateDialogOpen] = useState(false)
-  const [newPlate, setNewPlate] = useState("")
-  const [addingPlate, setAddingPlate] = useState(false)
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -78,37 +67,6 @@ export default function NewTestridePage() {
     }
   }
 
-  const handleAddPlate = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newPlate.trim()) {
-      showToast("Kenteken mag niet leeg zijn", "error")
-      return
-    }
-
-    setAddingPlate(true)
-    try {
-      const response = await fetch("/api/dealer-plates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plate: newPlate.trim() }),
-      })
-
-      if (response.ok) {
-        showToast("Handelaarskenteken succesvol toegevoegd", "success")
-        setNewPlate("")
-        setIsAddPlateDialogOpen(false)
-        fetchDealerPlates()
-      } else {
-        const data = await response.json()
-        showToast(data.error || "Fout bij toevoegen handelaarskenteken", "error")
-      }
-    } catch (error) {
-      console.error("Error adding dealer plate:", error)
-      showToast("Fout bij toevoegen handelaarskenteken", "error")
-    } finally {
-      setAddingPlate(false)
-    }
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -254,72 +212,21 @@ export default function NewTestridePage() {
               />
               <div className="space-y-2">
                 <Label htmlFor="dealerPlate">Handelaarskenteken</Label>
-                <div className="flex gap-2">
-                  <select
-                    id="dealerPlate"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                    value={formData.dealerPlateId}
-                    onChange={(e) =>
-                      setFormData({ ...formData, dealerPlateId: e.target.value })
-                    }
-                  >
-                    <option value="">Geen handelaarskenteken</option>
-                    {dealerPlates.map((plate) => (
-                      <option key={plate.id} value={plate.id}>
-                        {plate.plate}
-                      </option>
-                    ))}
-                  </select>
-                  <Dialog open={isAddPlateDialogOpen} onOpenChange={setIsAddPlateDialogOpen}>
-                    <DialogTrigger asChild>
-                      <Button type="button" variant="outline" size="sm" className="whitespace-nowrap">
-                        <Plus className="h-4 w-4 mr-1" />
-                        Voeg toe
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Voeg handelaarskenteken toe</DialogTitle>
-                        <DialogDescription>
-                          Voeg een nieuw handelaarskenteken toe aan je lijst.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <form onSubmit={handleAddPlate} className="space-y-4">
-                        <div>
-                          <Label htmlFor="newPlate">Kenteken</Label>
-                          <input
-                            id="newPlate"
-                            type="text"
-                            value={newPlate}
-                            onChange={(e) => setNewPlate(e.target.value)}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-                            placeholder="Bijv. AB-12-CD"
-                            required
-                          />
-                        </div>
-                        <div className="flex justify-end gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsAddPlateDialogOpen(false)
-                              setNewPlate("")
-                            }}
-                          >
-                            Annuleren
-                          </Button>
-                          <Button
-                            type="submit"
-                            disabled={addingPlate}
-                            className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
-                          >
-                            {addingPlate ? "Toevoegen..." : "Toevoegen"}
-                          </Button>
-                        </div>
-                      </form>
-                    </DialogContent>
-                  </Dialog>
-                </div>
+                <select
+                  id="dealerPlate"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={formData.dealerPlateId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dealerPlateId: e.target.value })
+                  }
+                >
+                  <option value="">Geen handelaarskenteken</option>
+                  {dealerPlates.map((plate) => (
+                    <option key={plate.id} value={plate.id}>
+                      {plate.plate}
+                    </option>
+                  ))}
+                </select>
                 <Link href="/dashboard/dealer-plates" className="text-sm text-autoofy-dark hover:underline">
                   Beheer alle handelaarskentekens
                 </Link>

@@ -50,7 +50,7 @@ echo ""
 
 # Commit maken
 echo "💾 Commit maken..."
-git commit -m "Fix time picker, terug knop en voeg handelaarskenteken modal toe"
+git commit -m "Fix time picker scroll, infinite loop en verwijder voeg toe knop"
 echo "✅ Commit gemaakt"
 echo ""
 
