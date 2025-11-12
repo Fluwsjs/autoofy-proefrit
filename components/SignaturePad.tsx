@@ -13,10 +13,12 @@ interface SignaturePadProps {
 export function SignaturePad({ onSave, initialSignature }: SignaturePadProps) {
   const signatureRef = useRef<SignatureCanvas>(null)
   const [isEmpty, setIsEmpty] = useState(!initialSignature)
+  const [hasSignature, setHasSignature] = useState(!!initialSignature)
 
   const handleClear = () => {
     signatureRef.current?.clear()
     setIsEmpty(true)
+    setHasSignature(false)
     onSave("")
   }
 
@@ -25,7 +27,15 @@ export function SignaturePad({ onSave, initialSignature }: SignaturePadProps) {
       const signature = signatureRef.current.getTrimmedCanvas().toDataURL("image/png")
       onSave(signature)
       setIsEmpty(false)
+      setHasSignature(true)
     }
+  }
+
+  const handleEnd = () => {
+    // Auto-save when user finishes drawing
+    setTimeout(() => {
+      handleSave()
+    }, 100)
   }
 
   const handleBegin = () => {
@@ -41,37 +51,35 @@ export function SignaturePad({ onSave, initialSignature }: SignaturePadProps) {
           canvasProps={{
             width: 500,
             height: 200,
-            className: "signature-canvas w-full h-48 border rounded",
+            className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
           }}
-          onEnd={handleSave}
+          onEnd={handleEnd}
           onBegin={handleBegin}
         />
-        {initialSignature && (
-          <img
-            src={initialSignature}
-            alt="Handtekening"
-            className="mt-2 max-w-full h-24 object-contain"
-          />
+        {initialSignature && !isEmpty && (
+          <div className="mt-2">
+            <img
+              src={initialSignature}
+              alt="Handtekening preview"
+              className="max-w-full h-24 object-contain border rounded"
+            />
+          </div>
         )}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={handleClear}
+          disabled={isEmpty && !hasSignature}
         >
           Wissen
         </Button>
-        {!isEmpty && (
-          <Button
-            type="button"
-            variant="default"
-            size="sm"
-            onClick={handleSave}
-          >
-            Opslaan
-          </Button>
+        {hasSignature && (
+          <span className="text-sm text-green-600 flex items-center gap-1">
+            ✓ Handtekening opgeslagen
+          </span>
         )}
       </div>
     </div>

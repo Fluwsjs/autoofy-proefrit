@@ -4,9 +4,9 @@ import bcrypt from "bcryptjs"
 import { z } from "zod"
 
 const registerSchema = z.object({
-  tenantName: z.string().min(1, "Bedrijfsnaam is verplicht"),
-  userName: z.string().min(1, "Naam is verplicht"),
-  email: z.string().email("Ongeldig e-mailadres"),
+  tenantName: z.string().min(1, "Bedrijfsnaam is verplicht").trim(),
+  userName: z.string().min(1, "Uw naam is verplicht").trim(),
+  email: z.string().email("Ongeldig e-mailadres").trim().toLowerCase(),
   password: z.string().min(6, "Wachtwoord moet minimaal 6 tekens lang zijn"),
 })
 

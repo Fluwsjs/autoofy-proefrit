@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { formatDate, formatDateTime } from "@/lib/utils"
 import { ArrowLeft, Trash2 } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 interface Testride {
   id: string
@@ -19,6 +20,12 @@ interface Testride {
   date: string
   carType: string
   licensePlate: string | null
+  driverLicenseNumber: string | null
+  dealerPlate: {
+    id: string
+    plate: string
+  } | null
+  idPhotoUrl: string | null
   startKm: number
   endKm: number | null
   signatureUrl: string | null
@@ -151,6 +158,18 @@ export default function TestrideDetailPage() {
                     {testride.licensePlate}
                   </p>
                 )}
+                {testride.dealerPlate && (
+                  <p>
+                    <span className="text-muted-foreground">Handelaarskenteken:</span>{" "}
+                    {testride.dealerPlate.plate}
+                  </p>
+                )}
+                {testride.driverLicenseNumber && (
+                  <p>
+                    <span className="text-muted-foreground">Rijbewijs nummer:</span>{" "}
+                    {testride.driverLicenseNumber}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -199,6 +218,22 @@ export default function TestrideDetailPage() {
             <div>
               <h3 className="font-semibold mb-2">Notities</h3>
               <p className="text-sm">{testride.notes}</p>
+            </div>
+          )}
+
+          {testride.idPhotoUrl && (
+            <div>
+              <h3 className="font-semibold mb-2">ID Foto</h3>
+              <div className="border rounded-md p-4 bg-white">
+                <Image
+                  src={testride.idPhotoUrl}
+                  alt="ID Foto"
+                  width={500}
+                  height={300}
+                  className="max-w-full h-auto object-contain rounded"
+                  unoptimized
+                />
+              </div>
             </div>
           )}
 

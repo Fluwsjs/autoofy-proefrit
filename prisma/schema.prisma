@@ -19,6 +19,15 @@ model Tenant {
   testrides Testride[]
 }
 
+model DealerPlate {
+  id        String   @id @default(cuid())
+  plate     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  testrides Testride[]
+}
+
 model User {
   id        String   @id @default(cuid())
   tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -28,6 +37,7 @@ model User {
   password  String
   role      Role     @default(STAFF)
   createdAt DateTime @default(now())
+  dealerPlates DealerPlate[]
 }
 
 model Testride {
@@ -43,6 +53,10 @@ model Testride {
   date          DateTime
   carType       String
   licensePlate  String?
+  driverLicenseNumber String?
+  dealerPlateId String?
+  dealerPlate   DealerPlate? @relation(fields: [dealerPlateId], references: [id], onDelete: SetNull)
+  idPhotoUrl    String?
   startKm       Int
   endKm         Int?
   signatureUrl  String?

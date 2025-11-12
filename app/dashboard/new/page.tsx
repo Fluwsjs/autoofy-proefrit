@@ -1,19 +1,32 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
 import { SignaturePad } from "@/components/SignaturePad"
+import { IdPhotoUpload } from "@/components/IdPhotoUpload"
+import { TimePicker } from "@/components/TimePicker"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { Label } from "@/components/ui/label"
+
+interface DealerPlate {
+  id: string
+  plate: string
+}
 
 export default function NewTestridePage() {
   const router = useRouter()
+  const { data: session } = useSession()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [signature, setSignature] = useState("")
+  const [idPhotoUrl, setIdPhotoUrl] = useState("")
+  const [dealerPlates, setDealerPlates] = useState<DealerPlate[]>([])
+  const [loadingPlates, setLoadingPlates] = useState(true)
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -25,10 +38,32 @@ export default function NewTestridePage() {
     date: "",
     carType: "",
     licensePlate: "",
+    driverLicenseNumber: "",
+    dealerPlateId: "",
     startKm: "",
     endKm: "",
     notes: "",
   })
+
+  useEffect(() => {
+    if (session) {
+      fetchDealerPlates()
+    }
+  }, [session])
+
+  const fetchDealerPlates = async () => {
+    try {
+      const response = await fetch("/api/dealer-plates")
+      if (response.ok) {
+        const data = await response.json()
+        setDealerPlates(data)
+      }
+    } catch (error) {
+      console.error("Error fetching dealer plates:", error)
+    } finally {
+      setLoadingPlates(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -71,8 +106,11 @@ export default function NewTestridePage() {
           startKm: parseInt(formData.startKm),
           endKm: formData.endKm ? parseInt(formData.endKm) : undefined,
           signatureUrl: signature || undefined,
+          idPhotoUrl: idPhotoUrl || undefined,
           customerPhone: formData.customerPhone || undefined,
           licensePlate: formData.licensePlate || undefined,
+          driverLicenseNumber: formData.driverLicenseNumber || undefined,
+          dealerPlateId: formData.dealerPlateId || undefined,
           notes: formData.notes || undefined,
         }),
       })
@@ -158,6 +196,35 @@ export default function NewTestridePage() {
                   setFormData({ ...formData, licensePlate: e.target.value })
                 }
               />
+              <FormInput
+                label="Rijbewijs nummer"
+                value={formData.driverLicenseNumber}
+                onChange={(e) =>
+                  setFormData({ ...formData, driverLicenseNumber: e.target.value })
+                }
+                placeholder="Bijv. 12345678"
+              />
+              <div className="space-y-2">
+                <Label htmlFor="dealerPlate">Handelaarskenteken</Label>
+                <select
+                  id="dealerPlate"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={formData.dealerPlateId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, dealerPlateId: e.target.value })
+                  }
+                >
+                  <option value="">Geen handelaarskenteken</option>
+                  {dealerPlates.map((plate) => (
+                    <option key={plate.id} value={plate.id}>
+                      {plate.plate}
+                    </option>
+                  ))}
+                </select>
+                <Link href="/dashboard/dealer-plates" className="text-sm text-autoofy-dark hover:underline">
+                  Beheer handelaarskentekens
+                </Link>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -170,21 +237,19 @@ export default function NewTestridePage() {
                 }
                 required
               />
-              <FormInput
-                label="Starttijd *"
-                type="time"
+              <TimePicker
+                label="Starttijd"
                 value={formData.startTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, startTime: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, startTime: value })
                 }
                 required
               />
-              <FormInput
-                label="Eindtijd *"
-                type="time"
+              <TimePicker
+                label="Eindtijd"
                 value={formData.endTime}
-                onChange={(e) =>
-                  setFormData({ ...formData, endTime: e.target.value })
+                onChange={(value) =>
+                  setFormData({ ...formData, endTime: value })
                 }
                 required
               />
@@ -223,6 +288,8 @@ export default function NewTestridePage() {
                 rows={3}
               />
             </div>
+
+            <IdPhotoUpload onSave={setIdPhotoUrl} />
 
             <SignaturePad onSave={setSignature} />
 

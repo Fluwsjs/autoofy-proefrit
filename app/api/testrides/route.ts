@@ -14,6 +14,9 @@ const testrideSchema = z.object({
   date: z.string(),
   carType: z.string().min(1, "Autotype is verplicht"),
   licensePlate: z.string().optional(),
+  driverLicenseNumber: z.string().optional(),
+  dealerPlateId: z.string().optional(),
+  idPhotoUrl: z.string().optional(),
   startKm: z.number().int().positive("Startkilometerstand moet positief zijn"),
   endKm: z.number().int().positive().optional(),
   signatureUrl: z.string().optional(),
@@ -34,6 +37,9 @@ export async function GET(request: NextRequest) {
     const testrides = await prisma.testride.findMany({
       where: {
         tenantId: session.user.tenantId,
+      },
+      include: {
+        dealerPlate: true,
       },
       orderBy: {
         createdAt: "desc",

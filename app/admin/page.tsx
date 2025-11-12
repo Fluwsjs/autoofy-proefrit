@@ -12,7 +12,8 @@ import {
   TrendingUp, 
   Calendar,
   ArrowLeft,
-  RefreshCw
+  RefreshCw,
+  Key
 } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
@@ -121,6 +122,12 @@ export default function AdminDashboardPage() {
             </p>
           </div>
           <div className="flex gap-2">
+            <Link href="/admin/users">
+              <Button variant="outline" className="gap-2">
+                <Key className="h-4 w-4" />
+                Gebruikersbeheer
+              </Button>
+            </Link>
             <Button
               variant="outline"
               onClick={fetchStats}
