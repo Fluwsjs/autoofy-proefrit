@@ -50,7 +50,7 @@ echo ""
 
 # Commit maken
 echo "💾 Commit maken..."
-git commit -m "Add PDF export functionality for testrides"
+git commit -m "Add ID foto voorkant/achterkant, verkoper/klant handtekening en eigen risico"
 echo "✅ Commit gemaakt"
 echo ""
 

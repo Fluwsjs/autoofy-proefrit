@@ -16,10 +16,13 @@ const testrideSchema = z.object({
   licensePlate: z.string().optional(),
   driverLicenseNumber: z.string().optional(),
   dealerPlateId: z.string().optional(),
-  idPhotoUrl: z.string().optional(),
+  idPhotoFrontUrl: z.string().optional(),
+  idPhotoBackUrl: z.string().optional(),
+  customerSignatureUrl: z.string().optional(),
+  sellerSignatureUrl: z.string().optional(),
+  eigenRisico: z.string().optional(),
   startKm: z.number().int().positive("Startkilometerstand moet positief zijn"),
   endKm: z.number().int().positive().optional(),
-  signatureUrl: z.string().optional(),
   notes: z.string().optional(),
 })
 

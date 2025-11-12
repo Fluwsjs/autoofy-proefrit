@@ -29,39 +29,43 @@ model DealerPlate {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId  String
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(STAFF)
-  createdAt DateTime @default(now())
-  dealerPlates DealerPlate[]
+  id                String   @id @default(cuid())
+  tenant            Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId          String
+  name              String
+  email             String   @unique
+  password          String
+  role              Role     @default(STAFF)
+  sellerSignatureUrl String? // Eenmalige verkoper handtekening/stempel (herbruikbaar)
+  createdAt         DateTime @default(now())
+  dealerPlates      DealerPlate[]
 }
 
 model Testride {
-  id            String    @id @default(cuid())
-  tenant        Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  tenantId      String
-  customerName  String
-  customerEmail String
-  customerPhone String?
-  address       String
-  startTime     DateTime
-  endTime       DateTime
-  date          DateTime
-  carType       String
-  licensePlate  String?
+  id                  String    @id @default(cuid())
+  tenant              Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId            String
+  customerName        String
+  customerEmail       String
+  customerPhone       String?
+  address             String
+  startTime           DateTime
+  endTime             DateTime
+  date                DateTime
+  carType             String
+  licensePlate        String?
   driverLicenseNumber String?
-  dealerPlateId String?
-  dealerPlate   DealerPlate? @relation(fields: [dealerPlateId], references: [id], onDelete: SetNull)
-  idPhotoUrl    String?
-  startKm       Int
-  endKm         Int?
-  signatureUrl  String?
-  notes         String?
-  createdAt     DateTime  @default(now())
+  dealerPlateId       String?
+  dealerPlate         DealerPlate? @relation(fields: [dealerPlateId], references: [id], onDelete: SetNull)
+  idPhotoFrontUrl     String?   // ID foto voorkant
+  idPhotoBackUrl      String?  // ID foto achterkant
+  customerSignatureUrl String? // Klant handtekening (per proefrit)
+  sellerSignatureUrl   String?  // Verkoper handtekening/stempel (optioneel, kan van User komen)
+  eigenRisico         String?  // Eigen risico bedrag
+  startKm             Int
+  endKm               Int?
+  notes               String?
+  createdAt           DateTime  @default(now())
 }
 
 enum Role {

@@ -6,7 +6,8 @@ import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
-import { SignaturePad } from "@/components/SignaturePad"
+import { SellerSignature } from "@/components/SellerSignature"
+import { CustomerSignature } from "@/components/CustomerSignature"
 import { IdPhotoUpload } from "@/components/IdPhotoUpload"
 import { TimePicker } from "@/components/TimePicker"
 import { ArrowLeft } from "lucide-react"
@@ -25,8 +26,10 @@ export default function NewTestridePage() {
   const { showToast, ToastComponent } = useToast()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
-  const [signature, setSignature] = useState("")
-  const [idPhotoUrl, setIdPhotoUrl] = useState("")
+  const [customerSignature, setCustomerSignature] = useState("")
+  const [sellerSignature, setSellerSignature] = useState("")
+  const [idPhotoFrontUrl, setIdPhotoFrontUrl] = useState("")
+  const [idPhotoBackUrl, setIdPhotoBackUrl] = useState("")
   const [dealerPlates, setDealerPlates] = useState<DealerPlate[]>([])
   const [loadingPlates, setLoadingPlates] = useState(true)
 
@@ -45,6 +48,7 @@ export default function NewTestridePage() {
     startKm: "",
     endKm: "",
     notes: "",
+    eigenRisico: "",
   })
 
   useEffect(() => {
@@ -101,19 +105,22 @@ export default function NewTestridePage() {
       const response = await fetch("/api/testrides", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
+          body: JSON.stringify({
           ...formData,
           startTime: startDateTime.toISOString(),
           endTime: endDateTime.toISOString(),
           date: date.toISOString(),
           startKm: parseInt(formData.startKm),
           endKm: formData.endKm ? parseInt(formData.endKm) : undefined,
-          signatureUrl: signature || undefined,
-          idPhotoUrl: idPhotoUrl || undefined,
+          customerSignatureUrl: customerSignature || undefined,
+          sellerSignatureUrl: sellerSignature || undefined,
+          idPhotoFrontUrl: idPhotoFrontUrl || undefined,
+          idPhotoBackUrl: idPhotoBackUrl || undefined,
           customerPhone: formData.customerPhone || undefined,
           licensePlate: formData.licensePlate || undefined,
           driverLicenseNumber: formData.driverLicenseNumber || undefined,
           dealerPlateId: formData.dealerPlateId || undefined,
+          eigenRisico: formData.eigenRisico || undefined,
           notes: formData.notes || undefined,
         }),
       })
@@ -296,9 +303,29 @@ export default function NewTestridePage() {
               />
             </div>
 
-            <IdPhotoUpload onSave={setIdPhotoUrl} />
+            <FormInput
+              label="Eigen risico"
+              value={formData.eigenRisico}
+              onChange={(e) =>
+                setFormData({ ...formData, eigenRisico: e.target.value })
+              }
+              placeholder="Bijv. €500"
+            />
 
-            <SignaturePad onSave={setSignature} />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <IdPhotoUpload 
+                onSave={setIdPhotoFrontUrl} 
+                label="ID Foto voorkant"
+              />
+              <IdPhotoUpload 
+                onSave={setIdPhotoBackUrl} 
+                label="ID Foto achterkant"
+              />
+            </div>
+
+            <SellerSignature onUse={setSellerSignature} />
+
+            <CustomerSignature onSave={setCustomerSignature} />
 
             {error && (
               <p className="text-sm text-destructive">{error}</p>

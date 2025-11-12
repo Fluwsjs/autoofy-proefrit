@@ -9,9 +9,10 @@ import Image from "next/image"
 interface IdPhotoUploadProps {
   onSave: (photoUrl: string) => void
   initialPhotoUrl?: string
+  label?: string
 }
 
-export function IdPhotoUpload({ onSave, initialPhotoUrl }: IdPhotoUploadProps) {
+export function IdPhotoUpload({ onSave, initialPhotoUrl, label = "ID Foto" }: IdPhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [photoUrl, setPhotoUrl] = useState<string>(initialPhotoUrl || "")
   const [preview, setPreview] = useState<string>(initialPhotoUrl || "")
@@ -58,7 +59,7 @@ export function IdPhotoUpload({ onSave, initialPhotoUrl }: IdPhotoUploadProps) {
 
   return (
     <div className="space-y-2">
-      <Label>ID Foto</Label>
+      <Label>{label}</Label>
       <div className="border rounded-md p-4 bg-white">
         {preview ? (
           <div className="relative">

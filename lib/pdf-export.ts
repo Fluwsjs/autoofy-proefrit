@@ -14,10 +14,13 @@ interface TestrideData {
   dealerPlate: {
     plate: string
   } | null
-  idPhotoUrl: string | null
+  idPhotoFrontUrl: string | null
+  idPhotoBackUrl: string | null
+  customerSignatureUrl: string | null
+  sellerSignatureUrl: string | null
+  eigenRisico: string | null
   startKm: number
   endKm: number | null
-  signatureUrl: string | null
   notes: string | null
   createdAt: string
 }
@@ -165,6 +168,20 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   }
   yPosition += 10
 
+  // Eigen risico
+  if (testride.eigenRisico) {
+    checkPageBreak(20)
+    doc.setFontSize(14)
+    doc.setFont("helvetica", "bold")
+    doc.text("Eigen risico", margin, yPosition)
+    yPosition += 10
+
+    doc.setFontSize(10)
+    doc.setFont("helvetica", "normal")
+    yPosition += addText(testride.eigenRisico, margin, yPosition, pageWidth - 2 * margin)
+    yPosition += 10
+  }
+
   // Notities
   if (testride.notes) {
     checkPageBreak(30)
@@ -179,80 +196,63 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     yPosition += 10
   }
 
-  // ID Foto
-  if (testride.idPhotoUrl) {
+  // Helper function to add image to PDF
+  const addImageToPDF = async (imageUrl: string, label: string, maxWidth: number = 80): Promise<number> => {
     checkPageBreak(60)
     doc.setFontSize(14)
     doc.setFont("helvetica", "bold")
-    doc.text("ID Foto", margin, yPosition)
+    doc.text(label, margin, yPosition)
     yPosition += 10
 
     try {
-      // Convert base64 to image
       const img = new Image()
       img.crossOrigin = "anonymous"
       
       await new Promise((resolve, reject) => {
         img.onload = () => {
           try {
-            const imgWidth = 80
+            const imgWidth = maxWidth
             const imgHeight = (img.height / img.width) * imgWidth
-            doc.addImage(testride.idPhotoUrl!, "PNG", margin, yPosition, imgWidth, imgHeight)
+            doc.addImage(imageUrl, "PNG", margin, yPosition, imgWidth, imgHeight)
             yPosition += imgHeight + 10
             resolve(null)
           } catch (error) {
-            console.error("Error adding ID photo to PDF:", error)
+            console.error(`Error adding ${label} to PDF:`, error)
             yPosition += 10
             resolve(null)
           }
         }
         img.onerror = reject
-        img.src = testride.idPhotoUrl!
+        img.src = imageUrl
       })
+      return yPosition
     } catch (error) {
-      console.error("Error loading ID photo:", error)
+      console.error(`Error loading ${label}:`, error)
       doc.setFontSize(10)
       doc.setFont("helvetica", "italic")
-      doc.text("ID foto kon niet worden geladen", margin, yPosition)
+      doc.text(`${label} kon niet worden geladen`, margin, yPosition)
       yPosition += 10
+      return yPosition
     }
   }
 
-  // Handtekening
-  if (testride.signatureUrl) {
-    checkPageBreak(50)
-    doc.setFontSize(14)
-    doc.setFont("helvetica", "bold")
-    doc.text("Handtekening", margin, yPosition)
-    yPosition += 10
+  // ID Foto's
+  if (testride.idPhotoFrontUrl || testride.idPhotoBackUrl) {
+    if (testride.idPhotoFrontUrl) {
+      await addImageToPDF(testride.idPhotoFrontUrl, "ID Foto voorkant", 80)
+    }
+    if (testride.idPhotoBackUrl) {
+      await addImageToPDF(testride.idPhotoBackUrl, "ID Foto achterkant", 80)
+    }
+  }
 
-    try {
-      const img = new Image()
-      img.crossOrigin = "anonymous"
-      
-      await new Promise((resolve, reject) => {
-        img.onload = () => {
-          try {
-            const imgWidth = 100
-            const imgHeight = (img.height / img.width) * imgWidth
-            doc.addImage(testride.signatureUrl!, "PNG", margin, yPosition, imgWidth, imgHeight)
-            yPosition += imgHeight + 10
-            resolve(null)
-          } catch (error) {
-            console.error("Error adding signature to PDF:", error)
-            yPosition += 10
-            resolve(null)
-          }
-        }
-        img.onerror = reject
-        img.src = testride.signatureUrl!
-      })
-    } catch (error) {
-      console.error("Error loading signature:", error)
-      doc.setFontSize(10)
-      doc.setFont("helvetica", "italic")
-      doc.text("Handtekening kon niet worden geladen", margin, yPosition)
-      yPosition += 10
+  // Handtekeningen
+  if (testride.customerSignatureUrl || testride.sellerSignatureUrl) {
+    if (testride.customerSignatureUrl) {
+      await addImageToPDF(testride.customerSignatureUrl, "Klant handtekening", 100)
+    }
+    if (testride.sellerSignatureUrl) {
+      await addImageToPDF(testride.sellerSignatureUrl, "Verkoper handtekening/stempel", 100)
     }
   }
 

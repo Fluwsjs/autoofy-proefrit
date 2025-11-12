@@ -26,10 +26,13 @@ interface Testride {
     id: string
     plate: string
   } | null
-  idPhotoUrl: string | null
+  idPhotoFrontUrl: string | null
+  idPhotoBackUrl: string | null
+  customerSignatureUrl: string | null
+  sellerSignatureUrl: string | null
+  eigenRisico: string | null
   startKm: number
   endKm: number | null
-  signatureUrl: string | null
   notes: string | null
   createdAt: string
 }
@@ -237,6 +240,13 @@ export default function TestrideDetailPage() {
             </div>
           </div>
 
+          {testride.eigenRisico && (
+            <div>
+              <h3 className="font-semibold mb-2">Eigen risico</h3>
+              <p className="text-sm">{testride.eigenRisico}</p>
+            </div>
+          )}
+
           {testride.notes && (
             <div>
               <h3 className="font-semibold mb-2">Notities</h3>
@@ -244,31 +254,72 @@ export default function TestrideDetailPage() {
             </div>
           )}
 
-          {testride.idPhotoUrl && (
+          {(testride.idPhotoFrontUrl || testride.idPhotoBackUrl) && (
             <div>
-              <h3 className="font-semibold mb-2">ID Foto</h3>
-              <div className="border rounded-md p-4 bg-white">
-                <Image
-                  src={testride.idPhotoUrl}
-                  alt="ID Foto"
-                  width={500}
-                  height={300}
-                  className="max-w-full h-auto object-contain rounded"
-                  unoptimized
-                />
+              <h3 className="font-semibold mb-2">ID Foto's</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {testride.idPhotoFrontUrl && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Voorkant</p>
+                    <div className="border rounded-md p-4 bg-white">
+                      <Image
+                        src={testride.idPhotoFrontUrl}
+                        alt="ID Foto voorkant"
+                        width={500}
+                        height={300}
+                        className="max-w-full h-auto object-contain rounded"
+                        unoptimized
+                      />
+                    </div>
+                  </div>
+                )}
+                {testride.idPhotoBackUrl && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Achterkant</p>
+                    <div className="border rounded-md p-4 bg-white">
+                      <Image
+                        src={testride.idPhotoBackUrl}
+                        alt="ID Foto achterkant"
+                        width={500}
+                        height={300}
+                        className="max-w-full h-auto object-contain rounded"
+                        unoptimized
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {testride.signatureUrl && (
+          {(testride.customerSignatureUrl || testride.sellerSignatureUrl) && (
             <div>
-              <h3 className="font-semibold mb-2">Handtekening</h3>
-              <div className="border rounded-md p-4 bg-white">
-                <img
-                  src={testride.signatureUrl}
-                  alt="Handtekening"
-                  className="max-w-full h-32 object-contain"
-                />
+              <h3 className="font-semibold mb-2">Handtekeningen</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {testride.customerSignatureUrl && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Klant handtekening</p>
+                    <div className="border rounded-md p-4 bg-white">
+                      <img
+                        src={testride.customerSignatureUrl}
+                        alt="Klant handtekening"
+                        className="max-w-full h-32 object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
+                {testride.sellerSignatureUrl && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Verkoper handtekening/stempel</p>
+                    <div className="border rounded-md p-4 bg-white">
+                      <img
+                        src={testride.sellerSignatureUrl}
+                        alt="Verkoper handtekening"
+                        className="max-w-full h-32 object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
