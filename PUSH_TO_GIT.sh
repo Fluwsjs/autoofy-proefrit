@@ -50,7 +50,7 @@ echo ""
 
 # Commit maken
 echo "💾 Commit maken..."
-git commit -m "Verbeter handtekening en time picker - iPhone-stijl time picker en auto-save handtekening"
+git commit -m "Fix time picker, terug knop en voeg handelaarskenteken modal toe"
 echo "✅ Commit gemaakt"
 echo ""
 

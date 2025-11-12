@@ -35,13 +35,13 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
     }
   }, [value])
 
-  // Update parent when hours/minutes change
+  // Update parent when hours/minutes change (but only if different from current value)
   useEffect(() => {
     const timeString = `${hours}:${minutes}`
-    if (timeString !== value) {
+    if (timeString !== value && timeString !== "") {
       onChange(timeString)
     }
-  }, [hours, minutes, onChange])
+  }, [hours, minutes])
 
   // Close on outside click
   useEffect(() => {
@@ -81,6 +81,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
   }
 
   const handleScroll = (container: HTMLDivElement, type: "hours" | "minutes") => {
+    // Debounce scroll events to prevent too many updates
     const containerHeight = container.clientHeight
     const scrollTop = container.scrollTop
     const itemHeight = 40 // Approximate height of each item
@@ -131,7 +132,14 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                 style={{
                   scrollSnapType: "y mandatory",
                 }}
-                onScroll={(e) => handleScroll(e.currentTarget, "hours")}
+                onScroll={(e) => {
+                  // Throttle scroll events
+                  const target = e.currentTarget
+                  clearTimeout((target as any).scrollTimeout)
+                  ;(target as any).scrollTimeout = setTimeout(() => {
+                    handleScroll(target, "hours")
+                  }, 50)
+                }}
               >
                 {/* Spacer for centering */}
                 <div className="h-[80px]"></div>
@@ -147,6 +155,9 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                     onClick={() => {
                       setHours(hour)
                       scrollToSelected(hoursRef.current, hour)
+                      // Update immediately on click
+                      const timeString = `${hour}:${minutes}`
+                      onChange(timeString)
                     }}
                   >
                     {hour}
@@ -165,7 +176,14 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                 style={{
                   scrollSnapType: "y mandatory",
                 }}
-                onScroll={(e) => handleScroll(e.currentTarget, "minutes")}
+                onScroll={(e) => {
+                  // Throttle scroll events
+                  const target = e.currentTarget
+                  clearTimeout((target as any).scrollTimeout)
+                  ;(target as any).scrollTimeout = setTimeout(() => {
+                    handleScroll(target, "minutes")
+                  }, 50)
+                }}
               >
                 {/* Spacer for centering */}
                 <div className="h-[80px]"></div>
@@ -181,6 +199,9 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                     onClick={() => {
                       setMinutes(minute)
                       scrollToSelected(minutesRef.current, minute)
+                      // Update immediately on click
+                      const timeString = `${hours}:${minute}`
+                      onChange(timeString)
                     }}
                   >
                     {minute}
@@ -193,7 +214,12 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
             <div className="p-2 border-t bg-muted/30">
               <button
                 type="button"
-                onClick={() => setIsOpen(false)}
+                onClick={() => {
+                  // Ensure final value is saved when closing
+                  const timeString = `${hours}:${minutes}`
+                  onChange(timeString)
+                  setIsOpen(false)
+                }}
                 className="w-full px-4 py-2 text-sm font-medium bg-autoofy-dark text-white rounded-md hover:bg-autoofy-dark/90"
               >
                 Klaar
