@@ -21,6 +21,7 @@ interface Testride {
   endTime: string
   startKm: number
   endKm: number | null
+  status: string
 }
 
 function DashboardContent() {
