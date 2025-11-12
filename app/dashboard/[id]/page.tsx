@@ -154,7 +154,7 @@ export default function TestrideDetailPage() {
                 </p>
                 {testride.licensePlate && (
                   <p>
-                    <span className="text-muted-foreground">Kenteken:</span>{" "}
+                    <span className="text-muted-foreground">Kenteken voertuig, meldcode of chassisnummer:</span>{" "}
                     {testride.licensePlate}
                   </p>
                 )}

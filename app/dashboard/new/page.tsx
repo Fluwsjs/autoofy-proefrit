@@ -196,11 +196,12 @@ export default function NewTestridePage() {
                 required
               />
               <FormInput
-                label="Kenteken"
+                label="Kenteken voertuig, meldcode of chassisnummer"
                 value={formData.licensePlate}
                 onChange={(e) =>
                   setFormData({ ...formData, licensePlate: e.target.value })
                 }
+                placeholder="Bijv. AB-123-CD of meldcode/chassisnummer"
               />
               <FormInput
                 label="Rijbewijs nummer"

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { Label } from "@/components/ui/label"
 import { Clock } from "lucide-react"
 
@@ -12,85 +12,44 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ label, value, onChange, required }: TimePickerProps) {
-  const [hours, setHours] = useState("09")
-  const [minutes, setMinutes] = useState("00")
+  const [internalHours, setInternalHours] = useState("09")
+  const [internalMinutes, setInternalMinutes] = useState("00")
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const hoursRef = useRef<HTMLDivElement>(null)
   const minutesRef = useRef<HTMLDivElement>(null)
-  const isInitialMount = useRef(true)
-  const lastValueRef = useRef<string>("")
+  const isUserInteracting = useRef(false)
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Parse initial value - only update if value prop actually changed from parent
+  // Parse value prop and sync to internal state (only when value prop changes from parent)
   useEffect(() => {
     if (value && value.includes(":")) {
       const [h, m] = value.split(":")
       if (h && m) {
         const normalizedH = h.padStart(2, "0")
         const normalizedM = m.padStart(2, "0")
-        // Only update if the value from parent is different
-        if (normalizedH !== hours || normalizedM !== minutes) {
-          setHours(normalizedH)
-          setMinutes(normalizedM)
-          lastValueRef.current = value
+        // Only update if different and not during user interaction
+        if (!isUserInteracting.current && (normalizedH !== internalHours || normalizedM !== internalMinutes)) {
+          setInternalHours(normalizedH)
+          setInternalMinutes(normalizedM)
         }
       }
-    } else if (!value && isInitialMount.current) {
-      // Only set default on initial mount if no value provided
+    } else if (!value) {
+      // Set default time only if no value provided
       const now = new Date()
       const currentHours = now.getHours().toString().padStart(2, "0")
       const currentMinutes = now.getMinutes().toString().padStart(2, "0")
-      setHours(currentHours)
-      setMinutes(currentMinutes)
-    }
-  }, [value])
-
-  // Update parent when hours/minutes change (but only if different from current value)
-  // Only update on user interaction, not on initial mount or value prop changes
-  useEffect(() => {
-    if (isInitialMount.current) {
-      isInitialMount.current = false
-      return
-    }
-    
-    const timeString = `${hours}:${minutes}`
-    // Only update if:
-    // 1. The time string is different from the current value
-    // 2. The time string is different from the last value we sent
-    // 3. We have a valid time string
-    if (timeString !== value && timeString !== lastValueRef.current && timeString !== "") {
-      lastValueRef.current = timeString
-      onChange(timeString)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hours, minutes])
-
-  // Close on outside click
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false)
+      if (!isUserInteracting.current) {
+        setInternalHours(currentHours)
+        setInternalMinutes(currentMinutes)
       }
     }
-
-    if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      // Scroll to selected values when opening
-      setTimeout(() => {
-        scrollToSelected(hoursRef.current, hours)
-        scrollToSelected(minutesRef.current, minutes)
-      }, 50)
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [isOpen, hours, minutes])
+  }, [value])
 
   const hoursList = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"))
   const minutesList = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"))
 
-  const scrollToSelected = (container: HTMLDivElement | null, selectedValue: string) => {
+  const scrollToSelected = useCallback((container: HTMLDivElement | null, selectedValue: string) => {
     if (!container) return
     const element = container.querySelector(`[data-value="${selectedValue}"]`) as HTMLElement
     if (element) {
@@ -100,30 +59,93 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
       const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2)
       container.scrollTo({ top: scrollPosition, behavior: "smooth" })
     }
-  }
+  }, [])
 
-  const handleScroll = (container: HTMLDivElement, type: "hours" | "minutes") => {
-    // Only update visual state, don't trigger onChange during scroll
-    const containerHeight = container.clientHeight
-    const scrollTop = container.scrollTop
-    const itemHeight = 40 // Approximate height of each item
-    const centerPosition = scrollTop + containerHeight / 2
-    const selectedIndex = Math.round(centerPosition / itemHeight)
-    
-    if (type === "hours") {
-      const selectedHour = hoursList[Math.max(0, Math.min(selectedIndex, 23))]
-      if (selectedHour && selectedHour !== hours) {
-        setHours(selectedHour)
-        // Don't call onChange here - only update on click or close
+  // Handle scroll - only update visual state, don't trigger onChange
+  const handleScroll = useCallback((container: HTMLDivElement, type: "hours" | "minutes") => {
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current)
+    }
+
+    scrollTimeoutRef.current = setTimeout(() => {
+      const containerHeight = container.clientHeight
+      const scrollTop = container.scrollTop
+      const itemHeight = 40
+      const centerPosition = scrollTop + containerHeight / 2
+      const selectedIndex = Math.round(centerPosition / itemHeight)
+      
+      if (type === "hours") {
+        const selectedHour = hoursList[Math.max(0, Math.min(selectedIndex, 23))]
+        if (selectedHour && selectedHour !== internalHours) {
+          setInternalHours(selectedHour)
+        }
+      } else {
+        const selectedMinute = minutesList[Math.max(0, Math.min(selectedIndex, 59))]
+        if (selectedMinute && selectedMinute !== internalMinutes) {
+          setInternalMinutes(selectedMinute)
+        }
       }
-    } else {
-      const selectedMinute = minutesList[Math.max(0, Math.min(selectedIndex, 59))]
-      if (selectedMinute && selectedMinute !== minutes) {
-        setMinutes(selectedMinute)
-        // Don't call onChange here - only update on click or close
+    }, 100)
+  }, [internalHours, internalMinutes, hoursList, minutesList])
+
+  // Update parent only when user explicitly selects a value
+  const updateParent = useCallback((h: string, m: string) => {
+    const timeString = `${h}:${m}`
+    if (timeString !== value) {
+      isUserInteracting.current = true
+      onChange(timeString)
+      // Reset flag after a short delay
+      setTimeout(() => {
+        isUserInteracting.current = false
+      }, 100)
+    }
+  }, [value, onChange])
+
+  // Close on outside click
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        // Save current value when closing
+        updateParent(internalHours, internalMinutes)
+        setIsOpen(false)
       }
     }
-  }
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside)
+      // Scroll to selected values when opening
+      setTimeout(() => {
+        scrollToSelected(hoursRef.current, internalHours)
+        scrollToSelected(minutesRef.current, internalMinutes)
+      }, 100)
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current)
+      }
+    }
+  }, [isOpen, internalHours, internalMinutes, scrollToSelected, updateParent])
+
+  const handleHourClick = useCallback((hour: string) => {
+    setInternalHours(hour)
+    scrollToSelected(hoursRef.current, hour)
+    updateParent(hour, internalMinutes)
+  }, [internalMinutes, scrollToSelected, updateParent])
+
+  const handleMinuteClick = useCallback((minute: string) => {
+    setInternalMinutes(minute)
+    scrollToSelected(minutesRef.current, minute)
+    updateParent(internalHours, minute)
+  }, [internalHours, scrollToSelected, updateParent])
+
+  const handleClose = useCallback(() => {
+    updateParent(internalHours, internalMinutes)
+    setIsOpen(false)
+  }, [internalHours, internalMinutes, updateParent])
+
+  const displayValue = value || `${internalHours}:${internalMinutes}`
 
   return (
     <div className="space-y-2" ref={containerRef}>
@@ -142,7 +164,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
           className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span className={value ? "text-foreground font-medium" : "text-muted-foreground"}>
-            {value || `${hours}:${minutes}`}
+            {displayValue}
           </span>
           <Clock className="h-4 w-4 text-muted-foreground" />
         </button>
@@ -165,12 +187,9 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                   scrollSnapType: "y mandatory",
                 }}
                 onScroll={(e) => {
-                  // Throttle scroll events
-                  const target = e.currentTarget
-                  clearTimeout((target as any).scrollTimeout)
-                  ;(target as any).scrollTimeout = setTimeout(() => {
-                    handleScroll(target, "hours")
-                  }, 50)
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleScroll(e.currentTarget, "hours")
                 }}
               >
                 {/* Spacer for centering */}
@@ -179,17 +198,15 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                   <div
                     key={hour}
                     data-value={hour}
-                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors ${
-                      hours === hour 
+                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
+                      internalHours === hour 
                         ? "bg-autoofy-dark text-white font-bold text-lg" 
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
-                    onClick={() => {
-                      setHours(hour)
-                      scrollToSelected(hoursRef.current, hour)
-                      // Update immediately on click
-                      const timeString = `${hour}:${minutes}`
-                      onChange(timeString)
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleHourClick(hour)
                     }}
                   >
                     {hour}
@@ -209,12 +226,9 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                   scrollSnapType: "y mandatory",
                 }}
                 onScroll={(e) => {
-                  // Throttle scroll events
-                  const target = e.currentTarget
-                  clearTimeout((target as any).scrollTimeout)
-                  ;(target as any).scrollTimeout = setTimeout(() => {
-                    handleScroll(target, "minutes")
-                  }, 50)
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleScroll(e.currentTarget, "minutes")
                 }}
               >
                 {/* Spacer for centering */}
@@ -223,17 +237,15 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                   <div
                     key={minute}
                     data-value={minute}
-                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors ${
-                      minutes === minute 
+                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
+                      internalMinutes === minute 
                         ? "bg-autoofy-dark text-white font-bold text-lg" 
-                        : "text-muted-foreground hover:text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
-                    onClick={() => {
-                      setMinutes(minute)
-                      scrollToSelected(minutesRef.current, minute)
-                      // Update immediately on click
-                      const timeString = `${hours}:${minute}`
-                      onChange(timeString)
+                    onClick={(e) => {
+                      e.preventDefault()
+                      e.stopPropagation()
+                      handleMinuteClick(minute)
                     }}
                   >
                     {minute}
@@ -246,11 +258,10 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
             <div className="p-2 border-t bg-muted/30">
               <button
                 type="button"
-                onClick={() => {
-                  // Ensure final value is saved when closing
-                  const timeString = `${hours}:${minutes}`
-                  onChange(timeString)
-                  setIsOpen(false)
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleClose()
                 }}
                 className="w-full px-4 py-2 text-sm font-medium bg-autoofy-dark text-white rounded-md hover:bg-autoofy-dark/90"
               >
@@ -263,4 +274,3 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
     </div>
   )
 }
-
