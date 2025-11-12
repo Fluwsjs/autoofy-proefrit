@@ -18,29 +18,51 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
   const containerRef = useRef<HTMLDivElement>(null)
   const hoursRef = useRef<HTMLDivElement>(null)
   const minutesRef = useRef<HTMLDivElement>(null)
+  const isInitialMount = useRef(true)
+  const lastValueRef = useRef<string>("")
 
-  // Parse initial value
+  // Parse initial value - only update if value prop actually changed from parent
   useEffect(() => {
-    if (value) {
+    if (value && value.includes(":")) {
       const [h, m] = value.split(":")
       if (h && m) {
-        setHours(h.padStart(2, "0"))
-        setMinutes(m.padStart(2, "0"))
+        const normalizedH = h.padStart(2, "0")
+        const normalizedM = m.padStart(2, "0")
+        // Only update if the value from parent is different
+        if (normalizedH !== hours || normalizedM !== minutes) {
+          setHours(normalizedH)
+          setMinutes(normalizedM)
+          lastValueRef.current = value
+        }
       }
-    } else {
-      // Default to current time if no value
+    } else if (!value && isInitialMount.current) {
+      // Only set default on initial mount if no value provided
       const now = new Date()
-      setHours(now.getHours().toString().padStart(2, "0"))
-      setMinutes(now.getMinutes().toString().padStart(2, "0"))
+      const currentHours = now.getHours().toString().padStart(2, "0")
+      const currentMinutes = now.getMinutes().toString().padStart(2, "0")
+      setHours(currentHours)
+      setMinutes(currentMinutes)
     }
   }, [value])
 
   // Update parent when hours/minutes change (but only if different from current value)
+  // Only update on user interaction, not on initial mount or value prop changes
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false
+      return
+    }
+    
     const timeString = `${hours}:${minutes}`
-    if (timeString !== value && timeString !== "") {
+    // Only update if:
+    // 1. The time string is different from the current value
+    // 2. The time string is different from the last value we sent
+    // 3. We have a valid time string
+    if (timeString !== value && timeString !== lastValueRef.current && timeString !== "") {
+      lastValueRef.current = timeString
       onChange(timeString)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hours, minutes])
 
   // Close on outside click
@@ -81,7 +103,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
   }
 
   const handleScroll = (container: HTMLDivElement, type: "hours" | "minutes") => {
-    // Debounce scroll events to prevent too many updates
+    // Only update visual state, don't trigger onChange during scroll
     const containerHeight = container.clientHeight
     const scrollTop = container.scrollTop
     const itemHeight = 40 // Approximate height of each item
@@ -92,11 +114,13 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
       const selectedHour = hoursList[Math.max(0, Math.min(selectedIndex, 23))]
       if (selectedHour && selectedHour !== hours) {
         setHours(selectedHour)
+        // Don't call onChange here - only update on click or close
       }
     } else {
       const selectedMinute = minutesList[Math.max(0, Math.min(selectedIndex, 59))]
       if (selectedMinute && selectedMinute !== minutes) {
         setMinutes(selectedMinute)
+        // Don't call onChange here - only update on click or close
       }
     }
   }

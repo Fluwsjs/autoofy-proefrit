@@ -177,12 +177,14 @@ export default function NewTestridePage() {
         return (
           <div className="max-w-4xl mx-auto space-y-6">
             {ToastComponent}
-            <Link href="/dashboard">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Terug naar dashboard
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => router.push("/dashboard")}
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Terug naar dashboard
+            </Button>
 
       <Card>
         <CardHeader>
