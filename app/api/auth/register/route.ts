@@ -73,6 +73,19 @@ export async function POST(request: NextRequest) {
     }
 
     console.error("Registration error:", error)
+    
+    // Check if it's a database connection error
+    if (error instanceof Error) {
+      if (error.message.includes("Can't reach database server") || 
+          error.message.includes("P1001") ||
+          error.message.includes("connection")) {
+        return NextResponse.json(
+          { error: "Database connectie fout. Check DATABASE_URL in Netlify." },
+          { status: 500 }
+        )
+      }
+    }
+
     return NextResponse.json(
       { error: "Er is een fout opgetreden bij het aanmaken van het account" },
       { status: 500 }
