@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatDate, formatDateTime } from "@/lib/utils"
-import { ArrowLeft, Trash2, Download } from "lucide-react"
+import { ArrowLeft, Trash2, Download, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { exportTestrideToPDF } from "@/lib/pdf-export"
@@ -30,7 +30,10 @@ interface Testride {
   idPhotoBackUrl: string | null
   customerSignatureUrl: string | null
   sellerSignatureUrl: string | null
+  completionSignatureUrl: string | null
   eigenRisico: string | null
+  status: string
+  completedAt: string | null
   startKm: number
   endKm: number | null
   notes: string | null
@@ -124,6 +127,18 @@ export default function TestrideDetailPage() {
           <div className="flex items-center justify-between">
             <CardTitle>Proefrit Details</CardTitle>
             <div className="flex gap-2">
+              {testride.status !== "COMPLETED" && (
+                <Link href={`/dashboard/${testride.id}/complete`}>
+                  <Button
+                    variant="default"
+                    size="sm"
+                    className="bg-green-600 text-white hover:bg-green-700"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Afronden
+                  </Button>
+                </Link>
+              )}
               <Button
                 variant="outline"
                 size="sm"
@@ -190,12 +205,12 @@ export default function TestrideDetailPage() {
                     {testride.dealerPlate.plate}
                   </p>
                 )}
-                {testride.driverLicenseNumber && (
-                  <p>
-                    <span className="text-muted-foreground">Rijbewijs nummer:</span>{" "}
-                    {testride.driverLicenseNumber}
-                  </p>
-                )}
+                       {testride.driverLicenseNumber && (
+                         <p>
+                           <span className="text-muted-foreground">Rijbewijs of BSN nummer:</span>{" "}
+                           {testride.driverLicenseNumber}
+                         </p>
+                       )}
               </div>
             </div>
 
@@ -256,7 +271,7 @@ export default function TestrideDetailPage() {
 
           {(testride.idPhotoFrontUrl || testride.idPhotoBackUrl) && (
             <div>
-              <h3 className="font-semibold mb-2">ID Foto's</h3>
+              <h3 className="font-semibold mb-2">Rijbewijs of ID foto's</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {testride.idPhotoFrontUrl && (
                   <div>
@@ -264,7 +279,7 @@ export default function TestrideDetailPage() {
                     <div className="border rounded-md p-4 bg-white">
                       <Image
                         src={testride.idPhotoFrontUrl}
-                        alt="ID Foto voorkant"
+                        alt="Rijbewijs of ID foto voorkant"
                         width={500}
                         height={300}
                         className="max-w-full h-auto object-contain rounded"
@@ -279,7 +294,7 @@ export default function TestrideDetailPage() {
                     <div className="border rounded-md p-4 bg-white">
                       <Image
                         src={testride.idPhotoBackUrl}
-                        alt="ID Foto achterkant"
+                        alt="Rijbewijs of ID foto achterkant"
                         width={500}
                         height={300}
                         className="max-w-full h-auto object-contain rounded"
@@ -292,7 +307,7 @@ export default function TestrideDetailPage() {
             </div>
           )}
 
-          {(testride.customerSignatureUrl || testride.sellerSignatureUrl) && (
+          {(testride.customerSignatureUrl || testride.sellerSignatureUrl || testride.completionSignatureUrl) && (
             <div>
               <h3 className="font-semibold mb-2">Handtekeningen</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -320,9 +335,46 @@ export default function TestrideDetailPage() {
                     </div>
                   </div>
                 )}
+                {testride.completionSignatureUrl && (
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-2">Handtekening bij afronding</p>
+                    <div className="border rounded-md p-4 bg-white border-green-500">
+                      <img
+                        src={testride.completionSignatureUrl}
+                        alt="Handtekening bij afronding"
+                        className="max-w-full h-32 object-contain"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           )}
+
+          <div className="pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="font-semibold mb-2">Status</h3>
+                <div className="flex items-center gap-2">
+                  {testride.status === "COMPLETED" ? (
+                    <>
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <span className="text-green-600 font-medium">Afgerond</span>
+                      {testride.completedAt && (
+                        <span className="text-sm text-muted-foreground ml-2">
+                          op {formatDateTime(testride.completedAt)}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-yellow-600 font-medium">In behandeling</span>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
 
           <div className="pt-4 border-t text-xs text-muted-foreground">
             Aangemaakt op: {formatDateTime(testride.createdAt)}

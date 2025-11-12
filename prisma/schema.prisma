@@ -61,7 +61,10 @@ model Testride {
   idPhotoBackUrl      String?  // ID foto achterkant
   customerSignatureUrl String? // Klant handtekening (per proefrit)
   sellerSignatureUrl   String?  // Verkoper handtekening/stempel (optioneel, kan van User komen)
+  completionSignatureUrl String? // Verkoper handtekening bij afronding
   eigenRisico         String?  // Eigen risico bedrag
+  status              TestrideStatus @default(PENDING) // Status van de proefrit
+  completedAt         DateTime? // Datum/tijd van afronding
   startKm             Int
   endKm               Int?
   notes               String?
@@ -71,6 +74,11 @@ model Testride {
 enum Role {
   ADMIN
   STAFF
+}
+
+enum TestrideStatus {
+  PENDING
+  COMPLETED
 }
 
 model SuperAdmin {

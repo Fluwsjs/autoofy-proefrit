@@ -12,7 +12,7 @@ interface IdPhotoUploadProps {
   label?: string
 }
 
-export function IdPhotoUpload({ onSave, initialPhotoUrl, label = "ID Foto" }: IdPhotoUploadProps) {
+export function IdPhotoUpload({ onSave, initialPhotoUrl, label = "Rijbewijs of ID foto" }: IdPhotoUploadProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [photoUrl, setPhotoUrl] = useState<string>(initialPhotoUrl || "")
   const [preview, setPreview] = useState<string>(initialPhotoUrl || "")
@@ -66,7 +66,7 @@ export function IdPhotoUpload({ onSave, initialPhotoUrl, label = "ID Foto" }: Id
             <div className="relative w-full h-48 border rounded overflow-hidden bg-muted">
               <Image
                 src={preview}
-                alt="ID Foto preview"
+                alt="Rijbewijs of ID foto preview"
                 fill
                 className="object-contain"
                 unoptimized
@@ -87,7 +87,7 @@ export function IdPhotoUpload({ onSave, initialPhotoUrl, label = "ID Foto" }: Id
           <div className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg bg-muted/50 hover:bg-muted transition-colors">
             <ImageIcon className="h-12 w-12 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground mb-2">
-              Klik om ID foto te uploaden
+              Klik om rijbewijs of ID foto te uploaden
             </p>
             <p className="text-xs text-muted-foreground">
               Maximaal 5MB, JPG, PNG of GIF

@@ -4,7 +4,7 @@ import { formatDate, formatTime } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Trash2, Eye } from "lucide-react"
+import { Trash2, Eye, CheckCircle } from "lucide-react"
 
 interface Testride {
   id: string
@@ -16,6 +16,7 @@ interface Testride {
   endTime: string
   startKm: number
   endKm: number | null
+  status: string
 }
 
 interface DataTableProps {
@@ -53,6 +54,7 @@ export function DataTable({ testrides, onDelete }: DataTableProps) {
                 <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Datum</th>
                 <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Tijd</th>
                 <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Kilometers</th>
+                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Status</th>
                 <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Acties</th>
               </tr>
             </thead>
@@ -84,6 +86,18 @@ export function DataTable({ testrides, onDelete }: DataTableProps) {
                     <span className="font-medium">{testride.startKm}</span>
                     {testride.endKm !== null && (
                       <span className="text-muted-foreground"> → {testride.endKm}</span>
+                    )}
+                  </td>
+                  <td className="p-4">
+                    {testride.status === "COMPLETED" ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-300">
+                        <CheckCircle className="h-3 w-3" />
+                        Afgerond
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-300">
+                        In behandeling
+                      </span>
                     )}
                   </td>
                   <td className="p-4">

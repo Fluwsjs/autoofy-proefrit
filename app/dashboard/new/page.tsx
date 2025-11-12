@@ -211,7 +211,7 @@ export default function NewTestridePage() {
                 placeholder="Bijv. AB-123-CD of meldcode/chassisnummer"
               />
               <FormInput
-                label="Rijbewijs nummer"
+                label="Rijbewijs of BSN nummer"
                 value={formData.driverLicenseNumber}
                 onChange={(e) =>
                   setFormData({ ...formData, driverLicenseNumber: e.target.value })
@@ -315,17 +315,24 @@ export default function NewTestridePage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <IdPhotoUpload 
                 onSave={setIdPhotoFrontUrl} 
-                label="ID Foto voorkant"
+                label="Rijbewijs of ID foto voorkant"
               />
               <IdPhotoUpload 
                 onSave={setIdPhotoBackUrl} 
-                label="ID Foto achterkant"
+                label="Rijbewijs of ID foto achterkant"
               />
             </div>
 
             <SellerSignature onUse={setSellerSignature} />
 
-            <CustomerSignature onSave={setCustomerSignature} />
+            <div className="space-y-2">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">
+                <p className="text-sm font-medium text-yellow-800">
+                  ⚠️ Klant is aansprakelijk voor bekeuringen en schades
+                </p>
+              </div>
+              <CustomerSignature onSave={setCustomerSignature} />
+            </div>
 
             {error && (
               <p className="text-sm text-destructive">{error}</p>

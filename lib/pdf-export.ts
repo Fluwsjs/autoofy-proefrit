@@ -18,7 +18,10 @@ interface TestrideData {
   idPhotoBackUrl: string | null
   customerSignatureUrl: string | null
   sellerSignatureUrl: string | null
+  completionSignatureUrl: string | null
   eigenRisico: string | null
+  status: string
+  completedAt: string | null
   startKm: number
   endKm: number | null
   notes: string | null
@@ -107,10 +110,10 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     yPosition += addText(`Handelaarskenteken: ${testride.dealerPlate.plate}`, margin, yPosition, pageWidth - 2 * margin)
     yPosition += 5
   }
-  if (testride.driverLicenseNumber) {
-    yPosition += addText(`Rijbewijs nummer: ${testride.driverLicenseNumber}`, margin, yPosition, pageWidth - 2 * margin)
-    yPosition += 5
-  }
+    if (testride.driverLicenseNumber) {
+      yPosition += addText(`Rijbewijs of BSN nummer: ${testride.driverLicenseNumber}`, margin, yPosition, pageWidth - 2 * margin)
+      yPosition += 5
+    }
   yPosition += 10
 
   checkPageBreak(30)
@@ -236,24 +239,41 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     }
   }
 
-  // ID Foto's
+  // Rijbewijs of ID Foto's
   if (testride.idPhotoFrontUrl || testride.idPhotoBackUrl) {
     if (testride.idPhotoFrontUrl) {
-      await addImageToPDF(testride.idPhotoFrontUrl, "ID Foto voorkant", 80)
+      await addImageToPDF(testride.idPhotoFrontUrl, "Rijbewijs of ID foto voorkant", 80)
     }
     if (testride.idPhotoBackUrl) {
-      await addImageToPDF(testride.idPhotoBackUrl, "ID Foto achterkant", 80)
+      await addImageToPDF(testride.idPhotoBackUrl, "Rijbewijs of ID foto achterkant", 80)
     }
   }
 
   // Handtekeningen
-  if (testride.customerSignatureUrl || testride.sellerSignatureUrl) {
+  if (testride.customerSignatureUrl || testride.sellerSignatureUrl || testride.completionSignatureUrl) {
     if (testride.customerSignatureUrl) {
       await addImageToPDF(testride.customerSignatureUrl, "Klant handtekening", 100)
     }
     if (testride.sellerSignatureUrl) {
       await addImageToPDF(testride.sellerSignatureUrl, "Verkoper handtekening/stempel", 100)
     }
+    if (testride.completionSignatureUrl) {
+      await addImageToPDF(testride.completionSignatureUrl, "Handtekening bij afronding", 100)
+    }
+  }
+
+  // Status
+  if (testride.status === "COMPLETED" && testride.completedAt) {
+    checkPageBreak(20)
+    doc.setFontSize(14)
+    doc.setFont("helvetica", "bold")
+    doc.text("Status", margin, yPosition)
+    yPosition += 10
+
+    doc.setFontSize(10)
+    doc.setFont("helvetica", "normal")
+    yPosition += addText(`Afgerond op: ${formatDate(testride.completedAt)} ${formatTime(testride.completedAt)}`, margin, yPosition, pageWidth - 2 * margin)
+    yPosition += 10
   }
 
   // Footer
