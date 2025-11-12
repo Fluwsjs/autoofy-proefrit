@@ -50,7 +50,7 @@ echo ""
 
 # Commit maken
 echo "💾 Commit maken..."
-git commit -m "Fix time picker: preview/committed state systeem"
+git commit -m "Add PDF export functionality for testrides"
 echo "✅ Commit gemaakt"
 echo ""
 

@@ -5,9 +5,10 @@ import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatDate, formatDateTime } from "@/lib/utils"
-import { ArrowLeft, Trash2 } from "lucide-react"
+import { ArrowLeft, Trash2, Download } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
+import { exportTestrideToPDF } from "@/lib/pdf-export"
 
 interface Testride {
   id: string
@@ -83,6 +84,17 @@ export default function TestrideDetailPage() {
     }
   }
 
+  const handleExportPDF = async () => {
+    if (!testride) return
+    
+    try {
+      await exportTestrideToPDF(testride)
+    } catch (error) {
+      console.error("Error exporting PDF:", error)
+      alert("Fout bij exporteren naar PDF")
+    }
+  }
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -108,15 +120,26 @@ export default function TestrideDetailPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle>Proefrit Details</CardTitle>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleDelete}
-              className="bg-red-600 hover:bg-red-700"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Verwijderen
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Export naar PDF
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Verwijderen
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
