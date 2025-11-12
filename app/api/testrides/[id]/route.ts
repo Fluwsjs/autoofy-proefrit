@@ -5,9 +5,10 @@ import { prisma } from "@/lib/prisma"
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.tenantId) {
@@ -19,7 +20,7 @@ export async function GET(
 
     const testride = await prisma.testride.findFirst({
       where: {
-        id: params.id,
+        id: id,
         tenantId: session.user.tenantId,
       },
     })
@@ -43,9 +44,10 @@ export async function GET(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const session = await getServerSession(authOptions)
 
     if (!session?.user?.tenantId) {
@@ -58,7 +60,7 @@ export async function DELETE(
     // Check if testride exists and belongs to tenant
     const testride = await prisma.testride.findFirst({
       where: {
-        id: params.id,
+        id: id,
         tenantId: session.user.tenantId,
       },
     })
@@ -72,7 +74,7 @@ export async function DELETE(
 
     await prisma.testride.delete({
       where: {
-        id: params.id,
+        id: id,
       },
     })
 
