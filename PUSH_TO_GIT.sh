@@ -50,7 +50,7 @@ echo ""
 
 # Commit maken
 echo "💾 Commit maken..."
-git commit -m "Fix time picker state management en update kenteken veld label"
+git commit -m "Fix time picker: preview/committed state systeem"
 echo "✅ Commit gemaakt"
 echo ""
 

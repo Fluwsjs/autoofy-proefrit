@@ -12,39 +12,47 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ label, value, onChange, required }: TimePickerProps) {
-  const [internalHours, setInternalHours] = useState("09")
-  const [internalMinutes, setInternalMinutes] = useState("00")
+  // Committed values (what's actually saved)
+  const [committedHours, setCommittedHours] = useState("09")
+  const [committedMinutes, setCommittedMinutes] = useState("00")
+  
+  // Preview values (what's shown while scrolling, not saved yet)
+  const [previewHours, setPreviewHours] = useState("09")
+  const [previewMinutes, setPreviewMinutes] = useState("00")
+  
   const [isOpen, setIsOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
   const hoursRef = useRef<HTMLDivElement>(null)
   const minutesRef = useRef<HTMLDivElement>(null)
-  const isUserInteracting = useRef(false)
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const hasUserInteracted = useRef(false)
 
-  // Parse value prop and sync to internal state (only when value prop changes from parent)
+  // Parse value prop and sync to committed state (only when value prop changes from parent)
   useEffect(() => {
     if (value && value.includes(":")) {
       const [h, m] = value.split(":")
       if (h && m) {
         const normalizedH = h.padStart(2, "0")
         const normalizedM = m.padStart(2, "0")
-        // Only update if different and not during user interaction
-        if (!isUserInteracting.current && (normalizedH !== internalHours || normalizedM !== internalMinutes)) {
-          setInternalHours(normalizedH)
-          setInternalMinutes(normalizedM)
+        // Only update if different and user hasn't interacted
+        if (!hasUserInteracted.current && (normalizedH !== committedHours || normalizedM !== committedMinutes)) {
+          setCommittedHours(normalizedH)
+          setCommittedMinutes(normalizedM)
+          setPreviewHours(normalizedH)
+          setPreviewMinutes(normalizedM)
         }
       }
-    } else if (!value) {
-      // Set default time only if no value provided
+    } else if (!value && !hasUserInteracted.current) {
+      // Set default time only if no value provided and no user interaction
       const now = new Date()
       const currentHours = now.getHours().toString().padStart(2, "0")
       const currentMinutes = now.getMinutes().toString().padStart(2, "0")
-      if (!isUserInteracting.current) {
-        setInternalHours(currentHours)
-        setInternalMinutes(currentMinutes)
-      }
+      setCommittedHours(currentHours)
+      setCommittedMinutes(currentMinutes)
+      setPreviewHours(currentHours)
+      setPreviewMinutes(currentMinutes)
     }
-  }, [value])
+  }, [value, committedHours, committedMinutes])
 
   const hoursList = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"))
   const minutesList = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"))
@@ -61,7 +69,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
     }
   }, [])
 
-  // Handle scroll - only update visual state, don't trigger onChange
+  // Handle scroll - only update PREVIEW state, never commit
   const handleScroll = useCallback((container: HTMLDivElement, type: "hours" | "minutes") => {
     if (scrollTimeoutRef.current) {
       clearTimeout(scrollTimeoutRef.current)
@@ -76,47 +84,53 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
       
       if (type === "hours") {
         const selectedHour = hoursList[Math.max(0, Math.min(selectedIndex, 23))]
-        if (selectedHour && selectedHour !== internalHours) {
-          setInternalHours(selectedHour)
+        if (selectedHour && selectedHour !== previewHours) {
+          setPreviewHours(selectedHour) // Only update preview, not committed
         }
       } else {
         const selectedMinute = minutesList[Math.max(0, Math.min(selectedIndex, 59))]
-        if (selectedMinute && selectedMinute !== internalMinutes) {
-          setInternalMinutes(selectedMinute)
+        if (selectedMinute && selectedMinute !== previewMinutes) {
+          setPreviewMinutes(selectedMinute) // Only update preview, not committed
         }
       }
     }, 100)
-  }, [internalHours, internalMinutes, hoursList, minutesList])
+  }, [previewHours, previewMinutes, hoursList, minutesList])
 
-  // Update parent only when user explicitly selects a value
-  const updateParent = useCallback((h: string, m: string) => {
+  // Commit the preview values to parent
+  const commitValue = useCallback((h: string, m: string) => {
     const timeString = `${h}:${m}`
     if (timeString !== value) {
-      isUserInteracting.current = true
+      hasUserInteracted.current = true
+      setCommittedHours(h)
+      setCommittedMinutes(m)
       onChange(timeString)
-      // Reset flag after a short delay
+      // Reset flag after delay
       setTimeout(() => {
-        isUserInteracting.current = false
-      }, 100)
+        hasUserInteracted.current = false
+      }, 200)
     }
   }, [value, onChange])
 
-  // Close on outside click
+  // Close on outside click - DON'T save on outside click, just close
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        // Save current value when closing
-        updateParent(internalHours, internalMinutes)
+        // Reset preview to committed values and close
+        setPreviewHours(committedHours)
+        setPreviewMinutes(committedMinutes)
         setIsOpen(false)
       }
     }
 
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside)
+      // Reset preview to committed when opening
+      setPreviewHours(committedHours)
+      setPreviewMinutes(committedMinutes)
       // Scroll to selected values when opening
       setTimeout(() => {
-        scrollToSelected(hoursRef.current, internalHours)
-        scrollToSelected(minutesRef.current, internalMinutes)
+        scrollToSelected(hoursRef.current, committedHours)
+        scrollToSelected(minutesRef.current, committedMinutes)
       }, 100)
     }
 
@@ -126,26 +140,30 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
         clearTimeout(scrollTimeoutRef.current)
       }
     }
-  }, [isOpen, internalHours, internalMinutes, scrollToSelected, updateParent])
+  }, [isOpen, committedHours, committedMinutes, scrollToSelected])
 
   const handleHourClick = useCallback((hour: string) => {
-    setInternalHours(hour)
+    setPreviewHours(hour)
+    setCommittedHours(hour)
     scrollToSelected(hoursRef.current, hour)
-    updateParent(hour, internalMinutes)
-  }, [internalMinutes, scrollToSelected, updateParent])
+    commitValue(hour, previewMinutes) // Commit immediately on click
+  }, [previewMinutes, scrollToSelected, commitValue])
 
   const handleMinuteClick = useCallback((minute: string) => {
-    setInternalMinutes(minute)
+    setPreviewMinutes(minute)
+    setCommittedMinutes(minute)
     scrollToSelected(minutesRef.current, minute)
-    updateParent(internalHours, minute)
-  }, [internalHours, scrollToSelected, updateParent])
+    commitValue(previewHours, minute) // Commit immediately on click
+  }, [previewHours, scrollToSelected, commitValue])
 
   const handleClose = useCallback(() => {
-    updateParent(internalHours, internalMinutes)
+    // Commit preview values when clicking "Klaar"
+    commitValue(previewHours, previewMinutes)
     setIsOpen(false)
-  }, [internalHours, internalMinutes, updateParent])
+  }, [previewHours, previewMinutes, commitValue])
 
-  const displayValue = value || `${internalHours}:${internalMinutes}`
+  // Display the committed value, not the preview
+  const displayValue = value || `${committedHours}:${committedMinutes}`
 
   return (
     <div className="space-y-2" ref={containerRef}>
@@ -199,7 +217,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                     key={hour}
                     data-value={hour}
                     className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
-                      internalHours === hour 
+                      previewHours === hour 
                         ? "bg-autoofy-dark text-white font-bold text-lg" 
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
@@ -238,7 +256,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
                     key={minute}
                     data-value={minute}
                     className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
-                      internalMinutes === minute 
+                      previewMinutes === minute 
                         ? "bg-autoofy-dark text-white font-bold text-lg" 
                         : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     }`}
