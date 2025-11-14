@@ -105,14 +105,32 @@ export async function POST(request: NextRequest) {
     
     // Check if it's a database connection error
     if (error instanceof Error) {
+      // Check for Prisma schema errors
       if (error.message.includes("Can't reach database server") || 
           error.message.includes("P1001") ||
           error.message.includes("connection")) {
         return NextResponse.json(
-          { error: "Database connectie fout. Check DATABASE_URL in Netlify." },
+          { error: "Database connectie fout. Check DATABASE_URL." },
           { status: 500 }
         )
       }
+      
+      // Check for missing table/model errors
+      if (error.message.includes("does not exist") ||
+          error.message.includes("P2021") ||
+          error.message.includes("Unknown model") ||
+          error.message.includes("table") && error.message.includes("not found")) {
+        return NextResponse.json(
+          { error: "Database schema niet up-to-date. Voer 'npx prisma db push' uit." },
+          { status: 500 }
+        )
+      }
+      
+      // Return more specific error message
+      return NextResponse.json(
+        { error: error.message || "Er is een fout opgetreden bij het aanmaken van het account" },
+        { status: 500 }
+      )
     }
 
     return NextResponse.json(

@@ -1,12 +1,13 @@
 import { Navbar } from "@/components/Navbar"
 import { redirect } from "next/navigation"
-import { getServerSession } from "next-auth"
+import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
+import type { ReactNode } from "react"
 
 export default async function DashboardLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: ReactNode
 }) {
   const session = await getServerSession(authOptions)
 

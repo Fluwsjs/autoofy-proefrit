@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
@@ -71,12 +72,19 @@ export default function HomePage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registerData),
+      }).catch((fetchError) => {
+        console.error("Fetch error:", fetchError)
+        throw new Error("Kan niet verbinden met de server. Controleer of de development server draait (npm run dev).")
       })
 
       const data = await response.json()
 
       if (!response.ok) {
-        setError(data.error || "Er is een fout opgetreden")
+        // Show specific error message from server
+        const errorMessage = data.error || `Er is een fout opgetreden (${response.status})`
+        setError(errorMessage)
+        console.error("Registration error:", data)
+        return
       } else {
         // Registration successful - show success message
         // User needs to verify email before logging in
@@ -96,7 +104,8 @@ export default function HomePage() {
         }
       }
     } catch (err) {
-      setError("Er is een fout opgetreden")
+      console.error("Registration error:", err)
+      setError(err instanceof Error ? err.message : "Er is een fout opgetreden bij het registreren")
     } finally {
       setLoading(false)
     }
