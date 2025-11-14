@@ -35,26 +35,43 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    // Verify the user's email
-    await prisma.$transaction(async (tx) => {
+    // Verify the user's email and get user info
+    const user = await prisma.$transaction(async (tx) => {
       // Update user
-      await tx.user.update({
+      const updatedUser = await tx.user.update({
         where: { id: verificationToken.userId },
         data: {
           emailVerified: true,
           emailVerifiedAt: new Date(),
         },
+        include: { tenant: true },
       })
 
       // Delete verification token
       await tx.verificationToken.delete({
         where: { id: verificationToken.id },
       })
+
+      return updatedUser
     })
 
-    return NextResponse.redirect(
-      new URL("/auth/verify-email?success=true", request.url)
-    )
+    // Create a session token that can be used to auto-login
+    // Store it in a cookie that will be used by the client to auto-login
+    const baseUrl = new URL(request.url)
+    const redirectUrl = new URL("/auth/verify-email", baseUrl.origin)
+    redirectUrl.searchParams.set("success", "true")
+    redirectUrl.searchParams.set("email", user.email)
+    
+    // Set a temporary cookie with user email for auto-login
+    const response = NextResponse.redirect(redirectUrl)
+    response.cookies.set("verification_email", user.email, {
+      httpOnly: false, // Client needs to read this
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 300, // 5 minutes
+    })
+
+    return response
   } catch (error) {
     console.error("Email verification error:", error)
     return NextResponse.redirect(

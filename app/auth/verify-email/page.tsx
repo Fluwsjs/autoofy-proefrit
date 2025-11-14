@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle, XCircle, AlertCircle, Mail } from "lucide-react"
@@ -13,20 +14,30 @@ function VerifyEmailForm() {
   const router = useRouter()
   const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null)
   const [errorType, setErrorType] = useState<string | null>(null)
+  const [autoLoginAttempted, setAutoLoginAttempted] = useState(false)
 
   useEffect(() => {
     const error = searchParams.get("error")
     const success = searchParams.get("success")
+    const email = searchParams.get("email")
 
     if (success === "true") {
       setStatus("success")
+      
+      // Redirect to login page after 2 seconds with success message and email pre-filled
+      if (email && !autoLoginAttempted) {
+        setAutoLoginAttempted(true)
+        setTimeout(() => {
+          router.push(`/?verified=true&email=${encodeURIComponent(email)}`)
+        }, 2000)
+      }
     } else if (error) {
       setStatus("error")
       setErrorType(error)
     } else {
       setStatus(null)
     }
-  }, [searchParams])
+  }, [searchParams, autoLoginAttempted, router])
 
   const getErrorMessage = () => {
     switch (errorType) {

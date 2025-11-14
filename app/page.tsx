@@ -1,25 +1,44 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { signIn } from "next-auth/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
 import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator"
 import Image from "next/image"
+import { CheckCircle } from "lucide-react"
 
 export default function HomePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isLogin, setIsLogin] = useState(true)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
   
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
   })
+
+  useEffect(() => {
+    // Check if user was redirected after email verification
+    const verified = searchParams.get("verified")
+    const email = searchParams.get("email")
+    
+    if (verified === "true") {
+      setSuccessMessage("Uw e-mailadres is geverifieerd! U kunt nu inloggen.")
+      setIsLogin(true)
+      if (email) {
+        setLoginData(prev => ({ ...prev, email: decodeURIComponent(email) }))
+      }
+      // Clear URL parameters
+      router.replace("/", { scroll: false })
+    }
+  }, [searchParams, router])
 
   const [registerData, setRegisterData] = useState({
     tenantName: "",
@@ -145,6 +164,12 @@ export default function HomePage() {
         <CardContent>
           {isLogin ? (
             <form onSubmit={handleLogin} className="space-y-4">
+              {successMessage && (
+                <div className="p-3 rounded-md bg-green-50 border border-green-200 flex items-center gap-2">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
+                  <p className="text-sm text-green-800">{successMessage}</p>
+                </div>
+              )}
               <FormInput
                 label="E-mailadres"
                 type="email"
