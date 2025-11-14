@@ -191,6 +191,11 @@ export default function CompleteTestridePage() {
               </Button>
             </Link>
           </div>
+
+          {/* Voorwaarden */}
+          <div className="pt-6 border-t mt-6">
+            <TermsAndConditions />
+          </div>
         </CardContent>
       </Card>
     </div>
