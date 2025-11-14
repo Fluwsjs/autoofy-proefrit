@@ -124,8 +124,18 @@ export default function TestrideDetailPage() {
 
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle>Proefrit Details</CardTitle>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <Image
+                src="/autoofy-logo.svg"
+                alt="Autoofy Logo"
+                width={152}
+                height={17}
+                className="object-contain h-8 w-auto"
+                priority
+              />
+              <CardTitle className="mb-0">Proefrit Details</CardTitle>
+            </div>
             <div className="flex gap-2">
               {testride.status !== "COMPLETED" && (
                 <Link href={`/dashboard/${testride.id}/complete`}>
@@ -257,7 +267,7 @@ export default function TestrideDetailPage() {
 
           {testride.eigenRisico && (
             <div>
-              <h3 className="font-semibold mb-2">Eigen risico</h3>
+              <h3 className="font-semibold mb-2">Eigen risico (ex btw)</h3>
               <p className="text-sm">{testride.eigenRisico}</p>
             </div>
           )}

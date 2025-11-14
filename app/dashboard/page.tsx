@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Plus, TrendingUp, Calendar, Car } from "lucide-react"
 import Link from "next/link"
+import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/SkeletonLoader"
 
 interface Testride {
   id: string
@@ -152,21 +153,24 @@ function DashboardContent() {
 
   if (status === "loading" || loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="space-y-4 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="text-muted-foreground">Laden...</p>
+      <div className="space-y-6 animate-in fade-in duration-300">
+        <SkeletonHeader />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <SkeletonCard />
+          <SkeletonCard />
+          <SkeletonCard />
         </div>
+        <SkeletonTable />
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-in fade-in duration-500">
       {ToastComponent}
       
       <div className="flex items-center justify-between">
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold text-autoofy-dark">
             Welkom {session?.user?.name || ""}
           </h1>
@@ -175,8 +179,8 @@ function DashboardContent() {
           </p>
         </div>
         <Link href="/dashboard/new">
-          <Button className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90 shadow-lg transition-all duration-300 hover:scale-105">
-            <Plus className="h-4 w-4 mr-2" />
+          <Button className="bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-105 group">
+            <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
             Nieuwe Proefrit
           </Button>
         </Link>
@@ -184,40 +188,40 @@ function DashboardContent() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Totaal proefritten</p>
-                <p className="text-3xl font-bold text-autoofy-dark">{stats.total}</p>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Totaal proefritten</p>
+                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.total}</p>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg">
+              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg group-hover:rotate-6 transition-transform duration-300">
                 <Car className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Deze maand</p>
-                <p className="text-3xl font-bold text-autoofy-dark">{stats.thisMonth}</p>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Deze maand</p>
+                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisMonth}</p>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-light shadow-lg">
+              <div className="p-3 rounded-xl bg-autoofy-red shadow-lg group-hover:rotate-6 transition-transform duration-300">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-105">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground mb-1">Deze week</p>
-                <p className="text-3xl font-bold text-autoofy-dark">{stats.thisWeek}</p>
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-muted-foreground">Deze week</p>
+                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisWeek}</p>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg">
+              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg group-hover:rotate-6 transition-transform duration-300">
                 <TrendingUp className="h-6 w-6 text-white" />
               </div>
             </div>
@@ -235,12 +239,29 @@ function DashboardContent() {
 
       {/* Results count */}
       {searchQuery || dateFilter !== "all" ? (
-        <p className="text-sm text-muted-foreground">
-          {filteredTestrides.length} van {testrides.length} proefritten
-        </p>
+        <div className="flex items-center justify-between animate-in fade-in slide-in-from-left-4">
+          <p className="text-sm text-muted-foreground">
+            {filteredTestrides.length} van {testrides.length} proefritten
+          </p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              setSearchQuery("")
+              setDateFilter("all")
+            }}
+            className="text-muted-foreground hover:text-autoofy-red transition-colors"
+          >
+            Filters wissen
+          </Button>
+        </div>
       ) : null}
 
-      <DataTable testrides={filteredTestrides} onDelete={handleDelete} />
+      <DataTable 
+        testrides={filteredTestrides} 
+        onDelete={handleDelete}
+        showEmptyState={!searchQuery && dateFilter === "all" && testrides.length === 0}
+      />
     </div>
   )
 }

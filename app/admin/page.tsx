@@ -174,7 +174,7 @@ export default function AdminDashboardPage() {
                         {stats.overview.totalUsers}
                       </p>
                     </div>
-                    <div className="p-3 rounded-xl bg-autoofy-light shadow-lg">
+                    <div className="p-3 rounded-xl bg-autoofy-red shadow-lg">
                       <Users className="h-6 w-6 text-white" />
                     </div>
                   </div>
@@ -207,7 +207,7 @@ export default function AdminDashboardPage() {
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">Laatste 30 dagen</p>
                     </div>
-                    <div className="p-3 rounded-xl bg-autoofy-light shadow-lg">
+                    <div className="p-3 rounded-xl bg-autoofy-red shadow-lg">
                       <TrendingUp className="h-6 w-6 text-white" />
                     </div>
                   </div>
@@ -264,12 +264,12 @@ export default function AdminDashboardPage() {
                             {tenant.email}
                           </td>
                           <td className="p-4">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-light/20 text-autoofy-dark border border-autoofy-light/30">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-red/20 text-autoofy-dark border border-autoofy-red/30">
                               {tenant.userCount} gebruiker{tenant.userCount !== 1 ? "s" : ""}
                             </span>
                           </td>
                           <td className="p-4">
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-light/20 text-autoofy-dark border border-autoofy-light/30">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-red/20 text-autoofy-dark border border-autoofy-red/30">
                               {tenant.testrideCount} proefrit{tenant.testrideCount !== 1 ? "ten" : ""}
                             </span>
                           </td>

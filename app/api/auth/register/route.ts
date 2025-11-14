@@ -2,12 +2,20 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
+import { sendVerificationEmail } from "@/lib/email"
 
 const registerSchema = z.object({
   tenantName: z.string().min(1, "Bedrijfsnaam is verplicht").trim(),
   userName: z.string().min(1, "Uw naam is verplicht").trim(),
   email: z.string().email("Ongeldig e-mailadres").trim().toLowerCase(),
-  password: z.string().min(6, "Wachtwoord moet minimaal 6 tekens lang zijn"),
+  password: z
+    .string()
+    .min(8, "Wachtwoord moet minimaal 8 tekens lang zijn")
+    .regex(/[a-z]/, "Wachtwoord moet minimaal één kleine letter bevatten")
+    .regex(/[A-Z]/, "Wachtwoord moet minimaal één hoofdletter bevatten")
+    .regex(/\d/, "Wachtwoord moet minimaal één cijfer bevatten")
+    .regex(/[^a-zA-Z\d]/, "Wachtwoord moet minimaal één speciaal teken bevatten"),
 })
 
 export async function POST(request: NextRequest) {
@@ -51,16 +59,37 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           role: "ADMIN",
           tenantId: tenant.id,
+          emailVerified: false,
         },
       })
+
+      // Create verification token
+      const verificationToken = generateVerificationToken()
+      const expiresAt = getVerificationTokenExpiry()
+
+      await tx.verificationToken.create({
+        data: {
+          token: verificationToken,
+          userId: user.id,
+          expiresAt,
+        },
+      })
+
+      // Send verification email (don't await - fire and forget for faster response)
+      sendVerificationEmail(validatedData.email, verificationToken, validatedData.userName).catch(
+        (error) => {
+          console.error("Failed to send verification email:", error)
+        }
+      )
 
       return { tenant, user }
     })
 
     return NextResponse.json(
       {
-        message: "Autobedrijf en beheerder succesvol aangemaakt",
+        message: "Autobedrijf en beheerder succesvol aangemaakt. Controleer uw e-mail voor verificatie.",
         tenantId: result.tenant.id,
+        requiresVerification: true,
       },
       { status: 201 }
     )

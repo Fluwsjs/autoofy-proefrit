@@ -169,7 +169,7 @@ export default function AdminUsersPage() {
                         <span className="text-sm">{user.tenant.name}</span>
                       </td>
                       <td className="p-4">
-                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-light/20 text-autoofy-dark border border-autoofy-light/30">
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-red/20 text-autoofy-dark border border-autoofy-red/30">
                           {user.role}
                         </span>
                       </td>

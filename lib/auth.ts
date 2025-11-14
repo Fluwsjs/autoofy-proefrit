@@ -53,6 +53,11 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Ongeldige inloggegevens")
           }
 
+          // Check if email is verified
+          if (!user.emailVerified) {
+            throw new Error("E-mailadres is nog niet geverifieerd. Controleer uw inbox voor de verificatie e-mail.")
+          }
+
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password

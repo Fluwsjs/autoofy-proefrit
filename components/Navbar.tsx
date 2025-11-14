@@ -14,10 +14,10 @@ export function Navbar() {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         <Link href={session ? "/dashboard" : "/"} className="flex items-center group">
           <Image
-            src="/autoofy.png"
+            src="/autoofy-logo.svg"
             alt="Autoofy Logo"
-            width={120}
-            height={40}
+            width={152}
+            height={17}
             className="object-contain h-10 w-auto"
             priority
           />
@@ -38,7 +38,7 @@ export function Navbar() {
                 <span className="text-sm font-medium">{session.user.tenantName}</span>
               </div>
             )}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-autoofy-light/10 border border-autoofy-light/20">
+            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
               <div className="h-8 w-8 rounded-full bg-autoofy-dark flex items-center justify-center text-white text-sm font-semibold">
                 {session.user.name.charAt(0).toUpperCase()}
               </div>

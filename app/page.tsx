@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
+import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicator"
 import Image from "next/image"
 
 export default function HomePage() {
@@ -39,7 +40,12 @@ export default function HomePage() {
       })
 
       if (result?.error) {
-        setError("Ongeldige inloggegevens")
+        // Check if error message contains email verification hint
+        if (result.error.includes("verifieerd")) {
+          setError(result.error)
+        } else {
+          setError("Ongeldige inloggegevens")
+        }
       } else {
         // Check if user is super admin and redirect accordingly
         // We need to wait a bit for the session to update
@@ -72,15 +78,21 @@ export default function HomePage() {
       if (!response.ok) {
         setError(data.error || "Er is een fout opgetreden")
       } else {
-        // Auto login after registration
-        const result = await signIn("credentials", {
-          email: registerData.email,
-          password: registerData.password,
-          redirect: false,
-        })
+        // Registration successful - show success message
+        // User needs to verify email before logging in
+        if (data.requiresVerification) {
+          router.push("/auth/verify-email")
+        } else {
+          // Auto login after registration (fallback for old accounts)
+          const result = await signIn("credentials", {
+            email: registerData.email,
+            password: registerData.password,
+            redirect: false,
+          })
 
-        if (result?.ok) {
-          router.push("/dashboard")
+          if (result?.ok) {
+            router.push("/dashboard")
+          }
         }
       }
     } catch (err) {
@@ -91,10 +103,10 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4 relative overflow-hidden">
       {/* Background decoration - Autoofy stijl */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-96 h-96 bg-autoofy-light/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute -top-40 -right-40 w-96 h-96 bg-autoofy-red/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
         <div className="absolute -bottom-40 -left-40 w-96 h-96 bg-autoofy-dark/20 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
       </div>
       
@@ -103,10 +115,10 @@ export default function HomePage() {
           <div className="flex justify-center mb-6">
             <div className="relative bg-white/10 p-4 rounded-lg">
               <Image
-                src="/autoofy.png"
+                src="/autoofy-logo.svg"
                 alt="Autoofy Logo"
-                width={150}
-                height={50}
+                width={152}
+                height={17}
                 className="object-contain h-12 w-auto"
                 priority
               />
@@ -147,21 +159,26 @@ export default function HomePage() {
               )}
               <Button 
                 type="submit" 
-                className="w-full bg-autoofy-dark text-white hover:bg-autoofy-dark/90 shadow-lg transition-all duration-300 hover:scale-[1.02]" 
+                className="w-full bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-[1.02]" 
                 disabled={loading}
               >
                 {loading ? "Inloggen..." : "Inloggen"}
               </Button>
-              <p className="text-center text-sm text-muted-foreground">
-                Nog geen account?{" "}
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(false)}
-                  className="text-autoofy-dark hover:text-autoofy-light hover:underline font-medium"
-                >
-                  Registreren
-                </button>
-              </p>
+              <div className="space-y-2 text-center">
+                <p className="text-sm text-muted-foreground">
+                  Nog geen account?{" "}
+                  <button
+                    type="button"
+                    onClick={() => setIsLogin(false)}
+                    className="text-autoofy-dark hover:text-autoofy-red hover:underline font-medium"
+                  >
+                    Registreren
+                  </button>
+                </p>
+                <Link href="/auth/forgot-password" className="text-sm text-autoofy-dark hover:text-autoofy-red hover:underline font-medium block">
+                  Wachtwoord vergeten?
+                </Link>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleRegister} className="space-y-4">
@@ -199,25 +216,30 @@ export default function HomePage() {
                 }
                 required
               />
-              <FormInput
-                label="Wachtwoord"
-                type="password"
-                value={registerData.password}
-                onChange={(e) =>
-                  setRegisterData({
-                    ...registerData,
-                    password: e.target.value,
-                  })
-                }
-                required
-                minLength={6}
-              />
+              <div className="space-y-2">
+                <FormInput
+                  label="Wachtwoord"
+                  type="password"
+                  value={registerData.password}
+                  onChange={(e) =>
+                    setRegisterData({
+                      ...registerData,
+                      password: e.target.value,
+                    })
+                  }
+                  required
+                  minLength={8}
+                />
+                {registerData.password && (
+                  <PasswordStrengthIndicator password={registerData.password} />
+                )}
+              </div>
               {error && (
                 <p className="text-sm text-destructive">{error}</p>
               )}
               <Button 
                 type="submit" 
-                className="w-full bg-autoofy-dark text-white hover:bg-autoofy-dark/90 shadow-lg transition-all duration-300 hover:scale-[1.02]" 
+                className="w-full bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-[1.02]" 
                 disabled={loading}
               >
                 {loading ? "Registreren..." : "Registreren"}
@@ -227,7 +249,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => setIsLogin(true)}
-                  className="text-autoofy-dark hover:text-autoofy-light hover:underline font-medium"
+                  className="text-autoofy-dark hover:text-autoofy-red hover:underline font-medium"
                 >
                   Inloggen
                 </button>

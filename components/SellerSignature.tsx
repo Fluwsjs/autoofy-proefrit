@@ -119,7 +119,7 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
                 variant="default"
                 size="sm"
                 onClick={handleUseSaved}
-                className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+                className="bg-autoofy-red text-white hover:bg-autoofy-red/90"
               >
                 Gebruik opgeslagen handtekening
               </Button>
@@ -155,7 +155,7 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
                   size="sm"
                   onClick={handleSave}
                   disabled={isEmpty || saving}
-                  className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+                  className="bg-autoofy-red text-white hover:bg-autoofy-red/90"
                 >
                   {saving ? "Opslaan..." : "Nieuwe handtekening opslaan"}
                 </Button>

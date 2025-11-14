@@ -36,9 +36,13 @@ model User {
   email             String   @unique
   password          String
   role              Role     @default(STAFF)
+  emailVerified     Boolean  @default(false)
+  emailVerifiedAt   DateTime?
   sellerSignatureUrl String? // Eenmalige verkoper handtekening/stempel (herbruikbaar)
   createdAt         DateTime @default(now())
   dealerPlates      DealerPlate[]
+  emailVerificationToken VerificationToken?
+  passwordResetToken PasswordResetToken?
 }
 
 model Testride {
@@ -86,6 +90,24 @@ model SuperAdmin {
   name      String
   email     String   @unique
   password  String
+  createdAt DateTime @default(now())
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
   createdAt DateTime @default(now())
 }
 

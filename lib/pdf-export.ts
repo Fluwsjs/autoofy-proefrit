@@ -53,15 +53,92 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     return lines.length * (fontSize * 0.4) // Approximate line height
   }
 
+  // Helper function to add logo to PDF
+  const addLogoToPDF = async (): Promise<void> => {
+    // Only run if we're in a browser environment
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      console.warn("PDF logo can only be added in browser environment")
+      return
+    }
+
+    try {
+      // Load SVG and convert to canvas for PDF
+      const logoUrl = `${window.location.origin}/autoofy-logo.svg`
+      
+      const response = await fetch(logoUrl)
+      if (!response.ok) {
+        console.warn("Could not load logo for PDF")
+        return
+      }
+      
+      const svgText = await response.text()
+      
+      // Create an image from the SVG
+      const img = new Image()
+      img.crossOrigin = "anonymous"
+      
+      // Convert SVG to data URL
+      const svgBlob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' })
+      const url = URL.createObjectURL(svgBlob)
+      
+      await new Promise<void>((resolve) => {
+        img.onload = () => {
+          try {
+            // Create canvas to convert SVG to PNG
+            const canvas = document.createElement('canvas')
+            const ctx = canvas.getContext('2d')
+            if (!ctx) {
+              URL.revokeObjectURL(url)
+              resolve()
+              return
+            }
+            
+            // Set canvas size based on image
+            canvas.width = img.width || 152
+            canvas.height = img.height || 17
+            
+            // Draw image to canvas
+            ctx.drawImage(img, 0, 0)
+            
+            // Convert canvas to data URL
+            const dataUrl = canvas.toDataURL('image/png')
+            
+            // Add logo to header (right side)
+            const logoWidth = 45
+            const logoHeight = (canvas.height / canvas.width) * logoWidth
+            const logoX = pageWidth - margin - logoWidth
+            const logoY = 8
+            
+            doc.addImage(dataUrl, "PNG", logoX, logoY, logoWidth, logoHeight)
+            
+            URL.revokeObjectURL(url)
+            resolve()
+          } catch (error) {
+            console.error("Error adding logo to PDF:", error)
+            URL.revokeObjectURL(url)
+            resolve()
+          }
+        }
+        img.onerror = () => {
+          console.warn("Could not load logo image for PDF")
+          URL.revokeObjectURL(url)
+          resolve()
+        }
+        img.src = url
+      })
+    } catch (error) {
+      console.error("Error loading logo for PDF:", error)
+    }
+  }
+
   // Header
-  doc.setFillColor(30, 58, 138) // Autoofy dark blue
+  doc.setFillColor(29, 53, 87) // Autoofy dark blue #1D3557
   doc.rect(0, 0, pageWidth, 40, "F")
   
-  doc.setTextColor(255, 255, 255)
-  doc.setFontSize(24)
-  doc.setFont("helvetica", "bold")
-  doc.text("AUTOOFY", margin, 25)
+  // Add logo to header
+  await addLogoToPDF()
   
+  doc.setTextColor(255, 255, 255)
   doc.setFontSize(16)
   doc.setFont("helvetica", "normal")
   doc.text("Proefrit Formulier", margin, 35)
@@ -176,7 +253,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     checkPageBreak(20)
     doc.setFontSize(14)
     doc.setFont("helvetica", "bold")
-    doc.text("Eigen risico", margin, yPosition)
+    doc.text("Eigen risico (ex btw)", margin, yPosition)
     yPosition += 10
 
     doc.setFontSize(10)

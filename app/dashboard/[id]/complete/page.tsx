@@ -170,7 +170,7 @@ export default function CompleteTestridePage() {
             <Button
               onClick={handleComplete}
               disabled={completing || !completionSignature}
-              className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90 flex-1"
+              className="bg-autoofy-red text-white hover:bg-autoofy-red/90 flex-1"
             >
               {completing ? (
                 <>

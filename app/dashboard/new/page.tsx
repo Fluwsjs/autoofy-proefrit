@@ -304,7 +304,7 @@ export default function NewTestridePage() {
             </div>
 
             <FormInput
-              label="Eigen risico"
+              label="Eigen risico (ex btw)"
               value={formData.eigenRisico}
               onChange={(e) =>
                 setFormData({ ...formData, eigenRisico: e.target.value })
@@ -342,7 +342,7 @@ export default function NewTestridePage() {
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+                className="bg-autoofy-red text-white hover:bg-autoofy-red/90"
               >
                 {loading ? "Opslaan..." : "Opslaan"}
               </Button>

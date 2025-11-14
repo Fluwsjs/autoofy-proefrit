@@ -10,17 +10,17 @@
     --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
-    /* Autoofy kleuren: Donkerblauw en Lichtblauw */
-    --primary: 210 100% 50%; /* Lichtblauw #4a9eff */
+    /* Autoofy kleuren: Donkerblauw en Rood */
+    --primary: 350 68% 42%; /* Rood #B22234 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 210 50% 25%; /* Donkerblauw #1e3a5f */
+    --secondary: 216 50% 23%; /* Donkerblauw #1D3557 */
     --secondary-foreground: 0 0% 100%;
-    --muted: 210 20% 96%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 100% 60%;
+    --muted: 210 20% 96%; /* Lichtgrijs voor achtergronden */
+    --muted-foreground: 215 16% 47%; /* Donkergrijs voor secundaire tekst */
+    --accent: 350 68% 42%; /* Rood accent */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 350 68% 42%; /* Rood voor destructive acties */
+    --destructive-foreground: 0 0% 100%;
     --border: 210 20% 85%;
     --input: 210 20% 95%;
     --ring: 210 100% 50%;
@@ -73,23 +73,31 @@
   }
   
   .gradient-autoofy {
-    background: linear-gradient(135deg, hsl(210 50% 25%), hsl(210 100% 50%));
+    background: linear-gradient(135deg, #1D3557, #B22234);
   }
   
   .bg-autoofy-dark {
-    background-color: hsl(210 50% 25%);
+    background-color: #1D3557; /* Donkerblauw */
   }
   
-  .bg-autoofy-light {
-    background-color: hsl(210 100% 50%);
+  .bg-autoofy-red {
+    background-color: #B22234; /* Rood */
   }
   
   .text-autoofy-dark {
-    color: hsl(210 50% 25%);
+    color: #1D3557; /* Donkerblauw */
   }
   
-  .text-autoofy-light {
-    color: hsl(210 100% 50%);
+  .text-autoofy-red {
+    color: #B22234; /* Rood */
+  }
+  
+  .border-autoofy-dark {
+    border-color: #1D3557;
+  }
+  
+  .border-autoofy-red {
+    border-color: #B22234;
   }
   
   .gradient-card {
