@@ -75,12 +75,14 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      // Send verification email (don't await - fire and forget for faster response)
-      sendVerificationEmail(validatedData.email, verificationToken, validatedData.userName).catch(
-        (error) => {
-          console.error("Failed to send verification email:", error)
-        }
-      )
+      // Send verification email and log result
+      const emailResult = await sendVerificationEmail(validatedData.email, verificationToken, validatedData.userName)
+      if (!emailResult.success) {
+        console.error("Failed to send verification email:", emailResult.error)
+        // Don't fail registration if email fails, but log it
+      } else {
+        console.log("Verification email sent successfully:", emailResult.data)
+      }
 
       return { tenant, user }
     })

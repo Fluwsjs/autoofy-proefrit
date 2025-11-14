@@ -18,6 +18,10 @@ export async function sendVerificationEmail(email: string, token: string, name: 
   const verificationUrl = `${BASE_URL}/auth/verify-email?token=${token}`
 
   try {
+    console.log(`Attempting to send verification email to: ${email}`)
+    console.log(`From: ${FROM_EMAIL}`)
+    console.log(`Base URL: ${BASE_URL}`)
+    
     const { data, error } = await resend.emails.send({
       from: `Autoofy <${FROM_EMAIL}>`,
       to: email,
@@ -58,10 +62,11 @@ export async function sendVerificationEmail(email: string, token: string, name: 
     })
 
     if (error) {
-      console.error("Error sending verification email:", error)
+      console.error("Resend API error:", JSON.stringify(error, null, 2))
       return { success: false, error }
     }
 
+    console.log("Email sent successfully. Resend response:", JSON.stringify(data, null, 2))
     return { success: true, data }
   } catch (error) {
     console.error("Error sending verification email:", error)
