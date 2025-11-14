@@ -31,6 +31,16 @@ interface Testride {
   dealerPlate: {
     plate: string
   } | null
+  // Optional fields that might come from the API
+  idPhotoFrontUrl?: string | null
+  idPhotoBackUrl?: string | null
+  customerSignatureUrl?: string | null
+  sellerSignatureUrl?: string | null
+  completionSignatureUrl?: string | null
+  eigenRisico?: string | null
+  completedAt?: string | null
+  notes?: string | null
+  createdAt?: string
 }
 
 interface QuickViewModalProps {
@@ -68,7 +78,34 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
     if (!testride) return
     
     try {
-      await exportTestrideToPDF(testride)
+      // Transform testride to TestrideData format
+      const testrideData = {
+        customerName: testride.customerName,
+        customerEmail: testride.customerEmail,
+        customerPhone: testride.customerPhone,
+        address: testride.address,
+        startTime: testride.startTime,
+        endTime: testride.endTime,
+        date: testride.date,
+        carType: testride.carType,
+        licensePlate: testride.licensePlate,
+        driverLicenseNumber: testride.driverLicenseNumber,
+        dealerPlate: testride.dealerPlate,
+        idPhotoFrontUrl: testride.idPhotoFrontUrl ?? null,
+        idPhotoBackUrl: testride.idPhotoBackUrl ?? null,
+        customerSignatureUrl: testride.customerSignatureUrl ?? null,
+        sellerSignatureUrl: testride.sellerSignatureUrl ?? null,
+        completionSignatureUrl: testride.completionSignatureUrl ?? null,
+        eigenRisico: testride.eigenRisico ?? null,
+        status: testride.status,
+        completedAt: testride.completedAt ?? null,
+        startKm: testride.startKm,
+        endKm: testride.endKm,
+        notes: testride.notes ?? null,
+        createdAt: testride.createdAt ?? new Date().toISOString(),
+      }
+      
+      await exportTestrideToPDF(testrideData)
     } catch (error) {
       console.error("Error exporting PDF:", error)
     }

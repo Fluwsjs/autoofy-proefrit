@@ -94,7 +94,34 @@ export default function TestrideDetailPage() {
     if (!testride) return
     
     try {
-      await exportTestrideToPDF(testride)
+      // Transform testride to TestrideData format
+      const testrideData = {
+        customerName: testride.customerName,
+        customerEmail: testride.customerEmail,
+        customerPhone: testride.customerPhone,
+        address: testride.address,
+        startTime: testride.startTime,
+        endTime: testride.endTime,
+        date: testride.date,
+        carType: testride.carType,
+        licensePlate: testride.licensePlate,
+        driverLicenseNumber: testride.driverLicenseNumber,
+        dealerPlate: testride.dealerPlate ? { plate: testride.dealerPlate.plate } : null,
+        idPhotoFrontUrl: testride.idPhotoFrontUrl,
+        idPhotoBackUrl: testride.idPhotoBackUrl,
+        customerSignatureUrl: testride.customerSignatureUrl,
+        sellerSignatureUrl: testride.sellerSignatureUrl,
+        completionSignatureUrl: testride.completionSignatureUrl,
+        eigenRisico: testride.eigenRisico,
+        status: testride.status,
+        completedAt: testride.completedAt,
+        startKm: testride.startKm,
+        endKm: testride.endKm,
+        notes: testride.notes,
+        createdAt: testride.createdAt,
+      }
+      
+      await exportTestrideToPDF(testrideData)
     } catch (error) {
       console.error("Error exporting PDF:", error)
       alert("Fout bij exporteren naar PDF")
