@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { signIn } from "next-auth/react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
@@ -11,7 +11,7 @@ import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicato
 import Image from "next/image"
 import { CheckCircle } from "lucide-react"
 
-export default function HomePage() {
+function HomePageForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isLogin, setIsLogin] = useState(true)
@@ -293,6 +293,18 @@ export default function HomePage() {
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-autoofy-red"></div>
+      </div>
+    }>
+      <HomePageForm />
+    </Suspense>
   )
 }
 
