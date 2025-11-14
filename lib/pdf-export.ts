@@ -353,6 +353,117 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     yPosition += 10
   }
 
+  // Voorwaarden proefritprocedure
+  checkPageBreak(150)
+  doc.setFontSize(16)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green color
+  doc.text("Voorwaarden proefritprocedure", margin, yPosition)
+  yPosition += 10
+
+  doc.setFontSize(10)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black color
+  
+  // Left column content
+  const leftMargin = margin
+  const rightMargin = pageWidth / 2 + 5
+  const columnWidth = (pageWidth - 2 * margin - 10) / 2
+  let leftY = yPosition
+
+  // Proefrit section (left column)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green
+  doc.text("Proefrit", leftMargin, leftY)
+  leftY += 7
+
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black
+  leftY += addText("• De klant ontvangt het voertuig in bruikleen voor een bepaalde periode.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• Het voertuig blijft eigendom van het autobedrijf.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• De klant moet het voertuig op de datum en tijd zoals vermeld op de voorkant inleveren.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• Het is niet toegestaan deze periode te verlengen zonder schriftelijke toestemming van het autobedrijf.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• Voor elk uur dat het voertuig te laat wordt ingeleverd, kan het autobedrijf kosten in rekening brengen.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• Bij rijden met een handelaarskenteken moet de klant zich wegens wettelijke bepalingen beperken tot het testen van het voertuig.", leftMargin, leftY, columnWidth, 9)
+  leftY += 4
+  leftY += addText("• Dit betekent dat het verboden is het voertuig te parkeren op de openbare weg of te gebruiken voor het vervoeren van personen en/of goederen (bijv. boodschappen doen).", leftMargin, leftY, columnWidth, 9)
+  leftY += 7
+
+  // Kentekendocumenten (left column)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green
+  doc.text("Kentekendocumenten", leftMargin, leftY)
+  leftY += 7
+
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black
+  leftY += addText("De klant moet alle kentekendocumenten die bij aanvang van de proefrit zijn verstrekt, aan het einde van de proefrit aan het autobedrijf inleveren.", leftMargin, leftY, columnWidth, 9)
+  leftY += 7
+
+  // Vrijwaring (left column)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green
+  doc.text("Vrijwaring", leftMargin, leftY)
+  leftY += 7
+
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black
+  leftY += addText("De klant ontheft het bedrijf van alle schades voortvloeiend uit of ontstaan tijdens het gebruik van het voertuig, waaronder maar niet beperkt tot boetes, overtredingen en/of inbeslagneming en/of verbeurdverklaring van het voertuig, alsmede voor vorderingen van derden in verband met het gebruik van het voertuig.", leftMargin, leftY, columnWidth, 9)
+
+  // Right column content
+  let rightY = yPosition
+
+  // Verzekering (right column)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green
+  doc.text("Verzekering", rightMargin, rightY)
+  rightY += 7
+
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black
+  rightY += addText("• De klant is aansprakelijk voor alle schades voortvloeiend uit of ontstaan tijdens het gebruik van het voertuig, voor zover deze niet gedekt worden door de op de voorkant vermelde verzekering.", rightMargin, rightY, columnWidth, 9)
+  rightY += 4
+  rightY += addText("• Schade aan het voertuig ontstaan tijdens gebruik dient direct te worden gemeld aan het autobedrijf.", rightMargin, rightY, columnWidth, 9)
+  rightY += 4
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "bold")
+  rightY += addText("N.B.: Indien het voertuig uitsluitend WA (aansprakelijkheidsverzekering) verzekerd is, is de klant jegens het autobedrijf volledig aansprakelijk voor schade aan of verlies van het voertuig en/of inzittenden indien geen derde daarvoor aansprakelijk is.", rightMargin, rightY, columnWidth, 9)
+  rightY += 7
+
+  // Persoonsgegevens (right column)
+  doc.setFontSize(11)
+  doc.setFont("helvetica", "bold")
+  doc.setTextColor(0, 128, 0) // Green
+  doc.text("Persoonsgegevens", rightMargin, rightY)
+  rightY += 7
+
+  doc.setFontSize(9)
+  doc.setFont("helvetica", "normal")
+  doc.setTextColor(0, 0, 0) // Black
+  rightY += addText("De persoonsgegevens van de klant zoals genoemd op het proefritformulier worden door het autobedrijf verwerkt, mogelijk in de zin van de Algemene Verordening Gegevensbescherming (AVG).", rightMargin, rightY, columnWidth, 9)
+  rightY += 4
+  rightY += addText("Op basis van deze verwerking kan het autobedrijf de overeenkomst uitvoeren, de klant optimale service bieden, hen tijdig voorzien van actuele auto-informatie en gepersonaliseerde aanbiedingen doen.", rightMargin, rightY, columnWidth, 9)
+  rightY += 4
+  rightY += addText("Daarnaast kunnen persoonsgegevens worden verstrekt aan derden, waaronder de importeur van een automerk, voor direct marketing activiteiten voor voertuigen.", rightMargin, rightY, columnWidth, 9)
+  rightY += 4
+  rightY += addText("Elk bezwaar van de klant jegens het autobedrijf betreffende de verwerking van persoonsgegevens in de zin van de Algemene Verordening Gegevensbescherming (AVG) voor direct mailing activiteiten wordt gehonoreerd.", rightMargin, rightY, columnWidth, 9)
+
+  // Set yPosition to the maximum of both columns
+  yPosition = Math.max(leftY, rightY) + 10
+
   // Footer
   const footerY = pageHeight - 20
   doc.setFontSize(8)

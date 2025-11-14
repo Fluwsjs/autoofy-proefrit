@@ -9,6 +9,7 @@ import { ArrowLeft, Trash2, Download, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { exportTestrideToPDF } from "@/lib/pdf-export"
+import { TermsAndConditions } from "@/components/TermsAndConditions"
 
 interface Testride {
   id: string
@@ -415,6 +416,11 @@ export default function TestrideDetailPage() {
 
           <div className="pt-4 border-t text-xs text-muted-foreground">
             Aangemaakt op: {formatDateTime(testride.createdAt)}
+          </div>
+
+          {/* Voorwaarden */}
+          <div className="pt-6 border-t mt-6">
+            <TermsAndConditions />
           </div>
         </CardContent>
       </Card>
