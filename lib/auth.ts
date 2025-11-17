@@ -93,12 +93,16 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         try {
+          console.log("[AUTH] Authorize called")
+          
           if (!credentials?.email || !credentials?.password) {
+            console.error("[AUTH] Missing credentials")
             throw new Error("Email en wachtwoord zijn verplicht")
           }
 
           // Normalize email to lowercase (same as registration)
           const normalizedEmail = credentials.email.trim().toLowerCase()
+          console.log("[AUTH] Normalized email:", normalizedEmail)
 
           // First check if it's a super admin
           const superAdmin = await prisma.superAdmin.findUnique({
@@ -127,28 +131,39 @@ export const authOptions: NextAuthOptions = {
           }
 
           // Otherwise check regular user
+          console.log(`[AUTH] Looking for user with email: ${normalizedEmail}`)
           const user = await prisma.user.findUnique({
             where: { email: normalizedEmail },
             include: { tenant: true }
           })
 
           if (!user) {
+            console.error(`[AUTH] User not found: ${normalizedEmail}`)
             throw new Error("Ongeldige inloggegevens")
           }
+          
+          console.log(`[AUTH] User found: ${user.email}, verified: ${user.emailVerified}`)
 
           // Check if email is verified
           if (!user.emailVerified) {
+            console.error(`[AUTH] Email not verified for: ${normalizedEmail}`)
             throw new Error("E-mailadres is nog niet geverifieerd. Controleer uw inbox voor de verificatie e-mail.")
           }
 
+          console.log(`[AUTH] Verifying password for: ${normalizedEmail}`)
           const isPasswordValid = await bcrypt.compare(
             credentials.password,
             user.password
           )
 
+          console.log(`[AUTH] Password valid: ${isPasswordValid}`)
+          
           if (!isPasswordValid) {
+            console.error(`[AUTH] Invalid password for: ${normalizedEmail}`)
             throw new Error("Ongeldige inloggegevens")
           }
+          
+          console.log(`[AUTH] Login successful for: ${normalizedEmail}`)
 
           return {
             id: user.id,
@@ -160,7 +175,20 @@ export const authOptions: NextAuthOptions = {
             isSuperAdmin: false,
           }
         } catch (error) {
-          console.error("Auth error:", error)
+          console.error("[AUTH] ❌ Auth error occurred:")
+          if (error instanceof Error) {
+            console.error("[AUTH] Error message:", error.message)
+            console.error("[AUTH] Error stack:", error.stack)
+          } else {
+            console.error("[AUTH] Unknown error:", error)
+          }
+          
+          // Check for database connection issues
+          if (error instanceof Error && error.message.includes("connect")) {
+            console.error("[AUTH] ⚠️ Database connection issue detected!")
+          }
+          
+          // Return null to trigger 401, but log the actual error
           return null
         }
       }

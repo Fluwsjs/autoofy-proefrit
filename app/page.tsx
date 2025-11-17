@@ -53,20 +53,24 @@ function HomePageForm() {
     setError("")
 
     try {
+      console.log("Attempting login with:", { email: loginData.email, passwordLength: loginData.password.length })
       const result = await signIn("credentials", {
         email: loginData.email,
         password: loginData.password,
         redirect: false,
       })
+      console.log("SignIn result:", { ok: result?.ok, error: result?.error })
 
       if (result?.error) {
+        console.error("Login error:", result.error)
         // Check if error message contains email verification hint
         if (result.error.includes("verifieerd")) {
           setError(result.error)
         } else {
-          setError("Ongeldige inloggegevens")
+          setError(result.error || "Ongeldige inloggegevens")
         }
       } else {
+        console.log("Login successful, redirecting...")
         // Check if user is super admin and redirect accordingly
         // We need to wait a bit for the session to update
         setTimeout(() => {
