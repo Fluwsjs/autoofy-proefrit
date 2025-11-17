@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, AlertCircle, Mail } from "lucide-react"
+import { CheckCircle, XCircle, AlertCircle, Mail, RefreshCw } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -15,20 +15,28 @@ function VerifyEmailForm() {
   const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null)
   const [errorType, setErrorType] = useState<string | null>(null)
   const [autoLoginAttempted, setAutoLoginAttempted] = useState(false)
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const [resendError, setResendError] = useState("")
+  const [email, setEmail] = useState<string>("")
 
   useEffect(() => {
     const error = searchParams.get("error")
     const success = searchParams.get("success")
-    const email = searchParams.get("email")
+    const emailParam = searchParams.get("email")
+
+    if (emailParam) {
+      setEmail(emailParam)
+    }
 
     if (success === "true") {
       setStatus("success")
       
       // Redirect to login page after 2 seconds with success message and email pre-filled
-      if (email && !autoLoginAttempted) {
+      if (emailParam && !autoLoginAttempted) {
         setAutoLoginAttempted(true)
         setTimeout(() => {
-          router.push(`/?verified=true&email=${encodeURIComponent(email)}`)
+          router.push(`/?verified=true&email=${encodeURIComponent(emailParam)}`)
         }, 2000)
       }
     } else if (error) {
@@ -38,6 +46,38 @@ function VerifyEmailForm() {
       setStatus(null)
     }
   }, [searchParams, autoLoginAttempted, router])
+
+  const handleResendEmail = async () => {
+    if (!email) {
+      setResendError("E-mailadres is vereist")
+      return
+    }
+
+    setResendLoading(true)
+    setResendError("")
+    setResendSuccess(false)
+
+    try {
+      const response = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setResendError(data.error || "Er is een fout opgetreden")
+      } else {
+        setResendSuccess(true)
+        setTimeout(() => setResendSuccess(false), 5000)
+      }
+    } catch (err) {
+      setResendError("Er is een fout opgetreden bij het verzenden")
+    } finally {
+      setResendLoading(false)
+    }
+  }
 
   const getErrorMessage = () => {
     switch (errorType) {
@@ -112,16 +152,42 @@ function VerifyEmailForm() {
                 </p>
               </div>
               <div className="space-y-3">
+                {(errorType === "expired_token" || errorType === "invalid_token") && (
+                  <div className="space-y-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-900 font-medium">
+                      Nieuwe verificatie e-mail ontvangen?
+                    </p>
+                    <div className="space-y-2">
+                      <input
+                        type="email"
+                        placeholder="Uw e-mailadres"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-autoofy-red focus:border-transparent"
+                      />
+                      {resendError && (
+                        <p className="text-sm text-red-600">{resendError}</p>
+                      )}
+                      {resendSuccess && (
+                        <p className="text-sm text-green-600">
+                          ✅ Verificatie e-mail opnieuw verzonden! Controleer uw inbox.
+                        </p>
+                      )}
+                      <Button
+                        onClick={handleResendEmail}
+                        disabled={resendLoading || !email}
+                        className="w-full bg-autoofy-red text-white hover:bg-autoofy-red/90"
+                      >
+                        {resendLoading ? "Verzenden..." : "Verstuur nieuwe verificatie e-mail"}
+                      </Button>
+                    </div>
+                  </div>
+                )}
                 <Link href="/">
                   <Button variant="outline" className="w-full">
                     Terug naar inloggen
                   </Button>
                 </Link>
-                {errorType === "expired_token" && (
-                  <p className="text-sm text-muted-foreground">
-                    Neem contact op met support voor een nieuwe verificatie e-mail.
-                  </p>
-                )}
               </div>
             </div>
           )}
@@ -141,6 +207,36 @@ function VerifyEmailForm() {
                   We hebben een verificatie e-mail naar uw e-mailadres gestuurd. 
                   Klik op de link in de e-mail om uw account te activeren.
                 </p>
+              </div>
+              <div className="space-y-3 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+                <p className="text-sm text-gray-700 font-medium">
+                  Geen e-mail ontvangen?
+                </p>
+                <div className="space-y-2">
+                  <input
+                    type="email"
+                    placeholder="Uw e-mailadres"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-autoofy-red focus:border-transparent"
+                  />
+                  {resendError && (
+                    <p className="text-sm text-red-600">{resendError}</p>
+                  )}
+                  {resendSuccess && (
+                    <p className="text-sm text-green-600">
+                      ✅ Verificatie e-mail opnieuw verzonden! Controleer uw inbox.
+                    </p>
+                  )}
+                  <Button
+                    onClick={handleResendEmail}
+                    disabled={resendLoading || !email}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    {resendLoading ? "Verzenden..." : "Verstuur opnieuw"}
+                  </Button>
+                </div>
               </div>
               <Link href="/">
                 <Button variant="outline" className="w-full">

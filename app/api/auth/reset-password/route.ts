@@ -2,16 +2,32 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
+import { validatePasswordStrength } from "@/lib/password-validation"
 
 const resetPasswordSchema = z.object({
   token: z.string().min(1, "Token is verplicht"),
-  password: z.string().min(8, "Wachtwoord moet minimaal 8 tekens lang zijn"),
+  password: z
+    .string()
+    .min(8, "Wachtwoord moet minimaal 8 tekens lang zijn")
+    .regex(/[a-z]/, "Wachtwoord moet minimaal één kleine letter bevatten")
+    .regex(/[A-Z]/, "Wachtwoord moet minimaal één hoofdletter bevatten")
+    .regex(/\d/, "Wachtwoord moet minimaal één cijfer bevatten")
+    .regex(/[^a-zA-Z\d]/, "Wachtwoord moet minimaal één speciaal teken bevatten"),
 })
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const validatedData = resetPasswordSchema.parse(body)
+
+    // Validate password strength
+    const passwordValidation = validatePasswordStrength(validatedData.password)
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { error: passwordValidation.errors[0] || "Wachtwoord is niet sterk genoeg" },
+        { status: 400 }
+      )
+    }
 
     // Find password reset token
     const resetToken = await prisma.passwordResetToken.findUnique({

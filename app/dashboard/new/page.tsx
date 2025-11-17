@@ -61,8 +61,10 @@ export default function NewTestridePage() {
     try {
       const response = await fetch("/api/dealer-plates")
       if (response.ok) {
-        const data = await response.json()
-        setDealerPlates(data)
+        const result = await response.json()
+        // Handle paginated response: { data: [...], pagination: {...} }
+        const dealerPlates = result.data || result
+        setDealerPlates(dealerPlates)
       }
     } catch (error) {
       console.error("Error fetching dealer plates:", error)

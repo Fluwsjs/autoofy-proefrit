@@ -10,11 +10,28 @@ const superAdminSchema = z.object({
 })
 
 // Deze route kan alleen lokaal worden aangeroepen of met een speciale secret
+// WARNING: Only use this for initial setup. Disable or remove in production.
 export async function POST(request: NextRequest) {
+  // Only allow in development mode (recommended for production)
+  if (process.env.NODE_ENV === "production") {
+    return NextResponse.json(
+      { error: "Not found" },
+      { status: 404 }
+    )
+  }
+
   try {
-    // Check for secret key (basic security)
+    // Check for secret key - no default fallback for security
     const authHeader = request.headers.get("authorization")
-    const secret = process.env.ADMIN_CREATE_SECRET || "create-admin-secret-change-in-production"
+    const secret = process.env.ADMIN_CREATE_SECRET
+    
+    if (!secret) {
+      console.error("ADMIN_CREATE_SECRET environment variable is not set")
+      return NextResponse.json(
+        { error: "Server configuration error" },
+        { status: 500 }
+      )
+    }
     
     if (authHeader !== `Bearer ${secret}`) {
       return NextResponse.json(

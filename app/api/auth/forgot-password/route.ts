@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { generatePasswordResetToken, getPasswordResetTokenExpiry } from "@/lib/auth-utils"
 import { sendPasswordResetEmail } from "@/lib/email"
+import { passwordResetRateLimit } from "@/lib/rate-limit"
 
 const forgotPasswordSchema = z.object({
   email: z.string().email("Ongeldig e-mailadres").trim().toLowerCase(),
@@ -10,6 +11,12 @@ const forgotPasswordSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await passwordResetRateLimit(request)
+    if (rateLimitResult) {
+      return rateLimitResult
+    }
+
     const body = await request.json()
     const validatedData = forgotPasswordSchema.parse(body)
 

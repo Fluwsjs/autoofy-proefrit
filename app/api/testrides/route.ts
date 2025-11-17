@@ -3,6 +3,13 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { validateBase64Images, validateSignatureImage } from "@/lib/file-validation"
+import {
+  parsePaginationParams,
+  calculatePagination,
+  createPaginatedResponse,
+} from "@/lib/pagination"
+import { sanitizeString, sanitizeEmail, sanitizeText } from "@/lib/sanitize"
 
 const testrideSchema = z.object({
   customerName: z.string().min(1, "Klantnaam is verplicht"),
@@ -37,6 +44,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Parse pagination parameters
+    const { page, limit } = parsePaginationParams(request)
+    const skip = (page - 1) * limit
+
+    // Get total count for pagination metadata
+    const total = await prisma.testride.count({
+      where: {
+        tenantId: session.user.tenantId,
+      },
+    })
+
+    // Fetch paginated testrides
     const testrides = await prisma.testride.findMany({
       where: {
         tenantId: session.user.tenantId,
@@ -47,9 +66,15 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      skip,
+      take: limit,
     })
 
-    return NextResponse.json(testrides)
+    // Calculate pagination metadata
+    const pagination = calculatePagination(page, limit, total)
+
+    // Return paginated response
+    return NextResponse.json(createPaginatedResponse(testrides, pagination))
   } catch (error) {
     console.error("Error fetching testrides:", error)
     return NextResponse.json(
@@ -71,7 +96,59 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const validatedData = testrideSchema.parse(body)
+    
+    // Sanitize text inputs
+    const sanitizedBody = {
+      ...body,
+      customerName: sanitizeString(body.customerName || ""),
+      customerEmail: sanitizeEmail(body.customerEmail || ""),
+      customerPhone: body.customerPhone ? sanitizeString(body.customerPhone) : undefined,
+      address: sanitizeString(body.address || ""),
+      carType: sanitizeString(body.carType || ""),
+      licensePlate: body.licensePlate ? sanitizeString(body.licensePlate) : undefined,
+      driverLicenseNumber: body.driverLicenseNumber ? sanitizeString(body.driverLicenseNumber) : undefined,
+      notes: body.notes ? sanitizeText(body.notes) : undefined,
+    }
+    
+    const validatedData = testrideSchema.parse(sanitizedBody)
+
+    // Validate file uploads (images and signatures)
+    const imageFiles = [
+      validatedData.idPhotoFrontUrl,
+      validatedData.idPhotoBackUrl,
+    ].filter(Boolean) as string[]
+
+    if (imageFiles.length > 0) {
+      const imageValidation = validateBase64Images(imageFiles)
+      if (!imageValidation.valid) {
+        return NextResponse.json(
+          { error: imageValidation.error },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Validate customer signature
+    if (validatedData.customerSignatureUrl) {
+      const signatureValidation = validateSignatureImage(validatedData.customerSignatureUrl)
+      if (!signatureValidation.valid) {
+        return NextResponse.json(
+          { error: signatureValidation.error },
+          { status: 400 }
+        )
+      }
+    }
+
+    // Validate seller signature
+    if (validatedData.sellerSignatureUrl) {
+      const signatureValidation = validateSignatureImage(validatedData.sellerSignatureUrl)
+      if (!signatureValidation.valid) {
+        return NextResponse.json(
+          { error: signatureValidation.error },
+          { status: 400 }
+        )
+      }
+    }
 
     const testride = await prisma.testride.create({
       data: {

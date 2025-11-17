@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 
-// This endpoint should be called by a cron job (e.g., Vercel Cron, Supabase Edge Function)
-// to delete testrides older than 6 months
+// This endpoint should be called by a cron job (e.g., Netlify Cron, Vercel Cron)
+// to delete testrides older than 6 months and expired tokens
 export async function POST(request: NextRequest) {
   try {
     // Verify cron secret if needed
@@ -11,10 +11,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const now = new Date()
+
+    // Cleanup testrides older than 6 months
     const sixMonthsAgo = new Date()
     sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6)
 
-    const result = await prisma.testride.deleteMany({
+    const testridesResult = await prisma.testride.deleteMany({
       where: {
         createdAt: {
           lt: sixMonthsAgo,
@@ -22,14 +25,36 @@ export async function POST(request: NextRequest) {
       },
     })
 
+    // Cleanup expired verification tokens
+    const verificationTokensResult = await prisma.verificationToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: now,
+        },
+      },
+    })
+
+    // Cleanup expired password reset tokens
+    const passwordResetTokensResult = await prisma.passwordResetToken.deleteMany({
+      where: {
+        expiresAt: {
+          lt: now,
+        },
+      },
+    })
+
     return NextResponse.json({
-      message: `Verwijderd ${result.count} proefritten ouder dan 6 maanden`,
-      deleted: result.count,
+      message: "Cleanup succesvol uitgevoerd",
+      deleted: {
+        testrides: testridesResult.count,
+        verificationTokens: verificationTokensResult.count,
+        passwordResetTokens: passwordResetTokensResult.count,
+      },
     })
   } catch (error) {
-    console.error("Error cleaning up testrides:", error)
+    console.error("Error during cleanup:", error)
     return NextResponse.json(
-      { error: "Fout bij opschonen proefritten" },
+      { error: "Fout bij opschonen" },
       { status: 500 }
     )
   }

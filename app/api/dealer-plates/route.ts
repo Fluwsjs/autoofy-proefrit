@@ -3,6 +3,11 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import {
+  parsePaginationParams,
+  calculatePagination,
+  createPaginatedResponse,
+} from "@/lib/pagination"
 
 const dealerPlateSchema = z.object({
   plate: z.string().min(1, "Handelaarskenteken is verplicht"),
@@ -20,6 +25,18 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // Parse pagination parameters
+    const { page, limit } = parsePaginationParams(request)
+    const skip = (page - 1) * limit
+
+    // Get total count for pagination metadata
+    const total = await prisma.dealerPlate.count({
+      where: {
+        userId: session.user.id,
+      },
+    })
+
+    // Fetch paginated dealer plates
     const dealerPlates = await prisma.dealerPlate.findMany({
       where: {
         userId: session.user.id,
@@ -27,9 +44,15 @@ export async function GET(request: NextRequest) {
       orderBy: {
         createdAt: "desc",
       },
+      skip,
+      take: limit,
     })
 
-    return NextResponse.json(dealerPlates)
+    // Calculate pagination metadata
+    const pagination = calculatePagination(page, limit, total)
+
+    // Return paginated response
+    return NextResponse.json(createPaginatedResponse(dealerPlates, pagination))
   } catch (error) {
     console.error("Error fetching dealer plates:", error)
     return NextResponse.json(

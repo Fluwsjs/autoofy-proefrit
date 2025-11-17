@@ -1,10 +1,20 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { emailVerificationRateLimit } from "@/lib/rate-limit"
 
 export async function GET(request: NextRequest) {
   try {
+    // Apply rate limiting (based on token, which we'll extract first)
     const searchParams = request.nextUrl.searchParams
     const token = searchParams.get("token")
+    
+    // Apply rate limiting before processing
+    // Note: This limits by IP, but ideally would limit by email from token
+    const rateLimitResult = await emailVerificationRateLimit(request)
+    if (rateLimitResult && !token) {
+      // If no token and rate limited, return error
+      return rateLimitResult
+    }
 
     if (!token) {
       return NextResponse.redirect(

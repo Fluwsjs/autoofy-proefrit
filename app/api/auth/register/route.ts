@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs"
 import { z } from "zod"
 import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
 import { sendVerificationEmail } from "@/lib/email"
+import { registerRateLimit, getRateLimitHeaders } from "@/lib/rate-limit"
+import { validatePasswordStrength } from "@/lib/password-validation"
+import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
 
 const registerSchema = z.object({
   tenantName: z.string().min(1, "Bedrijfsnaam is verplicht").trim(),
@@ -20,8 +23,32 @@ const registerSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting
+    const rateLimitResult = await registerRateLimit(request)
+    if (rateLimitResult) {
+      return rateLimitResult
+    }
+
     const body = await request.json()
-    const validatedData = registerSchema.parse(body)
+    
+    // Sanitize input
+    const sanitizedBody = {
+      ...body,
+      tenantName: sanitizeString(body.tenantName || ""),
+      userName: sanitizeString(body.userName || ""),
+      email: sanitizeEmail(body.email || ""),
+    }
+    
+    const validatedData = registerSchema.parse(sanitizedBody)
+
+    // Additional password strength validation
+    const passwordValidation = validatePasswordStrength(validatedData.password)
+    if (!passwordValidation.valid) {
+      return NextResponse.json(
+        { error: passwordValidation.errors[0] || "Wachtwoord is niet sterk genoeg" },
+        { status: 400 }
+      )
+    }
 
     // Check if email already exists (as tenant or user)
     const existingTenant = await prisma.tenant.findUnique({
@@ -87,13 +114,26 @@ export async function POST(request: NextRequest) {
       return { tenant, user }
     })
 
+    // Get rate limit headers
+    const forwarded = request.headers.get("x-forwarded-for")
+    const realIp = request.headers.get("x-real-ip")
+    const ip = forwarded?.split(",")[0] || realIp || "unknown"
+    const rateLimitHeaders = getRateLimitHeaders(
+      `rate-limit:${ip}`,
+      { maxRequests: 3, windowMs: 60 * 60 * 1000 }
+    )
+
     return NextResponse.json(
       {
         message: "Autobedrijf en beheerder succesvol aangemaakt. Controleer uw e-mail voor verificatie.",
         tenantId: result.tenant.id,
         requiresVerification: true,
+        email: validatedData.email,
       },
-      { status: 201 }
+      { 
+        status: 201,
+        headers: rateLimitHeaders,
+      }
     )
   } catch (error) {
     if (error instanceof z.ZodError) {

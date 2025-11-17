@@ -59,8 +59,10 @@ function DashboardContent() {
     try {
       const response = await fetch("/api/testrides")
       if (response.ok) {
-        const data = await response.json()
-        setTestrides(data)
+        const result = await response.json()
+        // Handle paginated response: { data: [...], pagination: {...} }
+        const testrides = result.data || result
+        setTestrides(testrides)
       }
     } catch (error) {
       console.error("Error fetching testrides:", error)

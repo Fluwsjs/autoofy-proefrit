@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
+import { validateSignatureImage } from "@/lib/file-validation"
 
 const sellerSignatureSchema = z.object({
   signatureUrl: z.string().min(1, "Handtekening is verplicht"),
@@ -45,6 +46,15 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const validatedData = sellerSignatureSchema.parse(body)
+
+    // Validate signature image
+    const signatureValidation = validateSignatureImage(validatedData.signatureUrl)
+    if (!signatureValidation.valid) {
+      return NextResponse.json(
+        { error: signatureValidation.error },
+        { status: 400 }
+      )
+    }
 
     const user = await prisma.user.update({
       where: { id: session.user.id },

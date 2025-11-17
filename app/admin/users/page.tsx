@@ -52,8 +52,10 @@ export default function AdminUsersPage() {
     try {
       const response = await fetch("/api/admin/users")
       if (response.ok) {
-        const data = await response.json()
-        setUsers(data)
+        const result = await response.json()
+        // Handle paginated response: { data: [...], pagination: {...} }
+        const users = result.data || result
+        setUsers(users)
       } else {
         showToast("Fout bij ophalen gebruikers", "error")
       }
@@ -66,8 +68,8 @@ export default function AdminUsersPage() {
   }
 
   const handleResetPassword = async (userId: string) => {
-    if (!newPassword || newPassword.length < 6) {
-      setError("Wachtwoord moet minimaal 6 tekens lang zijn")
+    if (!newPassword || newPassword.length < 8) {
+      setError("Wachtwoord moet minimaal 8 tekens lang zijn")
       return
     }
 

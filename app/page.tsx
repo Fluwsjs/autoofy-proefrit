@@ -108,7 +108,9 @@ function HomePageForm() {
         // Registration successful - show success message
         // User needs to verify email before logging in
         if (data.requiresVerification) {
-          router.push("/auth/verify-email")
+          // Pass email to verify-email page for resend functionality
+          const emailParam = data.email ? `?email=${encodeURIComponent(data.email)}` : ""
+          router.push(`/auth/verify-email${emailParam}`)
         } else {
           // Auto login after registration (fallback for old accounts)
           const result = await signIn("credentials", {
