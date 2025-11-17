@@ -5,9 +5,54 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
 import { LogOut } from "lucide-react"
+import { NotificationCenter, Notification } from "@/components/NotificationCenter"
+import { useState, useEffect } from "react"
 
 export function Navbar() {
   const { data: session } = useSession()
+  const [notifications, setNotifications] = useState<Notification[]>([])
+
+  useEffect(() => {
+    if (session) {
+      // Load notifications from localStorage or API
+      const stored = localStorage.getItem('notifications')
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored).map((n: any) => ({
+            ...n,
+            timestamp: new Date(n.timestamp)
+          }))
+          setNotifications(parsed)
+        } catch (e) {
+          console.error('Error loading notifications:', e)
+        }
+      }
+    }
+  }, [session])
+
+  const handleMarkAsRead = (id: string) => {
+    setNotifications(prev => {
+      const updated = prev.map(n => n.id === id ? { ...n, read: true } : n)
+      localStorage.setItem('notifications', JSON.stringify(updated))
+      return updated
+    })
+  }
+
+  const handleDismiss = (id: string) => {
+    setNotifications(prev => {
+      const updated = prev.filter(n => n.id !== id)
+      localStorage.setItem('notifications', JSON.stringify(updated))
+      return updated
+    })
+  }
+
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => {
+      const updated = prev.map(n => ({ ...n, read: true }))
+      localStorage.setItem('notifications', JSON.stringify(updated))
+      return updated
+    })
+  }
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
@@ -24,7 +69,7 @@ export function Navbar() {
         </Link>
         
         {session && (
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             {session.user.isSuperAdmin ? (
               <Link href="/admin">
                 <Button variant="outline" size="sm" className="gap-2">
@@ -38,7 +83,15 @@ export function Navbar() {
                 <span className="text-sm font-medium">{session.user.tenantName}</span>
               </div>
             )}
-            <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
+            {!session.user.isSuperAdmin && (
+              <NotificationCenter
+                notifications={notifications}
+                onMarkAsRead={handleMarkAsRead}
+                onDismiss={handleDismiss}
+                onMarkAllAsRead={handleMarkAllAsRead}
+              />
+            )}
+            <div className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
               <div className="h-8 w-8 rounded-full bg-autoofy-dark flex items-center justify-center text-white text-sm font-semibold">
                 {session.user.name.charAt(0).toUpperCase()}
               </div>
@@ -50,7 +103,7 @@ export function Navbar() {
               onClick={() => signOut({ callbackUrl: "/" })}
               className="hover:bg-red-50 hover:text-red-600 transition-colors"
             >
-              <LogOut className="h-4 w-4 mr-2" />
+              <LogOut className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">Uitloggen</span>
             </Button>
           </div>

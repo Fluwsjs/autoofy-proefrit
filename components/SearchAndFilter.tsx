@@ -36,12 +36,12 @@ export function SearchAndFilter({
           </button>
         )}
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-2 sm:pb-0">
         <Button
           variant={dateFilter === "all" ? "default" : "outline"}
           size="sm"
           onClick={() => onDateFilterChange("all")}
-          className={dateFilter === "all" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90" : ""}
+          className={dateFilter === "all" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90 whitespace-nowrap" : "whitespace-nowrap"}
         >
           Alle
         </Button>
@@ -49,7 +49,7 @@ export function SearchAndFilter({
           variant={dateFilter === "today" ? "default" : "outline"}
           size="sm"
           onClick={() => onDateFilterChange("today")}
-          className={dateFilter === "today" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90" : ""}
+          className={dateFilter === "today" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90 whitespace-nowrap" : "whitespace-nowrap"}
         >
           Vandaag
         </Button>
@@ -57,7 +57,7 @@ export function SearchAndFilter({
           variant={dateFilter === "week" ? "default" : "outline"}
           size="sm"
           onClick={() => onDateFilterChange("week")}
-          className={dateFilter === "week" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90" : ""}
+          className={dateFilter === "week" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90 whitespace-nowrap" : "whitespace-nowrap"}
         >
           Deze week
         </Button>
@@ -65,7 +65,7 @@ export function SearchAndFilter({
           variant={dateFilter === "month" ? "default" : "outline"}
           size="sm"
           onClick={() => onDateFilterChange("month")}
-          className={dateFilter === "month" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90" : ""}
+          className={dateFilter === "month" ? "bg-autoofy-dark text-white hover:bg-autoofy-dark/90 whitespace-nowrap" : "whitespace-nowrap"}
         >
           Deze maand
         </Button>

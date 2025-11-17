@@ -65,7 +65,78 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="overflow-x-auto">
+        {/* Mobile Card View */}
+        <div className="block md:hidden divide-y">
+          {testrides.map((testride) => (
+            <div key={testride.id} className="p-4 space-y-3 hover:bg-muted/50 transition-colors">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="font-semibold text-foreground">{testride.customerName}</div>
+                  <div className="text-sm text-muted-foreground">{testride.customerEmail}</div>
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    onClick={() => handleQuickView(testride.id)}
+                    className="h-8 w-8"
+                  >
+                    <Eye className="h-4 w-4" />
+                  </Button>
+                  {onDelete && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onDelete(testride.id)}
+                      className="h-8 w-8"
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-2 text-sm">
+                <div>
+                  <span className="text-muted-foreground">Auto:</span>
+                  <span className="ml-2 font-medium">{testride.carType}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Datum:</span>
+                  <span className="ml-2 font-medium">{formatDate(testride.date)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Tijd:</span>
+                  <span className="ml-2">{formatTime(testride.startTime)} - {formatTime(testride.endTime)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Status:</span>
+                  <span className="ml-2">
+                    {testride.status === "COMPLETED" ? (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
+                        <CheckCircle className="h-3 w-3" />
+                        Afgerond
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
+                        In behandeling
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-muted-foreground">Kilometers:</span>
+                  <span className="ml-2 font-medium">{testride.startKm}</span>
+                  {testride.endKm !== null && (
+                    <span className="text-muted-foreground"> → {testride.endKm}</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Table View */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full border-collapse">
             <thead>
               <tr className="border-b bg-muted/30">
