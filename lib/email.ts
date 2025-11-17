@@ -70,7 +70,7 @@ export async function sendVerificationEmail(email: string, token: string, name: 
     return { success: false, error: "Email service not configured" }
   }
 
-  const verificationUrl = `${BASE_URL}/auth/verify-email?token=${token}`
+  const verificationUrl = `${BASE_URL}/api/auth/verify-email?token=${token}`
 
   const content = `
     <div style="color: #1f2937;">
@@ -225,7 +225,7 @@ export async function resendVerificationEmail(email: string, token: string, name
     return { success: false, error: "Email service not configured" }
   }
 
-  const verificationUrl = `${BASE_URL}/auth/verify-email?token=${token}`
+  const verificationUrl = `${BASE_URL}/api/auth/verify-email?token=${token}`
 
   const content = `
     <div style="color: #1f2937;">
