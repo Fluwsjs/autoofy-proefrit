@@ -46,8 +46,9 @@ export async function GET(request: NextRequest) {
     }
 
     // Verify the user's email and get user info
+    // Use transaction to ensure verification is saved even if auto-login fails
     const user = await prisma.$transaction(async (tx) => {
-      // Update user
+      // Update user email verification status
       const updatedUser = await tx.user.update({
         where: { id: verificationToken.userId },
         data: {
@@ -57,33 +58,61 @@ export async function GET(request: NextRequest) {
         include: { tenant: true },
       })
 
-      // Delete verification token
-      await tx.verificationToken.delete({
-        where: { id: verificationToken.id },
-      })
-
+      // Keep the token for auto-login (don't delete it yet)
+      // We'll delete it during the login process in the EmailLink provider
+      
       return updatedUser
     })
 
-    // Create a session token that can be used to auto-login
-    // Store it in a cookie that will be used by the client to auto-login
-    const baseUrl = new URL(request.url)
-    const redirectUrl = new URL("/auth/verify-email", baseUrl.origin)
-    redirectUrl.searchParams.set("success", "true")
-    redirectUrl.searchParams.set("email", user.email)
-    
-    // Set a temporary cookie with user email for auto-login
-    const response = NextResponse.redirect(redirectUrl)
-    response.cookies.set("verification_email", user.email, {
-      httpOnly: false, // Client needs to read this
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 300, // 5 minutes
-    })
+    // Log successful verification
+    console.log(`✅ Email verified for user: ${user.email} (ID: ${user.id})`)
 
-    return response
+    // Redirect to auto-login page that will use the EmailLink provider
+    const baseUrl = new URL(request.url)
+    const redirectUrl = new URL("/auth/auto-login", baseUrl.origin)
+    redirectUrl.searchParams.set("token", verificationToken.token)
+    redirectUrl.searchParams.set("userId", user.id)
+    redirectUrl.searchParams.set("callbackUrl", `${baseUrl.origin}/dashboard`)
+
+    return NextResponse.redirect(redirectUrl)
   } catch (error) {
     console.error("Email verification error:", error)
+    console.error("Error details:", error instanceof Error ? error.stack : error)
+    
+    // Even if there's an error, try to verify the user if we have a token
+    // This ensures the user can still login manually
+    try {
+      const searchParams = request.nextUrl.searchParams
+      const token = searchParams.get("token")
+      
+      if (token) {
+        const verificationToken = await prisma.verificationToken.findUnique({
+          where: { token },
+          include: { user: true },
+        })
+        
+        if (verificationToken && !verificationToken.user.emailVerified) {
+          // Try to verify the user anyway
+          await prisma.user.update({
+            where: { id: verificationToken.userId },
+            data: {
+              emailVerified: true,
+              emailVerifiedAt: new Date(),
+            },
+          })
+          console.log(`✅ Email verified as fallback for user: ${verificationToken.user.email}`)
+          
+          // Redirect to login page with success message
+          const baseUrl = new URL(request.url)
+          return NextResponse.redirect(
+            new URL(`/?verified=true&email=${encodeURIComponent(verificationToken.user.email)}`, baseUrl.origin)
+          )
+        }
+      }
+    } catch (fallbackError) {
+      console.error("Fallback verification error:", fallbackError)
+    }
+    
     return NextResponse.redirect(
       new URL("/auth/verify-email?error=server_error", request.url)
     )

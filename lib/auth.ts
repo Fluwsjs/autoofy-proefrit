@@ -5,6 +5,86 @@ import bcrypt from "bcryptjs"
 
 export const authOptions: NextAuthOptions = {
   providers: [
+    // EmailLink provider for auto-login after email verification
+    CredentialsProvider({
+      name: "EmailLink",
+      credentials: {
+        token: { label: "Token", type: "text" },
+        userId: { label: "User ID", type: "text" },
+      },
+      async authorize(credentials) {
+        try {
+          if (!credentials?.token || !credentials?.userId) {
+            return null
+          }
+
+          // Find verification token (we'll use this for auto-login)
+          const verificationToken = await prisma.verificationToken.findUnique({
+            where: { token: credentials.token },
+            include: { user: { include: { tenant: true } } },
+          })
+
+          // If no verification token, check if user is already verified and use userId
+          if (!verificationToken) {
+            const user = await prisma.user.findUnique({
+              where: { id: credentials.userId },
+              include: { tenant: true },
+            })
+
+            if (user && user.emailVerified) {
+              return {
+                id: user.id,
+                email: user.email,
+                name: user.name,
+                role: user.role,
+                tenantId: user.tenantId,
+                tenantName: user.tenant.name,
+                isSuperAdmin: false,
+              }
+            }
+            return null
+          }
+
+          // Check if token is expired
+          if (verificationToken.expiresAt < new Date()) {
+            return null
+          }
+
+          // Verify the user
+          const user = await prisma.$transaction(async (tx) => {
+            const updatedUser = await tx.user.update({
+              where: { id: verificationToken.userId },
+              data: {
+                emailVerified: true,
+                emailVerifiedAt: new Date(),
+              },
+              include: { tenant: true },
+            })
+
+            // Delete verification token after use
+            await tx.verificationToken.delete({
+              where: { id: verificationToken.id },
+            })
+
+            return updatedUser
+          })
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            role: user.role,
+            tenantId: user.tenantId,
+            tenantName: user.tenant.name,
+            isSuperAdmin: false,
+          }
+        } catch (error) {
+          console.error("EmailLink auth error:", error)
+          return null
+        }
+      },
+    }),
+    // Regular credentials provider
     CredentialsProvider({
       name: "Credentials",
       credentials: {
