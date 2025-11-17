@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
-import { LogOut } from "lucide-react"
+import { LogOut, ExternalLink } from "lucide-react"
 import { NotificationCenter, Notification } from "@/components/NotificationCenter"
 import { useState, useEffect } from "react"
 
@@ -57,16 +57,28 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <Link href={session ? "/dashboard" : "/"} className="flex items-center group">
-          <Image
-            src="/autoofy-logo.svg"
-            alt="Autoofy Logo"
-            width={152}
-            height={17}
-            className="object-contain h-10 w-auto"
-            priority
-          />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href={session ? "/dashboard" : "/"} className="flex items-center group">
+            <Image
+              src="/autoofy-logo.svg"
+              alt="Autoofy Logo"
+              width={152}
+              height={17}
+              className="object-contain h-10 w-auto"
+              priority
+            />
+          </Link>
+          <a 
+            href="https://www.autoofy.nl" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground hover:text-autoofy-red transition-colors group/link"
+            title="Bezoek Autoofy website"
+          >
+            <span>www.autoofy.nl</span>
+            <ExternalLink className="h-3 w-3 group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5 transition-transform" />
+          </a>
+        </div>
         
         {session && (
           <div className="flex items-center gap-2 sm:gap-4">
