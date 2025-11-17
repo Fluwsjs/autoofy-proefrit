@@ -97,9 +97,12 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Email en wachtwoord zijn verplicht")
           }
 
+          // Normalize email to lowercase (same as registration)
+          const normalizedEmail = credentials.email.trim().toLowerCase()
+
           // First check if it's a super admin
           const superAdmin = await prisma.superAdmin.findUnique({
-            where: { email: credentials.email },
+            where: { email: normalizedEmail },
           })
 
           if (superAdmin) {
@@ -125,7 +128,7 @@ export const authOptions: NextAuthOptions = {
 
           // Otherwise check regular user
           const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
+            where: { email: normalizedEmail },
             include: { tenant: true }
           })
 
