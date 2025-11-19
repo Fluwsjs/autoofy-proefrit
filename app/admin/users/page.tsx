@@ -16,6 +16,7 @@ interface User {
   name: string
   email: string
   role: string
+  emailVerified: boolean
   tenant: {
     id: string
     name: string
@@ -30,6 +31,7 @@ export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([])
   const [loading, setLoading] = useState(true)
   const [resettingUserId, setResettingUserId] = useState<string | null>(null)
+  const [approvingUserId, setApprovingUserId] = useState<string | null>(null)
   const [newPassword, setNewPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -64,6 +66,31 @@ export default function AdminUsersPage() {
       showToast("Fout bij ophalen gebruikers", "error")
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleApproveUser = async (userId: string) => {
+    setApprovingUserId(userId)
+    try {
+      const response = await fetch("/api/admin/users/approve", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      })
+
+      if (response.ok) {
+        // Update local state
+        setUsers(users.map(u => 
+          u.id === userId ? { ...u, emailVerified: true } : u
+        ))
+        showToast("Gebruiker succesvol goedgekeurd", "success")
+      } else {
+        showToast("Fout bij goedkeuren gebruiker", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    } finally {
+      setApprovingUserId(null)
     }
   }
 
@@ -151,6 +178,7 @@ export default function AdminUsersPage() {
                     <th className="text-left p-4 font-semibold text-sm">E-mail</th>
                     <th className="text-left p-4 font-semibold text-sm">Bedrijf</th>
                     <th className="text-left p-4 font-semibold text-sm">Rol</th>
+                    <th className="text-left p-4 font-semibold text-sm">Status</th>
                     <th className="text-left p-4 font-semibold text-sm">Geregistreerd</th>
                     <th className="text-left p-4 font-semibold text-sm">Acties</th>
                   </tr>
@@ -174,6 +202,23 @@ export default function AdminUsersPage() {
                         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-red/20 text-autoofy-dark border border-autoofy-red/30">
                           {user.role}
                         </span>
+                      </td>
+                      <td className="p-4">
+                        {user.emailVerified ? (
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                            Geverifieerd
+                          </span>
+                        ) : (
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            className="h-7 text-xs bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800"
+                            onClick={() => handleApproveUser(user.id)}
+                            disabled={approvingUserId === user.id}
+                          >
+                            {approvingUserId === user.id ? "Bezig..." : "Goedkeuren"}
+                          </Button>
+                        )}
                       </td>
                       <td className="p-4 text-sm text-muted-foreground">
                         {formatDate(user.createdAt)}

@@ -39,6 +39,8 @@ model User {
   emailVerified     Boolean  @default(false)
   emailVerifiedAt   DateTime?
   sellerSignatureUrl String? // Eenmalige verkoper handtekening/stempel (herbruikbaar)
+  twoFactorEnabled  Boolean  @default(false)
+  twoFactorSecret   String?
   createdAt         DateTime @default(now())
   dealerPlates      DealerPlate[]
   emailVerificationToken VerificationToken?

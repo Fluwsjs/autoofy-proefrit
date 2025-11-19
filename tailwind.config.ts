@@ -52,6 +52,8 @@ const config = {
           DEFAULT: "hsl(var(--popover))",
           foreground: "hsl(var(--popover-foreground))",
         },
+        "autoofy-dark": "#1D3557",
+        "autoofy-red": "#B22234",
       },
       borderRadius: {
         lg: "var(--radius)",

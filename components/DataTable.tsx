@@ -5,7 +5,7 @@ import { formatDate, formatTime } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Trash2, Eye, CheckCircle } from "lucide-react"
+import { Trash2, Eye, CheckCircle, Clock, PlayCircle, XCircle } from "lucide-react"
 import { EmptyState } from "@/components/EmptyState"
 import { QuickViewModal } from "@/components/QuickViewModal"
 
@@ -26,6 +26,37 @@ interface DataTableProps {
   testrides: Testride[]
   onDelete?: (id: string) => void
   showEmptyState?: boolean
+}
+
+const getStatusBadge = (status: string) => {
+  const statusUpper = status.toUpperCase()
+  
+  // COMPLETED status
+  if (statusUpper === "COMPLETED") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700 border border-green-200">
+        <CheckCircle className="h-3.5 w-3.5" />
+        Afgerond
+      </span>
+    )
+  }
+  
+  // PENDING status (default for new testrides)
+  if (statusUpper === "PENDING") {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
+        <Clock className="h-3.5 w-3.5" />
+        In behandeling
+      </span>
+    )
+  }
+  
+  // Fallback for any other status
+  return (
+    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700 border border-gray-200">
+      {status}
+    </span>
+  )
 }
 
 export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTableProps) {
@@ -58,11 +89,19 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
   }
 
   return (
-    <Card className="border-0 shadow-lg">
-      <CardHeader className="bg-autoofy-dark border-b">
-        <CardTitle className="text-xl font-bold text-white">
-          Proefritten ({testrides.length})
-        </CardTitle>
+    <Card className="border-0 shadow-xl overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-autoofy-dark via-gray-800 to-autoofy-dark border-b border-gray-700">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-white/10">
+              <Car className="h-5 w-5" />
+            </div>
+            Proefritten
+            <span className="text-sm font-normal bg-white/20 px-3 py-1 rounded-full">
+              {testrides.length}
+            </span>
+          </CardTitle>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         {/* Mobile Card View */}
@@ -111,16 +150,7 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                 <div>
                   <span className="text-muted-foreground">Status:</span>
                   <span className="ml-2">
-                    {testride.status === "COMPLETED" ? (
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">
-                        <CheckCircle className="h-3 w-3" />
-                        Afgerond
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">
-                        In behandeling
-                      </span>
-                    )}
+                    {getStatusBadge(testride.status)}
                   </span>
                 </div>
                 <div className="col-span-2">
@@ -183,37 +213,37 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                     )}
                   </td>
                   <td className="p-4">
-                    {testride.status === "COMPLETED" ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700 border border-green-300">
-                        <CheckCircle className="h-3 w-3" />
-                        Afgerond
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700 border border-yellow-300">
-                        In behandeling
-                      </span>
-                    )}
+                    {getStatusBadge(testride.status)}
                   </td>
                   <td className="p-4">
-                    <div className="flex gap-2">
+                    <div className="flex items-center gap-2">
                       <Button 
                         variant="ghost" 
                         size="icon"
                         onClick={() => handleQuickView(testride.id)}
-                        className="hover:bg-autoofy-red/10 hover:text-autoofy-red transition-colors"
+                        className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 hover:scale-110"
                         title="Snelle weergave"
                       >
                         <Eye className="h-4 w-4" />
                       </Button>
+                      <Link href={`/dashboard/${testride.id}`}>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 font-medium"
+                        >
+                          Details
+                        </Button>
+                      </Link>
                       {onDelete && (
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => onDelete(testride.id)}
-                          className="hover:bg-red-50 hover:text-red-600 transition-colors"
+                          className="hover:bg-red-100 hover:text-red-600 transition-all duration-200 hover:scale-110"
                           title="Verwijderen"
                         >
-                          <Trash2 className="h-4 w-4 text-destructive" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       )}
                     </div>

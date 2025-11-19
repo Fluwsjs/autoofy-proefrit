@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import bcrypt from "bcryptjs"
 import { z } from "zod"
-import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
-import { sendVerificationEmail } from "@/lib/email"
 import { registerRateLimit, getRateLimitHeaders } from "@/lib/rate-limit"
 import { validatePasswordStrength } from "@/lib/password-validation"
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
@@ -70,7 +68,6 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(validatedData.password, 10)
 
     // Create tenant and admin user in a transaction
-    // Use the same email for both tenant and user
     const result = await prisma.$transaction(async (tx) => {
       const tenant = await tx.tenant.create({
         data: {
@@ -86,30 +83,10 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           role: "ADMIN",
           tenantId: tenant.id,
-          emailVerified: false,
+          emailVerified: true, // Direct verified - no email verification needed
+          emailVerifiedAt: new Date(),
         },
       })
-
-      // Create verification token
-      const verificationToken = generateVerificationToken()
-      const expiresAt = getVerificationTokenExpiry()
-
-      await tx.verificationToken.create({
-        data: {
-          token: verificationToken,
-          userId: user.id,
-          expiresAt,
-        },
-      })
-
-      // Send verification email and log result
-      const emailResult = await sendVerificationEmail(validatedData.email, verificationToken, validatedData.userName)
-      if (!emailResult.success) {
-        console.error("Failed to send verification email:", emailResult.error)
-        // Don't fail registration if email fails, but log it
-      } else {
-        console.log("Verification email sent successfully:", emailResult.data)
-      }
 
       return { tenant, user }
     })
@@ -125,9 +102,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "Autobedrijf en beheerder succesvol aangemaakt. Controleer uw e-mail voor verificatie.",
+        message: "Account succesvol aangemaakt. U kunt nu inloggen.",
         tenantId: result.tenant.id,
-        requiresVerification: true,
         email: validatedData.email,
       },
       { 
@@ -181,4 +157,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

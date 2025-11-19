@@ -1,14 +1,104 @@
 import { Resend } from "resend"
+import nodemailer from "nodemailer"
 
+// SMTP Configuration
+const SMTP_HOST = process.env.SMTP_HOST
+const SMTP_PORT = parseInt(process.env.SMTP_PORT || "587")
+const SMTP_USER = process.env.SMTP_USER
+const SMTP_PASS = process.env.SMTP_PASS
+const SMTP_SECURE = process.env.SMTP_SECURE === "true"
+
+// Resend Configuration (Fallback or Primary depending on env)
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
-if (!process.env.RESEND_API_KEY) {
-  console.warn("⚠️ RESEND_API_KEY is not set. Email functionality will not work.")
+// Common Configuration
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "noreply@autoofy.nl"
+const FROM_NAME = process.env.FROM_NAME || process.env.RESEND_FROM_NAME || "Autoofy"
+const BASE_URL = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+
+// Configure Nodemailer transport
+const transporter = SMTP_HOST ? nodemailer.createTransport({
+  host: SMTP_HOST,
+  port: SMTP_PORT,
+  secure: SMTP_SECURE, // true for 465, false for other ports
+  auth: {
+    user: SMTP_USER,
+    pass: SMTP_PASS,
+  },
+}) : null
+
+if (!resend && !transporter) {
+  console.warn("⚠️ Geen e-mail service geconfigureerd (geen SMTP en geen Resend). E-mail functionaliteit zal niet werken.")
+} else {
+  if (transporter) {
+    console.log(`✅ SMTP service geconfigureerd (${SMTP_HOST}:${SMTP_PORT})`)
+  }
+  if (resend) {
+    console.log("✅ Resend service geconfigureerd")
+  }
 }
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev"
-const FROM_NAME = process.env.RESEND_FROM_NAME || "Autoofy"
-const BASE_URL = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+interface EmailOptions {
+  to: string
+  subject: string
+  html: string
+  text: string
+}
+
+/**
+ * Send email using available provider (SMTP prefers over Resend)
+ */
+async function sendEmail({ to, subject, html, text }: EmailOptions) {
+  // Try SMTP first if configured
+  if (transporter) {
+    try {
+      console.log(`Sending email via SMTP to: ${to}`)
+      const info = await transporter.sendMail({
+        from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+        to,
+        subject,
+        html,
+        text,
+      })
+      console.log("SMTP Email sent:", info.messageId)
+      return { success: true, data: info }
+    } catch (error: any) {
+      console.error("SMTP Send Error:", error)
+      // If SMTP fails and we have Resend, try Resend as backup?
+      // For now, just return error or fall through if we want fallback logic
+      if (!resend) {
+        return { success: false, error: error.message || "SMTP Error" }
+      }
+      console.log("Falling back to Resend...")
+    }
+  }
+
+  // Try Resend if SMTP not configured or failed
+  if (resend) {
+    try {
+      console.log(`Sending email via Resend to: ${to}`)
+      const { data, error } = await resend.emails.send({
+        from: `${FROM_NAME} <${FROM_EMAIL}>`,
+        to: [to],
+        subject,
+        html,
+        text,
+      })
+
+      if (error) {
+        console.error("Resend API error:", error)
+        return { success: false, error: error.message || "Unknown error" }
+      }
+
+      return { success: true, data }
+    } catch (error: any) {
+      console.error("Resend Error:", error)
+      return { success: false, error: error.message || "Resend Error" }
+    }
+  }
+
+  return { success: false, error: "No email service configured" }
+}
 
 /**
  * Get a professional email template wrapper
@@ -65,11 +155,6 @@ function getEmailTemplate(content: string, title: string) {
  * Send email verification email
  */
 export async function sendVerificationEmail(email: string, token: string, name: string) {
-  if (!resend || !process.env.RESEND_API_KEY) {
-    console.error("Resend is not configured. Cannot send verification email.")
-    return { success: false, error: "Email service not configured" }
-  }
-
   const verificationUrl = `${BASE_URL}/api/auth/verify-email?token=${token}`
 
   const content = `
@@ -108,45 +193,18 @@ export async function sendVerificationEmail(email: string, token: string, name: 
 
   const html = getEmailTemplate(content, "Verifieer uw e-mailadres")
 
-  try {
-    console.log(`Attempting to send verification email to: ${email}`)
-    console.log(`From: ${FROM_NAME} <${FROM_EMAIL}>`)
-    console.log(`Base URL: ${BASE_URL}`)
-
-    const { data, error } = await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: [email],
-      subject: "Verifieer uw e-mailadres - Autoofy",
-      html,
-      text: `Welkom bij Autoofy, ${name}!\n\nBedankt voor uw registratie. Om uw account te activeren, klik op de volgende link:\n\n${verificationUrl}\n\nDeze link verloopt over 24 uur.\n\nAls u deze e-mail niet heeft aangevraagd, kunt u deze negeren.`,
-    })
-
-    if (error) {
-      console.error("Resend API error:", error)
-      return { success: false, error: error.message || "Unknown error" }
-    }
-
-    console.log("Email sent successfully. Resend response:", data)
-
-    return { success: true, data }
-  } catch (error: any) {
-    console.error("Error sending verification email:", error)
-    return { 
-      success: false, 
-      error: error.message || "Unknown error" 
-    }
-  }
+  return sendEmail({
+    to: email,
+    subject: "Verifieer uw e-mailadres - Autoofy",
+    html,
+    text: `Welkom bij Autoofy, ${name}!\n\nBedankt voor uw registratie. Om uw account te activeren, klik op de volgende link:\n\n${verificationUrl}\n\nDeze link verloopt over 24 uur.\n\nAls u deze e-mail niet heeft aangevraagd, kunt u deze negeren.`
+  })
 }
 
 /**
  * Send password reset email
  */
 export async function sendPasswordResetEmail(email: string, token: string, name: string) {
-  if (!resend || !process.env.RESEND_API_KEY) {
-    console.error("Resend is not configured. Cannot send password reset email.")
-    return { success: false, error: "Email service not configured" }
-  }
-
   const resetUrl = `${BASE_URL}/auth/reset-password?token=${token}`
 
   const content = `
@@ -192,39 +250,18 @@ export async function sendPasswordResetEmail(email: string, token: string, name:
 
   const html = getEmailTemplate(content, "Wachtwoord resetten")
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: [email],
-      subject: "Wachtwoord resetten - Autoofy",
-      html,
-      text: `Hallo ${name},\n\nU heeft verzocht om uw wachtwoord te resetten. Klik op de volgende link:\n\n${resetUrl}\n\nDeze link verloopt over 1 uur.\n\nAls u deze e-mail niet heeft aangevraagd, kunt u deze negeren.`,
-    })
-
-    if (error) {
-      console.error("Resend API error:", error)
-      return { success: false, error: error.message || "Unknown error" }
-    }
-
-    return { success: true, data }
-  } catch (error: any) {
-    console.error("Error sending password reset email:", error)
-    return { 
-      success: false, 
-      error: error.message || "Unknown error" 
-    }
-  }
+  return sendEmail({
+    to: email,
+    subject: "Wachtwoord resetten - Autoofy",
+    html,
+    text: `Hallo ${name},\n\nU heeft verzocht om uw wachtwoord te resetten. Klik op de volgende link:\n\n${resetUrl}\n\nDeze link verloopt over 1 uur.\n\nAls u deze e-mail niet heeft aangevraagd, kunt u deze negeren.`
+  })
 }
 
 /**
  * Resend verification email (for users who didn't receive it)
  */
 export async function resendVerificationEmail(email: string, token: string, name: string) {
-  if (!resend || !process.env.RESEND_API_KEY) {
-    console.error("Resend is not configured. Cannot resend verification email.")
-    return { success: false, error: "Email service not configured" }
-  }
-
   const verificationUrl = `${BASE_URL}/api/auth/verify-email?token=${token}`
 
   const content = `
@@ -265,28 +302,10 @@ export async function resendVerificationEmail(email: string, token: string, name
 
   const html = getEmailTemplate(content, "Verificatie e-mail opnieuw verzonden")
 
-  try {
-    const { data, error } = await resend.emails.send({
-      from: `${FROM_NAME} <${FROM_EMAIL}>`,
-      to: [email],
-      subject: "Verificatie e-mail opnieuw verzonden - Autoofy",
-      html,
-      text: `Hallo ${name},\n\nU heeft verzocht om de verificatie e-mail opnieuw te ontvangen. Klik op de volgende link:\n\n${verificationUrl}\n\nDeze link verloopt over 24 uur.`,
-    })
-
-    if (error) {
-      console.error("Resend API error:", error)
-      return { success: false, error: error.message || "Unknown error" }
-    }
-
-    console.log("Resend verification email sent successfully")
-
-    return { success: true, data }
-  } catch (error: any) {
-    console.error("Error resending verification email:", error)
-    return { 
-      success: false, 
-      error: error.message || "Unknown error" 
-    }
-  }
+  return sendEmail({
+    to: email,
+    subject: "Verificatie e-mail opnieuw verzonden - Autoofy",
+    html,
+    text: `Hallo ${name},\n\nU heeft verzocht om de verificatie e-mail opnieuw te ontvangen. Klik op de volgende link:\n\n${verificationUrl}\n\nDeze link verloopt over 24 uur.`
+  })
 }

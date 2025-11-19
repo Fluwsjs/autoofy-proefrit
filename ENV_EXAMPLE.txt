@@ -8,13 +8,24 @@ DATABASE_URL=postgresql://postgres:password@host:5432/database
 NEXTAUTH_URL=http://localhost:3000
 NEXTAUTH_SECRET=your-secret-key-here
 
-# Resend Email Service
+# Email Service (Kies Resend OF SMTP)
+
+# Optie 1: Resend Email Service (Aanbevolen)
 RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 RESEND_FROM_EMAIL=onboarding@resend.dev
 RESEND_FROM_NAME=Autoofy
 
+# Optie 2: Eigen SMTP Server (Alternatief)
+# Als SMTP is ingesteld, wordt dit gebruikt in plaats van Resend
+SMTP_HOST=smtp.example.com
+SMTP_PORT=587
+SMTP_USER=your-email@example.com
+SMTP_PASS=your-email-password
+SMTP_SECURE=false
+# FROM settings voor SMTP
+FROM_EMAIL=noreply@autoofy.nl
+FROM_NAME=Autoofy
+
 # Optional
 CRON_SECRET=your-cron-secret-here
 ADMIN_CREATE_SECRET=your-admin-secret-here
-
-

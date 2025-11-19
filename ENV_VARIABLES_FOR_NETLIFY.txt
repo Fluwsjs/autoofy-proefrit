@@ -17,6 +17,17 @@ NEXTAUTH_SECRET
 a5515096fd53df882c00e422a08dcdb8
 
 ===========================================
+SMTP Instellingen (Hostinger)
+===========================================
+SMTP_HOST=smtp.hostinger.com
+SMTP_PORT=465
+SMTP_USER=info@autoofy.nl
+SMTP_PASS=jouw-hostinger-wachtwoord
+SMTP_SECURE=true
+FROM_EMAIL=info@autoofy.nl
+FROM_NAME=Autoofy
+
+===========================================
 CRON_SECRET (Optioneel)
 ===========================================
 cron-secret-key-2024
@@ -29,4 +40,3 @@ INSTRUCTIES:
 3. Kopieer Key en Value
 4. Selecteer "All scopes" (Production, Deploy previews, Branch deploys)
 5. Klik "Save"
-

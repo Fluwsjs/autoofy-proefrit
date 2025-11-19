@@ -100,30 +100,6 @@
     background: linear-gradient(135deg, #1D3557, #B22234);
   }
   
-  .bg-autoofy-dark {
-    background-color: #1D3557; /* Donkerblauw */
-  }
-  
-  .bg-autoofy-red {
-    background-color: #B22234; /* Rood */
-  }
-  
-  .text-autoofy-dark {
-    color: #1D3557; /* Donkerblauw */
-  }
-  
-  .text-autoofy-red {
-    color: #B22234; /* Rood */
-  }
-  
-  .border-autoofy-dark {
-    border-color: #1D3557;
-  }
-  
-  .border-autoofy-red {
-    border-color: #B22234;
-  }
-  
   .gradient-card {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
   }

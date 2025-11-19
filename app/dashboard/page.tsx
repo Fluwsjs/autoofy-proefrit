@@ -8,7 +8,7 @@ import { SearchAndFilter } from "@/components/SearchAndFilter"
 import { useToast } from "@/components/ui/toast"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Plus, TrendingUp, Calendar, Car } from "lucide-react"
+import { Plus, TrendingUp, Calendar, Car, Clock, CheckCircle, AlertCircle, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import Link from "next/link"
 import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/SkeletonLoader"
 import { AnalyticsChart } from "@/components/AnalyticsChart"
@@ -143,16 +143,36 @@ function DashboardContent() {
   // Statistics
   const stats = useMemo(() => {
     const now = new Date()
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
     const thisMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1)
     const thisWeek = new Date(now)
     thisWeek.setDate(thisWeek.getDate() - 7)
 
+    const thisMonthRides = testrides.filter((t) => new Date(t.date) >= thisMonth)
+    const lastMonthRides = testrides.filter((t) => {
+      const date = new Date(t.date)
+      return date >= lastMonth && date < thisMonth
+    })
+    
+    const completed = testrides.filter((t) => t.status.toUpperCase() === "COMPLETED").length
+    const pending = testrides.filter((t) => t.status.toUpperCase() === "PENDING").length
+
+    const monthGrowth = lastMonthRides.length > 0 
+      ? ((thisMonthRides.length - lastMonthRides.length) / lastMonthRides.length * 100).toFixed(1)
+      : thisMonthRides.length > 0 ? '100' : '0'
+
     return {
       total: testrides.length,
-      thisMonth: testrides.filter(
-        (t) => new Date(t.date) >= thisMonth
-      ).length,
+      thisMonth: thisMonthRides.length,
       thisWeek: testrides.filter((t) => new Date(t.date) >= thisWeek).length,
+      completed,
+      pending,
+      monthGrowth: parseFloat(monthGrowth),
+      today: testrides.filter((t) => {
+        const testrideDate = new Date(t.date)
+        return testrideDate.toDateString() === today.toDateString()
+      }).length,
     }
   }, [testrides])
 
@@ -174,14 +194,22 @@ function DashboardContent() {
     <div className="space-y-6 animate-in fade-in duration-500">
       {ToastComponent}
       
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold text-autoofy-dark">
-            Welkom {session?.user?.name || ""}
-          </h1>
-          <p className="text-muted-foreground text-sm sm:text-base">
-            Beheer uw proefritten
-          </p>
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-white via-blue-50/30 to-white p-6 rounded-2xl border border-gray-100 shadow-sm">
+        <div className="space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-autoofy-dark to-gray-700 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+              {session?.user?.name?.charAt(0).toUpperCase() || "U"}
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold text-autoofy-dark">
+                Welkom terug, {session?.user?.name?.split(' ')[0] || ""}
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base flex items-center gap-2">
+                <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                Bedrijf: {session?.user?.tenantName || ""}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <div className="flex items-center gap-1 bg-muted rounded-lg p-1 flex-1 sm:flex-initial">
@@ -224,47 +252,124 @@ function DashboardContent() {
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Totaal proefritten</p>
-                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.total}</p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 via-white to-blue-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-autoofy-dark/5 rounded-full -mr-16 -mt-16"></div>
+          <CardContent className="pt-6 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-600">Totaal proefritten</p>
+                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.total}</p>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Car className="h-3 w-3" />
+                  <span>Alle tijd</span>
+                </div>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg group-hover:rotate-6 transition-transform duration-300">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-autoofy-dark to-gray-800 shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Car className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Deze maand</p>
-                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisMonth}</p>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 via-white to-red-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-autoofy-red/5 rounded-full -mr-16 -mt-16"></div>
+          <CardContent className="pt-6 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-600">Deze maand</p>
+                <div className="flex items-baseline gap-2">
+                  <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisMonth}</p>
+                  {stats.monthGrowth !== 0 && (
+                    <span className={`flex items-center text-xs font-semibold px-2 py-1 rounded-full ${
+                      stats.monthGrowth > 0 
+                        ? 'bg-green-100 text-green-700' 
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                      {Math.abs(stats.monthGrowth)}%
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Calendar className="h-3 w-3" />
+                  <span>vs. vorige maand</span>
+                </div>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-red shadow-lg group-hover:rotate-6 transition-transform duration-300">
+              <div className="p-3 rounded-xl bg-gradient-to-br from-autoofy-red to-red-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
                 <Calendar className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] cursor-pointer group">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <p className="text-sm font-medium text-muted-foreground">Deze week</p>
-                <p className="text-3xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisWeek}</p>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 via-white to-green-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16"></div>
+          <CardContent className="pt-6 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-600">Vandaag</p>
+                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.today}</p>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <Clock className="h-3 w-3" />
+                  <span>Gepland</span>
+                </div>
               </div>
-              <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg group-hover:rotate-6 transition-transform duration-300">
-                <TrendingUp className="h-6 w-6 text-white" />
+              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <Clock className="h-6 w-6 text-white" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 via-white to-purple-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
+          <CardContent className="pt-6 relative">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-gray-600">Afgerond</p>
+                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.completed}</p>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <CheckCircle className="h-3 w-3" />
+                  <span>{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% voltooid</span>
+                </div>
+              </div>
+              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                <CheckCircle className="h-6 w-6 text-white" />
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Quick Actions for Today */}
+      {stats.today > 0 && viewMode === "table" && (
+        <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-l-4 border-amber-400">
+          <CardContent className="pt-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-amber-400 shadow-lg">
+                  <AlertCircle className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-autoofy-dark text-lg">
+                    {stats.today} proefrit{stats.today !== 1 ? 'ten' : ''} vandaag
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Vergeet niet om voor te bereiden en te controleren
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setDateFilter("today")}
+                className="bg-autoofy-dark hover:bg-autoofy-dark/90 text-white"
+              >
+                Bekijk vandaag
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* View Content */}
       {viewMode === "analytics" ? (

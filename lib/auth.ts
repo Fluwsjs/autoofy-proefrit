@@ -2,11 +2,13 @@ import { NextAuthOptions } from "next-auth"
 import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
+import { authenticator } from "otplib"
 
 export const authOptions: NextAuthOptions = {
   providers: [
     // EmailLink provider for auto-login after email verification
     CredentialsProvider({
+      id: "email-link",
       name: "EmailLink",
       credentials: {
         token: { label: "Token", type: "text" },
@@ -86,10 +88,12 @@ export const authOptions: NextAuthOptions = {
     }),
     // Regular credentials provider
     CredentialsProvider({
+      id: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
+        code: { label: "2FA Code", type: "text" }
       },
       async authorize(credentials) {
         try {
@@ -142,13 +146,7 @@ export const authOptions: NextAuthOptions = {
             throw new Error("Ongeldige inloggegevens")
           }
           
-          console.log(`[AUTH] User found: ${user.email}, verified: ${user.emailVerified}`)
-
-          // Check if email is verified
-          if (!user.emailVerified) {
-            console.error(`[AUTH] Email not verified for: ${normalizedEmail}`)
-            throw new Error("E-mailadres is nog niet geverifieerd. Controleer uw inbox voor de verificatie e-mail.")
-          }
+          console.log(`[AUTH] User found: ${user.email}`)
 
           console.log(`[AUTH] Verifying password for: ${normalizedEmail}`)
           const isPasswordValid = await bcrypt.compare(
@@ -176,19 +174,18 @@ export const authOptions: NextAuthOptions = {
           }
         } catch (error) {
           console.error("[AUTH] ❌ Auth error occurred:")
+          console.error("[AUTH] Credentials provided:", { 
+            email: credentials?.email, 
+            hasPassword: !!credentials?.password,
+            hasCode: !!credentials?.code 
+          })
           if (error instanceof Error) {
             console.error("[AUTH] Error message:", error.message)
             console.error("[AUTH] Error stack:", error.stack)
           } else {
             console.error("[AUTH] Unknown error:", error)
           }
-          
-          // Check for database connection issues
-          if (error instanceof Error && error.message.includes("connect")) {
-            console.error("[AUTH] ⚠️ Database connection issue detected!")
-          }
-          
-          // Return null to trigger 401, but log the actual error
+          // Always return null on error - NextAuth will handle the error response
           return null
         }
       }
@@ -214,7 +211,7 @@ export const authOptions: NextAuthOptions = {
         ;(session.user as any).isSuperAdmin = token.isSuperAdmin as boolean
       }
       return session
-    }
+    },
   },
   pages: {
     signIn: '/',
@@ -224,4 +221,3 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
 }
-

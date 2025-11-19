@@ -9,22 +9,22 @@ async function testEmailVerification() {
     console.log('1. Checking environment variables...')
     const resendKey = process.env.RESEND_API_KEY
     const resendEmail = process.env.RESEND_FROM_EMAIL
+    const smtpHost = process.env.SMTP_HOST
+    const smtpUser = process.env.SMTP_USER
     const nextauthUrl = process.env.NEXTAUTH_URL
     
-    if (!resendKey) {
-      console.log('❌ RESEND_API_KEY is niet ingesteld')
-      console.log('   Zet dit in je .env file of Netlify environment variables')
-    } else {
+    const emailServiceConfigured = (resendKey && resendEmail) || (smtpHost && smtpUser)
+
+    if (resendKey) {
       console.log('✅ RESEND_API_KEY is ingesteld')
-      console.log(`   Key: ${resendKey.substring(0, 10)}...`)
     }
     
-    if (!resendEmail) {
-      console.log('❌ RESEND_FROM_EMAIL is niet ingesteld')
-      console.log('   Zet dit in je .env file of Netlify environment variables')
-    } else {
-      console.log('✅ RESEND_FROM_EMAIL is ingesteld')
-      console.log(`   Email: ${resendEmail}`)
+    if (smtpHost) {
+      console.log('✅ SMTP_HOST is ingesteld')
+    }
+
+    if (!emailServiceConfigured) {
+      console.log('❌ Geen email service geconfigureerd (Resend of SMTP)')
     }
     
     if (!nextauthUrl) {
@@ -153,18 +153,17 @@ async function testEmailVerification() {
     
     // Summary
     console.log('📊 Samenvatting:')
-    console.log(`   - Resend geconfigureerd: ${resendKey && resendEmail ? '✅' : '❌'}`)
+    console.log(`   - Email service geconfigureerd: ${emailServiceConfigured ? '✅' : '❌'}`)
     console.log(`   - Database verbinding: ✅`)
     console.log(`   - Schema correct: ✅`)
     console.log(`   - Niet-geverifieerde users: ${unverifiedUsers.length}`)
     console.log(`   - Actieve tokens: ${activeTokens.length}`)
     console.log(`   - Verlopen tokens: ${expiredTokens.length}`)
     
-    if (!resendKey || !resendEmail) {
-      console.log('\n⚠️  WAARSCHUWING: Resend is niet volledig geconfigureerd!')
-      console.log('   Email verificatie zal niet werken totdat je:')
-      console.log('   1. RESEND_API_KEY instelt')
-      console.log('   2. RESEND_FROM_EMAIL instelt (gebruik onboarding@resend.dev voor development)')
+    if (!emailServiceConfigured) {
+      console.log('\n⚠️  WAARSCHUWING: Geen e-mail service geconfigureerd!')
+      console.log('   Stel RESEND_API_KEY in voor Resend')
+      console.log('   OF stel SMTP_HOST, SMTP_USER, SMTP_PASS in voor eigen mailserver')
     } else {
       console.log('\n✅ Email verificatie systeem is klaar voor gebruik!')
     }
@@ -178,4 +177,3 @@ async function testEmailVerification() {
 }
 
 testEmailVerification()
-
