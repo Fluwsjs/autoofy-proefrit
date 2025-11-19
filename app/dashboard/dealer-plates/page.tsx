@@ -71,10 +71,10 @@ export default function DealerPlatesPage() {
       if (!response.ok) {
         setError(data.error || "Er is een fout opgetreden")
       } else {
+        showToast("Handelaarskenteken toegevoegd", "success")
         setNewPlate("")
         setError("")
-        showToast("Handelaarskenteken toegevoegd", "success")
-        fetchDealerPlates()
+        await fetchDealerPlates()
       }
     } catch (err) {
       setError("Er is een fout opgetreden")
@@ -126,67 +126,86 @@ export default function DealerPlatesPage() {
         Terug naar dashboard
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Handelaarskentekens Beheren</CardTitle>
+      <Card className="border-0 shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-autoofy-dark to-gray-800 border-b border-gray-700">
+          <CardTitle className="text-xl font-bold text-white">Handelaarskentekens Beheren</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 p-6">
           {/* Add new plate form */}
           <form onSubmit={handleAdd} className="space-y-4">
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1">
                 <FormInput
                   label="Nieuw handelaarskenteken"
                   value={newPlate}
                   onChange={(e) => setNewPlate(e.target.value)}
                   placeholder="Bijv. 12-ABC-3"
+                  disabled={adding}
                 />
               </div>
               <div className="flex items-end">
                 <Button
                   type="submit"
                   disabled={adding}
-                  className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+                  className="w-full sm:w-auto bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 shadow-lg hover:shadow-xl transition-all duration-300"
                 >
-                  <Plus className="h-4 w-4 mr-2" />
-                  {adding ? "Toevoegen..." : "Toevoegen"}
+                  {adding ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                      Toevoegen...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="h-4 w-4 mr-2" />
+                      Toevoegen
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
             {error && (
-              <p className="text-sm text-destructive">{error}</p>
+              <div className="p-3 bg-red-50 border-l-4 border-red-500 rounded-r-lg animate-in slide-in-from-left-4">
+                <p className="text-sm text-red-800 font-medium">{error}</p>
+              </div>
             )}
           </form>
 
           {/* List of plates */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">
+          <div className="border-t pt-6">
+            <h3 className="text-lg font-semibold mb-4 text-autoofy-dark">
               Mijn handelaarskentekens ({dealerPlates.length})
             </h3>
             {dealerPlates.length === 0 ? (
-              <p className="text-muted-foreground">
-                Nog geen handelaarskentekens toegevoegd. Voeg er een toe om te beginnen.
-              </p>
+              <div className="text-center py-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <p className="text-gray-600">
+                  Nog geen handelaarskentekens toegevoegd. Voeg er een toe om te beginnen.
+                </p>
+              </div>
             ) : (
-              <div className="space-y-2">
-                {dealerPlates.map((plate) => (
+              <div className="space-y-3">
+                {dealerPlates.map((plate, index) => (
                   <div
                     key={plate.id}
-                    className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
+                    className="flex items-center justify-between p-4 border rounded-xl hover:bg-blue-50 hover:border-blue-200 transition-all duration-200 animate-in fade-in slide-in-from-bottom-4"
+                    style={{ animationDelay: `${index * 50}ms` }}
                   >
                     <div>
-                      <p className="font-medium">{plate.plate}</p>
-                      <p className="text-sm text-muted-foreground">
-                        Toegevoegd op {new Date(plate.createdAt).toLocaleDateString("nl-NL")}
+                      <p className="font-semibold text-lg text-autoofy-dark">{plate.plate}</p>
+                      <p className="text-sm text-gray-600">
+                        Toegevoegd op {new Date(plate.createdAt).toLocaleDateString("nl-NL", {
+                          day: 'numeric',
+                          month: 'long',
+                          year: 'numeric'
+                        })}
                       </p>
                     </div>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDelete(plate.id)}
-                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 transition-all duration-200 hover:scale-110"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-5 w-5" />
                     </Button>
                   </div>
                 ))}
