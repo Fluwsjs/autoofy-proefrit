@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,8 @@ interface DealerPlate {
 
 export default function DealerPlatesPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const returnTo = searchParams.get("returnTo") || "/dashboard"
   const { data: session } = useSession()
   const { showToast, ToastComponent } = useToast()
   const [dealerPlates, setDealerPlates] = useState<DealerPlate[]>([])
@@ -120,10 +122,10 @@ export default function DealerPlatesPage() {
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => router.push("/dashboard")}
+        onClick={() => router.push(returnTo)}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Terug naar dashboard
+        {returnTo === "/dashboard/new" ? "Terug naar formulier" : "Terug naar dashboard"}
       </Button>
 
       <Card className="border-0 shadow-lg">

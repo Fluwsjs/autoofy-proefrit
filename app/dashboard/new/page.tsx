@@ -254,7 +254,7 @@ export default function NewTestridePage() {
                     </option>
                   ))}
                 </select>
-                <Link href="/dashboard/dealer-plates" className="text-sm text-autoofy-dark hover:underline">
+                <Link href="/dashboard/dealer-plates?returnTo=/dashboard/new" className="text-sm text-autoofy-dark hover:underline">
                   Beheer alle handelaarskentekens
                 </Link>
                 
