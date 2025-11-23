@@ -132,8 +132,8 @@ export default function CompanyInfoPage() {
         {returnTo === "onboarding" ? "Terug naar onboarding" : "Terug naar dashboard"}
       </Button>
 
-      <Card>
-        <CardHeader>
+      <Card className="shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-autoofy-dark/5 to-autoofy-red/5 border-b">
           <CardTitle className="flex items-center gap-2">
             <Building2 className="h-5 w-5 text-autoofy-dark" />
             Bedrijfsgegevens
@@ -141,6 +141,13 @@ export default function CompanyInfoPage() {
           <p className="text-sm text-muted-foreground">
             Deze gegevens worden weergegeven op alle proefrit formulieren en PDF's
           </p>
+          {returnTo === "onboarding" && (
+            <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-800">
+                ℹ️ Je bent in de onboarding wizard. Vul je bedrijfsgegevens in om door te gaan.
+              </p>
+            </div>
+          )}
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

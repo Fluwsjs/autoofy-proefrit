@@ -25,6 +25,11 @@ export function WelcomeWizard({
   initialStep = 0
 }: WelcomeWizardProps) {
   const [currentStep, setCurrentStep] = useState(initialStep)
+  
+  // Update step when initialStep changes (when returning from sub-pages)
+  useEffect(() => {
+    setCurrentStep(initialStep)
+  }, [initialStep])
 
   const steps = [
     {
@@ -38,20 +43,20 @@ export function WelcomeWizard({
             Laten we beginnen met het instellen van je account.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <FileText className="h-8 w-8 text-blue-600 mb-2" />
-              <h4 className="font-semibold text-sm mb-1">Digitale Formulieren</h4>
+            <div className="p-4 bg-autoofy-red/5 rounded-lg border border-autoofy-red/20 hover:border-autoofy-red/40 transition-colors">
+              <FileText className="h-8 w-8 text-autoofy-red mb-2" />
+              <h4 className="font-semibold text-sm mb-1 text-autoofy-dark">Digitale Formulieren</h4>
               <p className="text-xs text-gray-600">Maak snel en eenvoudig proefrit formulieren</p>
             </div>
-            <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-              <Clock className="h-8 w-8 text-green-600 mb-2" />
-              <h4 className="font-semibold text-sm mb-1">Real-time Tracking</h4>
+            <div className="p-4 bg-autoofy-dark/5 rounded-lg border border-autoofy-dark/20 hover:border-autoofy-dark/40 transition-colors">
+              <Clock className="h-8 w-8 text-autoofy-dark mb-2" />
+              <h4 className="font-semibold text-sm mb-1 text-autoofy-dark">Real-time Tracking</h4>
               <p className="text-xs text-gray-600">Volg de status van elke proefrit</p>
             </div>
-            <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-              <BarChart3 className="h-8 w-8 text-purple-600 mb-2" />
-              <h4 className="font-semibold text-sm mb-1">Inzichten</h4>
-              <p className="text-xs text-gray-600">Bekijk statistieken en rapporten</p>
+            <div className="p-4 bg-autoofy-red/5 rounded-lg border border-autoofy-red/20 hover:border-autoofy-red/40 transition-colors">
+              <BarChart3 className="h-8 w-8 text-autoofy-red mb-2" />
+              <h4 className="font-semibold text-sm mb-1 text-autoofy-dark">Inzichten & Rapporten</h4>
+              <p className="text-xs text-gray-600">Bekijk statistieken en analyses</p>
             </div>
           </div>
         </div>
@@ -115,13 +120,13 @@ export function WelcomeWizard({
               </div>
             </div>
           ) : (
-            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <p className="font-medium text-blue-900 mb-2">Voeg handelaarskentekens toe</p>
-              <p className="text-sm text-blue-700 mb-4">
+            <div className="p-4 bg-autoofy-dark/5 border border-autoofy-dark/20 rounded-lg">
+              <p className="font-medium text-autoofy-dark mb-2">Voeg handelaarskentekens toe</p>
+              <p className="text-sm text-gray-700 mb-4">
                 Dit is optioneel, maar bespaart tijd bij het aanmaken van proefritten.
               </p>
               <Link href="/dashboard/dealer-plates?returnTo=onboarding">
-                <Button variant="outline" className="border-blue-300" onClick={onClose}>
+                <Button variant="outline" className="border-autoofy-dark/30 hover:bg-autoofy-dark/5" onClick={onClose}>
                   <CreditCard className="h-4 w-4 mr-2" />
                   Handelaarskentekens beheren
                 </Button>
@@ -145,9 +150,9 @@ export function WelcomeWizard({
       icon: CheckCircle2,
       content: (
         <div className="space-y-6">
-          <div className="p-6 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg border border-green-200">
+          <div className="p-6 bg-gradient-to-br from-autoofy-red/10 via-autoofy-dark/5 to-autoofy-red/5 rounded-lg border border-autoofy-red/30">
             <CheckCircle2 className="h-12 w-12 text-green-600 mb-4" />
-            <h3 className="text-xl font-bold text-gray-900 mb-2">Perfect! Je bent klaar</h3>
+            <h3 className="text-xl font-bold text-autoofy-dark mb-2">Perfect! Je bent klaar</h3>
             <p className="text-gray-700">
               Je kunt nu je eerste proefrit aanmaken. Veel succes! 🎉
             </p>
@@ -182,44 +187,57 @@ export function WelcomeWizard({
   const Icon = currentStepData.icon
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <CardHeader className="relative">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+        <CardHeader className="relative bg-gradient-to-r from-autoofy-dark/5 to-autoofy-red/5">
           <Button
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="absolute right-4 top-4"
+            className="absolute right-4 top-4 hover:bg-white/50"
           >
             <X className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-autoofy-red/10 rounded-lg">
+            <div className="p-2 bg-autoofy-red/10 rounded-lg border border-autoofy-red/20">
               <Icon className="h-6 w-6 text-autoofy-red" />
             </div>
             <div>
-              <CardTitle className="text-xl">{currentStepData.title}</CardTitle>
+              <CardTitle className="text-xl text-autoofy-dark">{currentStepData.title}</CardTitle>
               <p className="text-sm text-gray-600 mt-1">{currentStepData.description}</p>
             </div>
           </div>
           
-          {/* Progress bar */}
-          <div className="flex gap-2 mt-4">
-            {steps.map((_, index) => (
-              <div
-                key={index}
-                className={`h-1.5 flex-1 rounded-full transition-colors ${
-                  index <= currentStep ? 'bg-autoofy-red' : 'bg-gray-200'
-                }`}
-              />
-            ))}
+          {/* Progress bar with step indicators */}
+          <div className="flex gap-2 mt-6">
+            {steps.map((step, index) => {
+              const isComplete = index < currentStep || 
+                (index === 1 && companyInfoComplete) || 
+                (index === 2 && hasDealerPlates)
+              const isCurrent = index === currentStep
+              
+              return (
+                <div key={index} className="flex-1 flex flex-col items-center gap-2">
+                  <div
+                    className={`h-1.5 w-full rounded-full transition-all duration-300 ${
+                      isComplete ? 'bg-green-500' : 
+                      isCurrent ? 'bg-autoofy-red' : 
+                      'bg-gray-200'
+                    }`}
+                  />
+                  {isComplete && index !== currentStep && (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  )}
+                </div>
+              )
+            })}
           </div>
         </CardHeader>
         
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 animate-in fade-in slide-in-from-right-5 duration-300">
           {currentStepData.content}
           
-          <div className="flex justify-between pt-4 border-t">
+          <div className="flex justify-between items-center pt-4 border-t">
             <Button
               variant="outline"
               onClick={() => setCurrentStep(Math.max(0, currentStep - 1))}
@@ -228,23 +246,36 @@ export function WelcomeWizard({
               Vorige
             </Button>
             
-            {currentStep < steps.length - 1 ? (
-              <Button
-                onClick={() => setCurrentStep(currentStep + 1)}
-                className="bg-autoofy-dark hover:bg-autoofy-dark/90"
-              >
-                Volgende
-                <ArrowRight className="h-4 w-4 ml-2" />
-              </Button>
-            ) : (
-              <Button
-                onClick={onClose}
-                className="bg-green-600 hover:bg-green-700"
-              >
-                <CheckCircle2 className="h-4 w-4 mr-2" />
-                Afsluiten
-              </Button>
-            )}
+            <div className="flex items-center gap-2">
+              {/* Show skip button for optional steps (step 2 = dealer plates) */}
+              {currentStep === 2 && !hasDealerPlates && (
+                <Button
+                  variant="ghost"
+                  onClick={() => setCurrentStep(currentStep + 1)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
+                  Overslaan
+                </Button>
+              )}
+              
+              {currentStep < steps.length - 1 ? (
+                <Button
+                  onClick={() => setCurrentStep(currentStep + 1)}
+                  className="bg-autoofy-dark hover:bg-autoofy-dark/90 text-white"
+                >
+                  Volgende
+                  <ArrowRight className="h-4 w-4 ml-2" />
+                </Button>
+              ) : (
+                <Button
+                  onClick={onClose}
+                  className="bg-autoofy-red hover:bg-autoofy-red/90 text-white"
+                >
+                  <CheckCircle2 className="h-4 w-4 mr-2" />
+                  Afsluiten
+                </Button>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>

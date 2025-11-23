@@ -56,6 +56,13 @@ function DashboardContent() {
     }
   }, [session])
   
+  // Re-check onboarding status when wizard is opened
+  useEffect(() => {
+    if (showWelcomeWizard && session) {
+      checkOnboardingStatus()
+    }
+  }, [showWelcomeWizard])
+  
   const checkOnboardingStatus = async () => {
     try {
       // Check if wizard has been shown before

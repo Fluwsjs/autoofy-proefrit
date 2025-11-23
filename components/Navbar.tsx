@@ -4,7 +4,7 @@ import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
-import { LogOut, ExternalLink, Settings, Building2, CreditCard, User, Users, ChevronDown } from "lucide-react"
+import { LogOut, ExternalLink, Settings, Building2, CreditCard, User, Users, ChevronDown, Sparkles } from "lucide-react"
 import { NotificationCenter, Notification } from "@/components/NotificationCenter"
 import { useState, useEffect, useRef } from "react"
 
@@ -132,6 +132,23 @@ export function Navbar() {
                   
                   {settingsOpen && (
                     <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <button
+                        onClick={() => {
+                          setSettingsOpen(false)
+                          localStorage.removeItem('welcomeWizardShown')
+                          window.location.href = "/dashboard?openWizard=true&step=0"
+                        }}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors text-left"
+                      >
+                        <Sparkles className="h-4 w-4 text-autoofy-red" />
+                        <div>
+                          <p className="text-sm font-medium">Onboarding Wizard</p>
+                          <p className="text-xs text-gray-500">Start de setup opnieuw</p>
+                        </div>
+                      </button>
+                      
+                      <div className="border-t border-gray-200 my-2"></div>
+                      
                       <Link
                         href="/dashboard/company-info"
                         onClick={() => setSettingsOpen(false)}
