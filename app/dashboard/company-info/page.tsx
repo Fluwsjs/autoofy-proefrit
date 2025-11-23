@@ -58,16 +58,33 @@ export default function CompanyInfoPage() {
     setSaving(true)
 
     try {
+      // Prepare data - convert empty strings to undefined for optional fields
+      const dataToSend = {
+        companyName: companyData.companyName,
+        companyAddress: companyData.companyAddress,
+        companyZipCode: companyData.companyZipCode,
+        companyCity: companyData.companyCity,
+        companyPhone: companyData.companyPhone,
+        companyKvK: companyData.companyKvK || undefined,
+        companyVAT: companyData.companyVAT || undefined,
+      }
+
       const response = await fetch("/api/company-info", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(companyData),
+        body: JSON.stringify(dataToSend),
       })
+
+      const result = await response.json()
 
       if (response.ok) {
         showToast("Bedrijfsgegevens opgeslagen", "success")
+        // Redirect to dashboard after 1 second
+        setTimeout(() => {
+          router.push("/dashboard")
+        }, 1000)
       } else {
-        showToast("Fout bij opslaan bedrijfsgegevens", "error")
+        showToast(result.error || "Fout bij opslaan bedrijfsgegevens", "error")
       }
     } catch (error) {
       console.error("Error saving company info:", error)
