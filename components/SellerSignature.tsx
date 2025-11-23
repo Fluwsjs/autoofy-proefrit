@@ -59,6 +59,7 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
       
       // Als hideReuse true is, gebruik de handtekening direct zonder op te slaan
       if (hideReuse) {
+        setIsEmpty(false)
         onUse(signature)
         showToast("Verkoper handtekening toegevoegd", "success")
         return
