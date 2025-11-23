@@ -68,20 +68,35 @@ function DashboardContent() {
       // Check if wizard has been shown before
       const wizardShown = localStorage.getItem('welcomeWizardShown')
       
+      let isComplete = false
+      
       // Check company info
-      const companyResponse = await fetch("/api/company-info")
-      if (companyResponse.ok) {
-        const companyData = await companyResponse.json()
-        const isComplete = !!(companyData.companyName && companyData.companyAddress)
-        setCompanyInfoComplete(isComplete)
+      try {
+        const companyResponse = await fetch("/api/company-info")
+        if (companyResponse.ok) {
+          const companyData = await companyResponse.json()
+          isComplete = !!(companyData.companyName && companyData.companyAddress)
+          setCompanyInfoComplete(isComplete)
+        } else {
+          // If 404 or error, company info is not complete
+          setCompanyInfoComplete(false)
+        }
+      } catch (err) {
+        console.error("Error fetching company info:", err)
+        setCompanyInfoComplete(false)
       }
       
       // Check dealer plates
-      const platesResponse = await fetch("/api/dealer-plates")
-      if (platesResponse.ok) {
-        const platesResult = await platesResponse.json()
-        const plates = platesResult.data || platesResult
-        setHasDealerPlates(plates.length > 0)
+      try {
+        const platesResponse = await fetch("/api/dealer-plates")
+        if (platesResponse.ok) {
+          const platesResult = await platesResponse.json()
+          const plates = platesResult.data || platesResult
+          setHasDealerPlates(plates.length > 0)
+        }
+      } catch (err) {
+        console.error("Error fetching dealer plates:", err)
+        setHasDealerPlates(false)
       }
       
       // Check if we should open wizard from query params
@@ -95,12 +110,18 @@ function DashboardContent() {
         return
       }
       
-      // Show wizard if not shown before and company info is not complete
-      if (!wizardShown && !companyInfoComplete) {
+      // Show wizard if not shown before OR if company info is not complete
+      // This ensures new users always see the wizard
+      if (!wizardShown || !isComplete) {
         setShowWelcomeWizard(true)
       }
     } catch (error) {
       console.error("Error checking onboarding status:", error)
+      // On error, show wizard for safety (better to show than not show)
+      const wizardShown = localStorage.getItem('welcomeWizardShown')
+      if (!wizardShown) {
+        setShowWelcomeWizard(true)
+      }
     }
   }
   

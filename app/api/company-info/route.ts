@@ -46,7 +46,16 @@ export async function GET(request: NextRequest) {
       )
     }
 
-    return NextResponse.json(tenant)
+    // Return tenant data with null values converted to empty strings for frontend
+    return NextResponse.json({
+      companyName: tenant.companyName || null,
+      companyAddress: tenant.companyAddress || null,
+      companyZipCode: tenant.companyZipCode || null,
+      companyCity: tenant.companyCity || null,
+      companyPhone: tenant.companyPhone || null,
+      companyKvK: tenant.companyKvK || null,
+      companyVAT: tenant.companyVAT || null,
+    })
   } catch (error) {
     console.error("Error fetching company info:", error)
     return NextResponse.json(
