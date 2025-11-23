@@ -51,6 +51,7 @@ export default function NewTestridePage() {
     notes: "",
     eigenRisico: "0",
     aantalSleutels: "1",
+    dealerPlateCardGiven: false,
   })
 
   useEffect(() => {
@@ -125,6 +126,7 @@ export default function NewTestridePage() {
           driverLicenseNumber: formData.driverLicenseNumber || undefined,
           idCountryOfOrigin: formData.idCountryOfOrigin || undefined,
           dealerPlateId: formData.dealerPlateId || undefined,
+          dealerPlateCardGiven: formData.dealerPlateCardGiven,
           eigenRisico: parseInt(formData.eigenRisico),
           aantalSleutels: parseInt(formData.aantalSleutels),
           notes: formData.notes || undefined,
@@ -255,6 +257,21 @@ export default function NewTestridePage() {
                 <Link href="/dashboard/dealer-plates" className="text-sm text-autoofy-dark hover:underline">
                   Beheer alle handelaarskentekens
                 </Link>
+                
+                {/* Kentekenpas meegegeven checkbox */}
+                {formData.dealerPlateId && (
+                  <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={formData.dealerPlateCardGiven}
+                      onChange={(e) =>
+                        setFormData({ ...formData, dealerPlateCardGiven: e.target.checked })
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-autoofy-red focus:ring-autoofy-red"
+                    />
+                    <span className="text-sm font-medium">Kentekenpas handelaarskenteken fysiek meegegeven aan klant</span>
+                  </label>
+                )}
               </div>
             </div>
 

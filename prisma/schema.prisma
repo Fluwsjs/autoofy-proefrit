@@ -11,12 +11,20 @@ datasource db {
 }
 
 model Tenant {
-  id        String    @id @default(cuid())
-  name      String
-  email     String    @unique
-  createdAt DateTime  @default(now())
-  users     User[]
-  testrides Testride[]
+  id              String    @id @default(cuid())
+  name            String
+  email           String    @unique
+  // Bedrijfsgegevens
+  companyName     String?   // Officiële bedrijfsnaam
+  companyAddress  String?   // Bedrijfsadres
+  companyZipCode  String?   // Postcode
+  companyCity     String?   // Plaats
+  companyPhone    String?   // Telefoonnummer
+  companyKvK      String?   // KvK nummer
+  companyVAT      String?   // BTW nummer
+  createdAt       DateTime  @default(now())
+  users           User[]
+  testrides       Testride[]
 }
 
 model DealerPlate {
@@ -70,6 +78,7 @@ model Testride {
   sellerSignatureUrl   String?  // Verkoper handtekening/stempel (optioneel, kan van User komen)
   completionSignatureUrl String? // Verkoper handtekening bij afronding
   customerCompletionSignatureUrl String? // Klant handtekening bij afronding
+  dealerPlateCardGiven Boolean  @default(false) // Kentekenpas handelaarskenteken meegegeven
   eigenRisico         Int      @default(0) // Eigen risico bedrag (0-1000)
   aantalSleutels      Int      @default(1) // Aantal sleutels meegegeven (1-4)
   status              TestrideStatus @default(PENDING) // Status van de proefrit

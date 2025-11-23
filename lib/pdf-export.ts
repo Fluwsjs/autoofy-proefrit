@@ -1,5 +1,15 @@
 import jsPDF from "jspdf"
 
+interface CompanyInfo {
+  companyName?: string | null
+  companyAddress?: string | null
+  companyZipCode?: string | null
+  companyCity?: string | null
+  companyPhone?: string | null
+  companyKvK?: string | null
+  companyVAT?: string | null
+}
+
 interface TestrideData {
   customerName: string
   customerEmail: string
@@ -15,6 +25,7 @@ interface TestrideData {
   dealerPlate: {
     plate: string
   } | null
+  dealerPlateCardGiven?: boolean
   idPhotoFrontUrl: string | null
   idPhotoBackUrl: string | null
   customerSignatureUrl: string | null
@@ -28,6 +39,7 @@ interface TestrideData {
   endKm: number | null
   notes: string | null
   createdAt: string
+  companyInfo?: CompanyInfo
 }
 
 export async function exportTestrideToPDF(testride: TestrideData) {
@@ -144,6 +156,40 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   doc.setFontSize(16)
   doc.setFont("helvetica", "normal")
   doc.text("Proefrit Formulier", margin, 35)
+
+  // Bedrijfsgegevens (rechtsboven)
+  if (testride.companyInfo && testride.companyInfo.companyName) {
+    doc.setFontSize(9)
+    doc.setFont("helvetica", "normal")
+    doc.setTextColor(60, 60, 60)
+    
+    let companyY = 25
+    const rightMargin = pageWidth - margin
+    
+    if (testride.companyInfo.companyName) {
+      doc.text(testride.companyInfo.companyName, rightMargin, companyY, { align: "right" })
+      companyY += 4
+    }
+    if (testride.companyInfo.companyAddress) {
+      doc.text(testride.companyInfo.companyAddress, rightMargin, companyY, { align: "right" })
+      companyY += 4
+    }
+    if (testride.companyInfo.companyZipCode && testride.companyInfo.companyCity) {
+      doc.text(`${testride.companyInfo.companyZipCode} ${testride.companyInfo.companyCity}`, rightMargin, companyY, { align: "right" })
+      companyY += 4
+    }
+    if (testride.companyInfo.companyPhone) {
+      doc.text(`Tel: ${testride.companyInfo.companyPhone}`, rightMargin, companyY, { align: "right" })
+      companyY += 4
+    }
+    if (testride.companyInfo.companyKvK) {
+      doc.text(`KvK: ${testride.companyInfo.companyKvK}`, rightMargin, companyY, { align: "right" })
+      companyY += 4
+    }
+    if (testride.companyInfo.companyVAT) {
+      doc.text(`BTW: ${testride.companyInfo.companyVAT}`, rightMargin, companyY, { align: "right" })
+    }
+  }
 
   yPosition = 50
 
@@ -272,7 +318,15 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   doc.text(`Eigen risico: €${testride.eigenRisico}`, margin, yPosition)
   yPosition += 7
   doc.text(`Aantal sleutels meegegeven: ${testride.aantalSleutels}`, margin, yPosition)
-  yPosition += 10
+  yPosition += 7
+  
+  // Kentekenpas meegegeven
+  if (testride.dealerPlate && testride.dealerPlateCardGiven !== undefined) {
+    doc.text(`Kentekenpas handelaarskenteken meegegeven: ${testride.dealerPlateCardGiven ? 'Ja' : 'Nee'}`, margin, yPosition)
+    yPosition += 10
+  } else {
+    yPosition += 3
+  }
 
   // Notities
   if (testride.notes) {

@@ -24,6 +24,7 @@ const testrideSchema = z.object({
   driverLicenseNumber: z.string().optional(),
   idCountryOfOrigin: z.string().optional(),
   dealerPlateId: z.string().optional(),
+  dealerPlateCardGiven: z.boolean().optional(),
   idPhotoFrontUrl: z.string().optional(),
   idPhotoBackUrl: z.string().optional(),
   customerSignatureUrl: z.string().optional(),
