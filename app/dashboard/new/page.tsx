@@ -410,11 +410,11 @@ export default function NewTestridePage() {
             )}
 
             {/* Sticky Submit Button for Mobile */}
-            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 sticky bottom-0 left-0 right-0 bg-white p-4 -mx-4 -mb-4 md:mb-0 border-t md:border-t-0 md:static md:bg-transparent md:p-0 md:mx-0 shadow-lg md:shadow-none z-10">
+            <div className="flex flex-col sm:flex-row gap-2 sticky bottom-0 left-0 right-0 bg-white p-3 -mx-4 -mb-4 md:mb-0 border-t border-slate-200 md:border-t-0 md:static md:bg-transparent md:p-0 md:mx-0 shadow-lg md:shadow-none z-10">
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="bg-autoofy-red text-white hover:bg-autoofy-red/90 min-h-[48px] text-base font-medium flex-1 sm:flex-initial"
+                className="bg-autoofy-red text-white hover:bg-autoofy-red/90 h-10 text-sm font-medium flex-1 sm:flex-initial"
               >
                 {loading ? (
                   <>
@@ -426,7 +426,7 @@ export default function NewTestridePage() {
                 )}
               </Button>
               <Link href="/dashboard" className="flex-1 sm:flex-initial">
-                <Button type="button" variant="outline" className="w-full min-h-[48px] text-base">
+                <Button type="button" variant="outline" className="w-full h-10 text-sm border-slate-200">
                   Annuleren
                 </Button>
               </Link>

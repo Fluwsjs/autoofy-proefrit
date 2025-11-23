@@ -32,11 +32,11 @@ export function MobileTestRideCard({ testride, onDelete }: MobileTestRideCardPro
   const getStatusColor = (status: string) => {
     switch (status.toUpperCase()) {
       case "COMPLETED":
-        return "bg-green-100 text-green-800 border-green-200"
+        return "bg-green-50 text-green-700 border-green-200"
       case "PENDING":
-        return "bg-yellow-100 text-yellow-800 border-yellow-200"
+        return "bg-amber-50 text-amber-700 border-amber-200"
       default:
-        return "bg-gray-100 text-gray-800 border-gray-200"
+        return "bg-slate-100 text-slate-700 border-slate-200"
     }
   }
 
@@ -52,48 +52,48 @@ export function MobileTestRideCard({ testride, onDelete }: MobileTestRideCardPro
   }
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow duration-200">
-      <CardContent className="p-4">
+    <Card className="border-slate-200 hover:shadow-md transition-shadow duration-150">
+      <CardContent className="p-3">
         {/* Header with Status */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between mb-2">
           <div className="flex-1">
-            <h3 className="font-semibold text-lg text-autoofy-dark mb-1">{testride.customerName}</h3>
-            <p className="text-sm text-gray-600">{testride.customerEmail}</p>
+            <h3 className="font-semibold text-base text-slate-900 mb-0.5">{testride.customerName}</h3>
+            <p className="text-xs text-slate-600">{testride.customerEmail}</p>
           </div>
-          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(testride.status)}`}>
+          <span className={`px-2 py-0.5 rounded-md text-xs font-medium border ${getStatusColor(testride.status)}`}>
             {getStatusText(testride.status)}
           </span>
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <div className="flex items-center gap-2 text-sm">
-            <Car className="h-4 w-4 text-autoofy-red flex-shrink-0" />
-            <span className="text-gray-700 truncate">{testride.carType}</span>
+        <div className="grid grid-cols-2 gap-2 mb-3">
+          <div className="flex items-center gap-1.5 text-xs">
+            <Car className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+            <span className="text-slate-700 truncate">{testride.carType}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Calendar className="h-4 w-4 text-autoofy-red flex-shrink-0" />
-            <span className="text-gray-700">{formatDate(testride.date)}</span>
+          <div className="flex items-center gap-1.5 text-xs">
+            <Calendar className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+            <span className="text-slate-700">{formatDate(testride.date)}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <Clock className="h-4 w-4 text-autoofy-red flex-shrink-0" />
-            <span className="text-gray-700">{testride.startTime} - {testride.endTime}</span>
+          <div className="flex items-center gap-1.5 text-xs">
+            <Clock className="h-3.5 w-3.5 text-slate-400 flex-shrink-0" />
+            <span className="text-slate-700">{testride.startTime} - {testride.endTime}</span>
           </div>
-          <div className="flex items-center gap-2 text-sm">
-            <span className="text-gray-500">KM:</span>
-            <span className="text-gray-700 font-medium">{testride.startKm}</span>
+          <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-slate-500">KM:</span>
+            <span className="text-slate-700 font-medium">{testride.startKm}</span>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <Link href={`/dashboard/${testride.id}`} className="flex-1">
             <Button 
               variant="outline" 
               size="sm" 
-              className="w-full min-h-[40px]"
+              className="w-full h-8 text-xs border-slate-200"
             >
-              <Eye className="h-4 w-4 mr-1" />
+              <Eye className="h-3.5 w-3.5 mr-1" />
               Bekijken
             </Button>
           </Link>
@@ -104,9 +104,9 @@ export function MobileTestRideCard({ testride, onDelete }: MobileTestRideCardPro
                 <Button 
                   variant="outline" 
                   size="sm" 
-                  className="w-full min-h-[40px]"
+                  className="w-full h-8 text-xs border-slate-200"
                 >
-                  <Edit className="h-4 w-4 mr-1" />
+                  <Edit className="h-3.5 w-3.5 mr-1" />
                   Bewerken
                 </Button>
               </Link>
@@ -114,9 +114,9 @@ export function MobileTestRideCard({ testride, onDelete }: MobileTestRideCardPro
                 <Button 
                   variant="default" 
                   size="sm" 
-                  className="w-full bg-green-600 hover:bg-green-700 min-h-[40px]"
+                  className="w-full h-8 text-xs bg-green-600 hover:bg-green-700"
                 >
-                  <CheckCircle className="h-4 w-4 mr-1" />
+                  <CheckCircle className="h-3.5 w-3.5 mr-1" />
                   Afronden
                 </Button>
               </Link>
@@ -127,9 +127,9 @@ export function MobileTestRideCard({ testride, onDelete }: MobileTestRideCardPro
             variant="ghost"
             size="sm"
             onClick={() => onDelete(testride.id)}
-            className="text-red-600 hover:text-red-700 hover:bg-red-50 min-h-[40px] px-3"
+            className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 px-2"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
       </CardContent>

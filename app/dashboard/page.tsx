@@ -536,7 +536,7 @@ function DashboardContent() {
           </div>
 
           {/* Mobile Card View */}
-          <div className="md:hidden space-y-3">
+          <div className="md:hidden space-y-2">
             {filteredTestrides.length === 0 ? (
               <Card className="p-8 text-center">
                 <p className="text-gray-500">Geen proefritten gevonden</p>
