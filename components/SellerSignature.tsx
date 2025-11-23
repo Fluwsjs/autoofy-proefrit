@@ -53,17 +53,19 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
     setIsEmpty(true)
   }
 
+  const handleEnd = () => {
+    setIsEmpty(false)
+    
+    // Als hideReuse true is, gebruik de handtekening automatisch
+    if (hideReuse && signatureRef.current && !signatureRef.current.isEmpty()) {
+      const signature = signatureRef.current.getTrimmedCanvas().toDataURL("image/png")
+      onUse(signature)
+    }
+  }
+
   const handleSave = async () => {
     if (signatureRef.current && !signatureRef.current.isEmpty()) {
       const signature = signatureRef.current.getTrimmedCanvas().toDataURL("image/png")
-      
-      // Als hideReuse true is, gebruik de handtekening direct zonder op te slaan
-      if (hideReuse) {
-        setIsEmpty(false)
-        onUse(signature)
-        showToast("Verkoper handtekening toegevoegd", "success")
-        return
-      }
       
       setSaving(true)
       try {
@@ -147,7 +149,7 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
                   height: 200,
                   className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
                 }}
-                onEnd={() => setIsEmpty(false)}
+                onEnd={handleEnd}
                 onBegin={() => setIsEmpty(false)}
               />
               <div className="flex gap-2 mt-4">
@@ -189,30 +191,40 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
               height: 200,
               className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
             }}
-            onEnd={() => setIsEmpty(false)}
+            onEnd={handleEnd}
             onBegin={() => setIsEmpty(false)}
           />
-          <div className="flex gap-2 mt-4">
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleClear}
-              disabled={isEmpty}
-            >
-              Wissen
-            </Button>
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              onClick={handleSave}
-              disabled={isEmpty || saving}
-              className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
-            >
-              {saving ? "Opslaan..." : hideReuse ? "Handtekening gebruiken" : "Handtekening opslaan"}
-            </Button>
-          </div>
+          {!hideReuse && (
+            <div className="flex gap-2 mt-4">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleClear}
+                disabled={isEmpty}
+              >
+                Wissen
+              </Button>
+              <Button
+                type="button"
+                variant="default"
+                size="sm"
+                onClick={handleSave}
+                disabled={isEmpty || saving}
+                className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
+              >
+                {saving ? "Opslaan..." : "Handtekening opslaan"}
+              </Button>
+            </div>
+          )}
+          {hideReuse && !isEmpty && (
+            <p className="text-sm text-green-600 mt-2 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+              Handtekening is toegevoegd
+            </p>
+          )}
         </div>
       )}
     </div>

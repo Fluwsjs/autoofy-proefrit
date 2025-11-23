@@ -99,18 +99,10 @@ export default function CompleteTestridePage() {
       return
     }
     
-    // Basis controles (altijd verplicht)
-    if (!completionData.noDamages || !completionData.allKeysReturned) {
+    // Alle controles zijn verplicht
+    if (!completionData.noDamages || !completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost || !completionData.allKeysReturned) {
       showToast("Vink alle controle items aan", "error")
       return
-    }
-    
-    // Handelaarskenteken controles (alleen verplicht als er een handelaarskenteken is)
-    if (testride?.dealerPlate) {
-      if (!completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost) {
-        showToast("Vink alle handelaarskenteken controle items aan", "error")
-        return
-      }
     }
     
     if (!completionSignature) {
@@ -280,34 +272,29 @@ export default function CompleteTestridePage() {
                 <span className="text-sm font-medium">Geen schades geconstateerd</span>
               </label>
               
-              {/* Handelaarskenteken controles - alleen tonen als er een handelaarskenteken is */}
-              {testride?.dealerPlate && (
-                <>
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={completionData.dealerPlateCardReturned}
-                      onChange={(e) =>
-                        setCompletionData({ ...completionData, dealerPlateCardReturned: e.target.checked })
-                      }
-                      className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="text-sm font-medium">Handelaarskentekenpasje ingeleverd</span>
-                  </label>
-                  
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={completionData.greenPlatesNotLost}
-                      onChange={(e) =>
-                        setCompletionData({ ...completionData, greenPlatesNotLost: e.target.checked })
-                      }
-                      className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
-                    />
-                    <span className="text-sm font-medium">Groene platen niet verloren tijdens testrit (klant niet aansprakelijk)</span>
-                  </label>
-                </>
-              )}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={completionData.dealerPlateCardReturned}
+                  onChange={(e) =>
+                    setCompletionData({ ...completionData, dealerPlateCardReturned: e.target.checked })
+                  }
+                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <span className="text-sm font-medium">Handelaarskentekenpasje ingeleverd</span>
+              </label>
+              
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={completionData.greenPlatesNotLost}
+                  onChange={(e) =>
+                    setCompletionData({ ...completionData, greenPlatesNotLost: e.target.checked })
+                  }
+                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <span className="text-sm font-medium">Groene platen niet verloren tijdens testrit (klant niet aansprakelijk)</span>
+              </label>
               
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
@@ -367,8 +354,9 @@ export default function CompleteTestridePage() {
                 !completionSignature || 
                 !customerCompletionSignature || 
                 !completionData.noDamages || 
-                !completionData.allKeysReturned ||
-                (!!testride?.dealerPlate && (!completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost))
+                !completionData.dealerPlateCardReturned ||
+                !completionData.greenPlatesNotLost ||
+                !completionData.allKeysReturned
               }
               className="bg-autoofy-red text-white hover:bg-autoofy-red/90 flex-1"
             >
