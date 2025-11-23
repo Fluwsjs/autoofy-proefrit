@@ -37,7 +37,8 @@ interface Testride {
   customerSignatureUrl?: string | null
   sellerSignatureUrl?: string | null
   completionSignatureUrl?: string | null
-  eigenRisico?: string | null
+  eigenRisico?: number
+  aantalSleutels?: number
   completedAt?: string | null
   notes?: string | null
   createdAt?: string
@@ -96,7 +97,8 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
         customerSignatureUrl: testride.customerSignatureUrl ?? null,
         sellerSignatureUrl: testride.sellerSignatureUrl ?? null,
         completionSignatureUrl: testride.completionSignatureUrl ?? null,
-        eigenRisico: testride.eigenRisico ?? null,
+        eigenRisico: testride.eigenRisico ?? 0,
+        aantalSleutels: testride.aantalSleutels ?? 1,
         status: testride.status,
         completedAt: testride.completedAt ?? null,
         startKm: testride.startKm,
