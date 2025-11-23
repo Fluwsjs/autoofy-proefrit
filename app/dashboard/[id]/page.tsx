@@ -434,8 +434,15 @@ export default function TestrideDetailPage() {
             </div>
           </div>
 
-          <div className="pt-4 border-t text-xs text-muted-foreground">
-            Aangemaakt op: {formatDateTime(testride.createdAt)}
+          <div className="pt-4 border-t space-y-1">
+            <p className="text-xs text-muted-foreground">
+              Aangemaakt op: {formatDateTime(testride.createdAt)}
+            </p>
+            {testride.status === "COMPLETED" && testride.completedAt && (
+              <p className="text-xs font-medium text-green-600">
+                Afgerond op: {formatDateTime(testride.completedAt)}
+              </p>
+            )}
           </div>
 
           {/* Voorwaarden */}

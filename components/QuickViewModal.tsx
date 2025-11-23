@@ -257,6 +257,20 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
                 )}
               </div>
             </div>
+
+            {/* Datum informatie */}
+            <div className="border-t pt-4 mt-4 space-y-1">
+              {testride.createdAt && (
+                <p className="text-xs text-muted-foreground">
+                  Aangemaakt op: {formatDateTime(testride.createdAt)}
+                </p>
+              )}
+              {testride.status === "COMPLETED" && testride.completedAt && (
+                <p className="text-xs font-medium text-green-600">
+                  Afgerond op: {formatDateTime(testride.completedAt)}
+                </p>
+              )}
+            </div>
           </div>
         ) : null}
       </DialogContent>

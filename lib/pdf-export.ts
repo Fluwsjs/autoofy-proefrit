@@ -486,6 +486,17 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     margin,
     footerY
   )
+  
+  // Afgerond op (als de rit is afgerond)
+  if (testride.status === "COMPLETED" && testride.completedAt) {
+    footerY += 5
+    doc.setTextColor(34, 139, 34) // Groene kleur voor afgerond
+    doc.text(
+      `Afgerond op: ${formatDate(testride.completedAt)} ${formatTime(testride.completedAt)}`,
+      margin,
+      footerY
+    )
+  }
 
   // Generate filename
   const dateStr = formatDate(testride.date).replace(/\//g, "-")
