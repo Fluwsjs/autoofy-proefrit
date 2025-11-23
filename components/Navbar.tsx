@@ -4,13 +4,26 @@ import { signOut, useSession } from "next-auth/react"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import Image from "next/image"
-import { LogOut, ExternalLink } from "lucide-react"
+import { LogOut, ExternalLink, Settings, Building2, CreditCard, User, Users, ChevronDown } from "lucide-react"
 import { NotificationCenter, Notification } from "@/components/NotificationCenter"
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 
 export function Navbar() {
   const { data: session } = useSession()
   const [notifications, setNotifications] = useState<Notification[]>([])
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const settingsRef = useRef<HTMLDivElement>(null)
+
+  // Close settings dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setSettingsOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   useEffect(() => {
     if (session) {
@@ -96,12 +109,85 @@ export function Navbar() {
               </div>
             )}
             {!session.user.isSuperAdmin && (
-              <NotificationCenter
-                notifications={notifications}
-                onMarkAsRead={handleMarkAsRead}
-                onDismiss={handleDismiss}
-                onMarkAllAsRead={handleMarkAllAsRead}
-              />
+              <>
+                <NotificationCenter
+                  notifications={notifications}
+                  onMarkAsRead={handleMarkAsRead}
+                  onDismiss={handleDismiss}
+                  onMarkAllAsRead={handleMarkAllAsRead}
+                />
+                
+                {/* Settings Dropdown */}
+                <div className="relative" ref={settingsRef}>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSettingsOpen(!settingsOpen)}
+                    className="gap-2 hover:bg-gray-100"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span className="hidden sm:inline">Instellingen</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${settingsOpen ? 'rotate-180' : ''}`} />
+                  </Button>
+                  
+                  {settingsOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
+                      <Link
+                        href="/dashboard/company-info"
+                        onClick={() => setSettingsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <Building2 className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <p className="text-sm font-medium">Bedrijfsgegevens</p>
+                          <p className="text-xs text-gray-500">Beheer je bedrijfsinfo</p>
+                        </div>
+                      </Link>
+                      
+                      <Link
+                        href="/dashboard/dealer-plates"
+                        onClick={() => setSettingsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <CreditCard className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <p className="text-sm font-medium">Handelaarskentekens</p>
+                          <p className="text-xs text-gray-500">Beheer kentekens</p>
+                        </div>
+                      </Link>
+                      
+                      <Link
+                        href="/dashboard/profile"
+                        onClick={() => setSettingsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <User className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <p className="text-sm font-medium">Mijn Profiel</p>
+                          <p className="text-xs text-gray-500">Persoonlijke instellingen</p>
+                        </div>
+                      </Link>
+                      
+                      {session.user.role === "ADMIN" && (
+                        <>
+                          <div className="border-t border-gray-200 my-2"></div>
+                          <Link
+                            href="/dashboard/users"
+                            onClick={() => setSettingsOpen(false)}
+                            className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                          >
+                            <Users className="h-4 w-4 text-gray-600" />
+                            <div>
+                              <p className="text-sm font-medium">Gebruikers</p>
+                              <p className="text-xs text-gray-500">Beheer teamleden</p>
+                            </div>
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </>
             )}
             <div className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
               <div className="h-8 w-8 rounded-full bg-autoofy-dark flex items-center justify-center text-white text-sm font-semibold">

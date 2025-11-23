@@ -13,6 +13,7 @@ import Link from "next/link"
 import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/SkeletonLoader"
 import { AnalyticsChart } from "@/components/AnalyticsChart"
 import { CalendarView } from "@/components/CalendarView"
+import { WelcomeWizard } from "@/components/WelcomeWizard"
 
 interface Testride {
   id: string
@@ -37,6 +38,9 @@ function DashboardContent() {
   const [searchQuery, setSearchQuery] = useState("")
   const [dateFilter, setDateFilter] = useState("all")
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "analytics">("table")
+  const [showWelcomeWizard, setShowWelcomeWizard] = useState(false)
+  const [companyInfoComplete, setCompanyInfoComplete] = useState(false)
+  const [hasDealerPlates, setHasDealerPlates] = useState(false)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -47,8 +51,44 @@ function DashboardContent() {
   useEffect(() => {
     if (session) {
       fetchTestrides()
+      checkOnboardingStatus()
     }
   }, [session])
+  
+  const checkOnboardingStatus = async () => {
+    try {
+      // Check if wizard has been shown before
+      const wizardShown = localStorage.getItem('welcomeWizardShown')
+      
+      // Check company info
+      const companyResponse = await fetch("/api/company-info")
+      if (companyResponse.ok) {
+        const companyData = await companyResponse.json()
+        const isComplete = !!(companyData.companyName && companyData.companyAddress)
+        setCompanyInfoComplete(isComplete)
+      }
+      
+      // Check dealer plates
+      const platesResponse = await fetch("/api/dealer-plates")
+      if (platesResponse.ok) {
+        const platesResult = await platesResponse.json()
+        const plates = platesResult.data || platesResult
+        setHasDealerPlates(plates.length > 0)
+      }
+      
+      // Show wizard if not shown before and company info is not complete
+      if (!wizardShown && !companyInfoComplete) {
+        setShowWelcomeWizard(true)
+      }
+    } catch (error) {
+      console.error("Error checking onboarding status:", error)
+    }
+  }
+  
+  const handleCloseWizard = () => {
+    setShowWelcomeWizard(false)
+    localStorage.setItem('welcomeWizardShown', 'true')
+  }
 
   useEffect(() => {
     const success = searchParams.get("success")
@@ -193,6 +233,16 @@ function DashboardContent() {
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
       {ToastComponent}
+      
+      {/* Welcome Wizard */}
+      {showWelcomeWizard && (
+        <WelcomeWizard
+          onClose={handleCloseWizard}
+          companyInfoComplete={companyInfoComplete}
+          hasDealerPlates={hasDealerPlates}
+          hasTestrides={testrides.length > 0}
+        />
+      )}
       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-white via-blue-50/30 to-white p-6 rounded-2xl border border-gray-100 shadow-sm">
         <div className="space-y-2">
