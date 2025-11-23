@@ -14,6 +14,8 @@ import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/Skelet
 import { AnalyticsChart } from "@/components/AnalyticsChart"
 import { CalendarView } from "@/components/CalendarView"
 import { WelcomeWizard } from "@/components/WelcomeWizard"
+import { FloatingActionButton } from "@/components/FloatingActionButton"
+import { MobileTestRideCard } from "@/components/MobileTestRideCard"
 
 interface Testride {
   id: string
@@ -271,8 +273,11 @@ function DashboardContent() {
   }
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
+    <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500 pb-20 lg:pb-0">
       {ToastComponent}
+      
+      {/* Floating Action Button - Mobile Only */}
+      <FloatingActionButton />
       
       {/* Welcome Wizard */}
       {showWelcomeWizard && (
@@ -285,19 +290,19 @@ function DashboardContent() {
         />
       )}
       
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-gradient-to-r from-white via-blue-50/30 to-white p-6 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-gradient-to-br from-autoofy-dark to-gray-700 flex items-center justify-center text-white font-bold text-xl shadow-lg">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 bg-gradient-to-r from-white via-blue-50/30 to-white p-4 md:p-6 rounded-xl md:rounded-2xl border border-gray-100 shadow-sm">
+        <div className="space-y-1 md:space-y-2">
+          <div className="flex items-center gap-2 md:gap-3">
+            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-autoofy-dark to-gray-700 flex items-center justify-center text-white font-bold text-lg md:text-xl shadow-lg">
               {session?.user?.name?.charAt(0).toUpperCase() || "U"}
             </div>
             <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-autoofy-dark">
-                Welkom terug, {session?.user?.name?.split(' ')[0] || ""}
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-autoofy-dark">
+                Welkom, {session?.user?.name?.split(' ')[0] || ""}
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base flex items-center gap-2">
-                <span className="inline-block w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                Bedrijf: {session?.user?.tenantName || ""}
+              <p className="text-gray-600 text-xs md:text-sm flex items-center gap-2">
+                <span className="inline-block w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span>
+                <span className="hidden sm:inline">Bedrijf: </span>{session?.user?.tenantName || ""}
               </p>
             </div>
           </div>
@@ -308,42 +313,41 @@ function DashboardContent() {
               variant={viewMode === "table" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("table")}
-              className={viewMode === "table" ? "bg-autoofy-dark text-white" : ""}
+              className={`text-xs md:text-sm ${viewMode === "table" ? "bg-autoofy-dark text-white" : ""}`}
             >
-              <span className="hidden sm:inline">Tabel</span>
-              <span className="sm:hidden">📋</span>
+              <span className="hidden md:inline">Tabel</span>
+              <span className="md:hidden">📋</span>
             </Button>
             <Button
               variant={viewMode === "calendar" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("calendar")}
-              className={viewMode === "calendar" ? "bg-autoofy-dark text-white" : ""}
+              className={`text-xs md:text-sm ${viewMode === "calendar" ? "bg-autoofy-dark text-white" : ""}`}
             >
-              <span className="hidden sm:inline">Kalender</span>
-              <span className="sm:hidden">📅</span>
+              <span className="hidden md:inline">Kalender</span>
+              <span className="md:hidden">📅</span>
             </Button>
             <Button
               variant={viewMode === "analytics" ? "default" : "ghost"}
               size="sm"
               onClick={() => setViewMode("analytics")}
-              className={viewMode === "analytics" ? "bg-autoofy-dark text-white" : ""}
+              className={`text-xs md:text-sm ${viewMode === "analytics" ? "bg-autoofy-dark text-white" : ""}`}
             >
-              <span className="hidden sm:inline">Analytics</span>
-              <span className="sm:hidden">📊</span>
+              <span className="hidden md:inline">Analytics</span>
+              <span className="md:hidden">📊</span>
             </Button>
           </div>
-          <Link href="/dashboard/new" className="flex-1 sm:flex-initial">
-            <Button className="bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-105 group w-full sm:w-auto">
+          <Link href="/dashboard/new" className="hidden lg:block">
+            <Button className="bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-105 group">
               <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
-              <span className="hidden sm:inline">Nieuwe Proefrit</span>
-              <span className="sm:hidden">Nieuw</span>
+              Nieuwe Proefrit
             </Button>
           </Link>
         </div>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 via-white to-blue-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-autoofy-dark/5 rounded-full -mr-16 -mt-16"></div>
           <CardContent className="pt-6 relative">
@@ -540,11 +544,31 @@ function DashboardContent() {
             </div>
           ) : null}
 
-          <DataTable 
-            testrides={filteredTestrides} 
-            onDelete={handleDelete}
-            showEmptyState={!searchQuery && dateFilter === "all" && testrides.length === 0}
-          />
+          {/* Desktop Table View */}
+          <div className="hidden md:block">
+            <DataTable 
+              testrides={filteredTestrides} 
+              onDelete={handleDelete}
+              showEmptyState={!searchQuery && dateFilter === "all" && testrides.length === 0}
+            />
+          </div>
+
+          {/* Mobile Card View */}
+          <div className="md:hidden space-y-3">
+            {filteredTestrides.length === 0 ? (
+              <Card className="p-8 text-center">
+                <p className="text-gray-500">Geen proefritten gevonden</p>
+              </Card>
+            ) : (
+              filteredTestrides.map((testride) => (
+                <MobileTestRideCard
+                  key={testride.id}
+                  testride={testride}
+                  onDelete={handleDelete}
+                />
+              ))
+            )}
+          </div>
         </>
       )}
     </div>

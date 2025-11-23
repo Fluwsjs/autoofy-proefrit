@@ -16,7 +16,7 @@ export function FormInput({ label, error, icon, className, id, ...props }: FormI
   
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>{label}</Label>
+      <Label htmlFor={inputId} className="text-sm font-medium">{label}</Label>
       <div className="relative">
         {icon && (
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none">
@@ -26,6 +26,7 @@ export function FormInput({ label, error, icon, className, id, ...props }: FormI
         <Input
           id={inputId}
           className={cn(
+            "min-h-[48px] text-base", // Touch-friendly height (48px minimum) and readable text
             error && "border-destructive", 
             icon && "pl-10",
             className
@@ -34,7 +35,7 @@ export function FormInput({ label, error, icon, className, id, ...props }: FormI
         />
       </div>
       {error && (
-        <p className="text-sm text-destructive">{error}</p>
+        <p className="text-sm text-destructive mt-1">{error}</p>
       )}
     </div>
   )

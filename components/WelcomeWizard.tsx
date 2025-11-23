@@ -187,8 +187,8 @@ export function WelcomeWizard({
   const Icon = currentStepData.icon
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center md:p-4 animate-in fade-in duration-200">
+      <Card className="w-full h-full md:h-auto md:max-w-2xl md:max-h-[90vh] overflow-y-auto shadow-2xl animate-in zoom-in-95 duration-300 md:rounded-lg rounded-none">
         <CardHeader className="relative bg-gradient-to-r from-autoofy-dark/5 to-autoofy-red/5">
           <Button
             variant="ghost"

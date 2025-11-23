@@ -6,6 +6,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { LogOut, ExternalLink, Settings, Building2, CreditCard, User, Users, ChevronDown, Sparkles } from "lucide-react"
 import { NotificationCenter, Notification } from "@/components/NotificationCenter"
+import { MobileNav } from "@/components/MobileNav"
 import { useState, useEffect, useRef } from "react"
 
 export function Navbar() {
@@ -69,8 +70,8 @@ export function Navbar() {
 
   return (
     <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
-      <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="container mx-auto px-4 py-3 md:py-4 flex items-center justify-between">
+        <div className="flex items-center gap-2 md:gap-3">
           <Link href={session ? "/dashboard" : "/"} className="flex items-center group">
             <Image
               src="/autoofy-logo.svg"
@@ -94,31 +95,35 @@ export function Navbar() {
         </div>
         
         {session && (
-          <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-2 md:gap-4">
+            {/* Mobile Navigation */}
+            <MobileNav />
             {session.user.isSuperAdmin ? (
-              <Link href="/admin">
+              <Link href="/admin" className="hidden lg:block">
                 <Button variant="outline" size="sm" className="gap-2">
-                  <span className="hidden sm:inline">Admin Dashboard</span>
-                  <span className="sm:hidden">Admin</span>
+                  <span className="hidden md:inline">Admin Dashboard</span>
+                  <span className="md:hidden">Admin</span>
                 </Button>
               </Link>
             ) : (
-              <div className="hidden sm:flex items-center gap-3 px-4 py-2 rounded-lg bg-white/50 backdrop-blur-sm border border-white/20">
-                <span className="text-xs text-muted-foreground">Bedrijf:</span>
-                <span className="text-sm font-medium">{session.user.tenantName}</span>
+              <div className="hidden md:flex items-center gap-3 px-3 md:px-4 py-2 rounded-lg bg-white/50 backdrop-blur-sm border border-white/20">
+                <span className="text-xs text-muted-foreground hidden lg:inline">Bedrijf:</span>
+                <span className="text-xs md:text-sm font-medium">{session.user.tenantName}</span>
               </div>
             )}
             {!session.user.isSuperAdmin && (
               <>
-                <NotificationCenter
-                  notifications={notifications}
-                  onMarkAsRead={handleMarkAsRead}
-                  onDismiss={handleDismiss}
-                  onMarkAllAsRead={handleMarkAllAsRead}
-                />
+                <div className="hidden lg:block">
+                  <NotificationCenter
+                    notifications={notifications}
+                    onMarkAsRead={handleMarkAsRead}
+                    onDismiss={handleDismiss}
+                    onMarkAllAsRead={handleMarkAllAsRead}
+                  />
+                </div>
                 
-                {/* Settings Dropdown */}
-                <div className="relative" ref={settingsRef}>
+                {/* Settings Dropdown - Desktop only */}
+                <div className="relative hidden lg:block" ref={settingsRef}>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -206,20 +211,20 @@ export function Navbar() {
                 </div>
               </>
             )}
-            <div className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
+            <div className="hidden lg:flex items-center gap-2 px-3 py-2 rounded-lg bg-autoofy-red/10 border border-autoofy-red/20">
               <div className="h-8 w-8 rounded-full bg-autoofy-dark flex items-center justify-center text-white text-sm font-semibold">
                 {session.user.name.charAt(0).toUpperCase()}
               </div>
-              <span className="text-sm font-medium text-autoofy-dark hidden sm:inline">{session.user.name}</span>
+              <span className="text-sm font-medium text-autoofy-dark">{session.user.name}</span>
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => signOut({ callbackUrl: "/" })}
-              className="hover:bg-red-50 hover:text-red-600 transition-colors"
+              className="hidden lg:flex hover:bg-red-50 hover:text-red-600 transition-colors"
             >
-              <LogOut className="h-4 w-4 sm:mr-2" />
-              <span className="hidden sm:inline">Uitloggen</span>
+              <LogOut className="h-4 w-4 mr-2" />
+              <span>Uitloggen</span>
             </Button>
           </div>
         )}

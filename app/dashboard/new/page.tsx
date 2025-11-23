@@ -148,23 +148,25 @@ export default function NewTestridePage() {
   }
 
         return (
-          <div className="max-w-4xl mx-auto space-y-6">
+          <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 pb-20 lg:pb-0">
             {ToastComponent}
             <Button 
               variant="ghost" 
               size="sm"
               onClick={() => router.push("/dashboard")}
+              className="min-h-[44px]"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Terug naar dashboard
             </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Nieuwe Proefrit</CardTitle>
+      <Card className="shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-autoofy-dark/5 to-autoofy-red/5 border-b">
+          <CardTitle className="text-xl md:text-2xl text-autoofy-dark">Nieuwe Proefrit</CardTitle>
+          <p className="text-sm text-gray-600 mt-1">Vul alle verplichte velden (*) in</p>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <CardContent className="p-4 md:p-6">
+          <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
                 label="Klantnaam *"
@@ -407,16 +409,24 @@ export default function NewTestridePage() {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            <div className="flex gap-4">
+            {/* Sticky Submit Button for Mobile */}
+            <div className="flex flex-col sm:flex-row gap-3 md:gap-4 sticky bottom-0 left-0 right-0 bg-white p-4 -mx-4 -mb-4 md:mb-0 border-t md:border-t-0 md:static md:bg-transparent md:p-0 md:mx-0 shadow-lg md:shadow-none z-10">
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="bg-autoofy-red text-white hover:bg-autoofy-red/90"
+                className="bg-autoofy-red text-white hover:bg-autoofy-red/90 min-h-[48px] text-base font-medium flex-1 sm:flex-initial"
               >
-                {loading ? "Opslaan..." : "Opslaan"}
+                {loading ? (
+                  <>
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                    Opslaan...
+                  </>
+                ) : (
+                  "Proefrit Opslaan"
+                )}
               </Button>
-              <Link href="/dashboard">
-                <Button type="button" variant="outline">
+              <Link href="/dashboard" className="flex-1 sm:flex-initial">
+                <Button type="button" variant="outline" className="w-full min-h-[48px] text-base">
                   Annuleren
                 </Button>
               </Link>
