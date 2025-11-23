@@ -144,68 +144,60 @@ function HomePageForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-autoofy-red/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
+    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
+      {/* Subtle Background Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
 
       <div className="relative z-10 flex min-h-screen">
         {/* Left Side - Branding & Features */}
-        <div className="hidden lg:flex lg:w-1/2 p-12 flex-col justify-between">
+        <div className="hidden lg:flex lg:w-1/2 p-8 xl:p-12 flex-col justify-between bg-white border-r border-slate-200">
           {/* Logo & Title */}
-          <div className="space-y-8">
-            <div className="flex items-center gap-3">
+          <div className="space-y-6">
+            <div className="flex items-center gap-2.5">
               <Image 
                 src="/autoofy-logo.svg" 
                 alt="Autoofy" 
-                width={48} 
-                height={48}
-                className="rounded-lg"
+                width={140} 
+                height={16}
+                className="h-8 w-auto"
               />
-              <h1 className="text-3xl font-bold text-white">Autoofy</h1>
             </div>
 
             {/* Hero Message */}
-            <div className="space-y-4">
-              <h2 className="text-5xl font-bold text-white leading-tight">
-                Proefritten<br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-autoofy-red via-red-400 to-orange-400">
-                  Digitaal Geregeld
-                </span>
+            <div className="space-y-3 max-w-lg">
+              <h2 className="text-4xl font-semibold text-slate-900 leading-tight">
+                Proefritten Digitaal Geregeld
               </h2>
               
-              <p className="text-xl text-gray-300 leading-relaxed">
+              <p className="text-base text-slate-600 leading-relaxed">
                 De moderne oplossing voor het professioneel beheren van proefritten in uw autobedrijf.
               </p>
             </div>
 
-            {/* Features Grid */}
-            <div className="grid grid-cols-2 gap-4 pt-8">
-              <div className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <Clock className="w-8 h-8 text-blue-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-white font-semibold mb-1">Realtime Tracking</h3>
-                <p className="text-gray-400 text-sm">Volg alle proefritten live</p>
+            {/* Features Grid - Compact */}
+            <div className="grid grid-cols-2 gap-3 pt-4">
+              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+                <Clock className="w-5 h-5 text-blue-600 mb-2" />
+                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Realtime Tracking</h3>
+                <p className="text-slate-600 text-xs">Volg alle proefritten live</p>
               </div>
 
-              <div className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <FileCheck className="w-8 h-8 text-green-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-white font-semibold mb-1">Digitale Handtekening</h3>
-                <p className="text-gray-400 text-sm">Juridisch bindend</p>
+              <div className="p-4 bg-green-50 rounded-lg border border-green-100">
+                <FileCheck className="w-5 h-5 text-green-600 mb-2" />
+                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Digitale Handtekening</h3>
+                <p className="text-slate-600 text-xs">Juridisch bindend</p>
               </div>
 
-              <div className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <Car className="w-8 h-8 text-purple-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-white font-semibold mb-1">Handelaarskenteken</h3>
-                <p className="text-gray-400 text-sm">Centraal beheer</p>
+              <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
+                <Car className="w-5 h-5 text-purple-600 mb-2" />
+                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Handelaarskenteken</h3>
+                <p className="text-slate-600 text-xs">Centraal beheer</p>
               </div>
 
-              <div className="group p-5 bg-white/5 backdrop-blur-sm rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 cursor-pointer">
-                <BarChart3 className="w-8 h-8 text-orange-400 mb-3 group-hover:scale-110 transition-transform" />
-                <h3 className="text-white font-semibold mb-1">Analytics</h3>
-                <p className="text-gray-400 text-sm">Inzicht in data</p>
+              <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
+                <BarChart3 className="w-5 h-5 text-amber-600 mb-2" />
+                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Analytics</h3>
+                <p className="text-slate-600 text-xs">Inzicht in data</p>
               </div>
             </div>
           </div>
@@ -215,57 +207,56 @@ function HomePageForm() {
             <Link 
               href="https://autoofy.nl" 
               target="_blank"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors group"
+              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-sm"
             >
               <span>Meer informatie op Autoofy.nl</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              <ChevronRight className="w-4 h-4" />
             </Link>
           </div>
         </div>
 
         {/* Right Side - Auth Forms */}
-        <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
           <div className="w-full max-w-md">
             {/* Mobile Logo */}
-            <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
+            <div className="lg:hidden flex items-center justify-center mb-6">
               <Image 
                 src="/autoofy-logo.svg" 
                 alt="Autoofy" 
-                width={40} 
-                height={40}
-                className="rounded-lg"
+                width={120} 
+                height={14}
+                className="h-7 w-auto"
               />
-              <h1 className="text-2xl font-bold text-white">Autoofy</h1>
             </div>
 
-            <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-xl overflow-hidden">
+            <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
               {/* Header with Tabs */}
-              <div className="p-8 pb-0">
-                <div className="flex gap-2 p-1 bg-gray-100 rounded-xl mb-8">
+              <div className="p-6 pb-0">
+                <div className="flex gap-0.5 p-0.5 bg-slate-100 rounded-md mb-6 border border-slate-200">
                   <button
                     onClick={() => !loading && switchMode()}
-                    className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
+                    className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-all duration-150 ${
                       isLogin 
-                        ? 'bg-white text-autoofy-dark shadow-md' 
-                        : 'text-gray-600 hover:text-autoofy-dark'
+                        ? 'bg-white text-slate-900 shadow-sm' 
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     Inloggen
                   </button>
                   <button
                     onClick={() => !loading && switchMode()}
-                    className={`flex-1 py-3 px-4 rounded-lg font-semibold transition-all duration-300 ${
+                    className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-all duration-150 ${
                       !isLogin 
-                        ? 'bg-white text-autoofy-dark shadow-md' 
-                        : 'text-gray-600 hover:text-autoofy-dark'
+                        ? 'bg-white text-slate-900 shadow-sm' 
+                        : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     Registreren
                   </button>
                 </div>
 
-                <div className="mb-6">
-                  <h2 className="text-2xl font-bold text-autoofy-dark mb-2">
+                <div className="mb-5">
+                  <h2 className="text-xl font-semibold text-slate-900 mb-1">
                     {isLogin ? "Welkom terug" : "Account aanmaken"}
                   </h2>
                   <p className="text-gray-600">
@@ -360,18 +351,15 @@ function HomePageForm() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      className="w-full bg-autoofy-red hover:bg-autoofy-red/90 text-white h-10 text-sm font-medium shadow-sm transition-all duration-150"
                     >
                       {loading ? (
                         <span className="flex items-center gap-2">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           Bezig met inloggen...
                         </span>
                       ) : (
-                        <span className="flex items-center gap-2">
-                          Inloggen
-                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </span>
+                        "Inloggen"
                       )}
                     </Button>
                   </form>
