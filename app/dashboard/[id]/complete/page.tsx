@@ -49,6 +49,11 @@ export default function CompleteTestridePage() {
     allKeysReturned: false,
     completionNotes: "",
   })
+  
+  // Bereken aantal gereden kilometers
+  const drivenKilometers = completionData.actualEndKm && testride
+    ? parseInt(completionData.actualEndKm) - testride.startKm
+    : 0
 
   useEffect(() => {
     if (params.id) {
@@ -230,6 +235,19 @@ export default function CompleteTestridePage() {
                 min={testride.startKm}
               />
             </div>
+            
+            {/* Gereden kilometers weergave */}
+            {drivenKilometers > 0 && (
+              <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-blue-900">Totaal gereden kilometers:</span>
+                  <span className="text-2xl font-bold text-blue-600">{drivenKilometers} km</span>
+                </div>
+                <p className="text-xs text-blue-700 mt-1">
+                  Van {testride.startKm} km naar {completionData.actualEndKm} km
+                </p>
+              </div>
+            )}
           </div>
 
           {/* Controle Checklist */}

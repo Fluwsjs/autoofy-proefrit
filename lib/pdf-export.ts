@@ -249,9 +249,14 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   yPosition += 5
   if (testride.endKm !== null) {
     yPosition += addText(`Eind: ${testride.endKm} km`, margin, yPosition, pageWidth - 2 * margin)
+    yPosition += 7
+    
+    // Gereden kilometers prominent weergeven
+    doc.setFontSize(12)
+    doc.setFont("helvetica", "bold")
+    yPosition += addText(`Totaal gereden: ${testride.endKm - testride.startKm} km`, margin, yPosition, pageWidth - 2 * margin, 12)
     yPosition += 5
-    yPosition += addText(`Afstand: ${testride.endKm - testride.startKm} km`, margin, yPosition, pageWidth - 2 * margin)
-    yPosition += 5
+    doc.setFont("helvetica", "normal")
   }
   yPosition += 10
 

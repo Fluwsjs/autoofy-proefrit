@@ -288,16 +288,22 @@ export default function TestrideDetailPage() {
                   {testride.startKm} km
                 </p>
                 {testride.endKm !== null && (
-                  <p>
-                    <span className="text-muted-foreground">Verwachte eindkilometerstand:</span>{" "}
-                    {testride.endKm} km
-                  </p>
-                )}
-                {testride.endKm !== null && (
-                  <p>
-                    <span className="text-muted-foreground">Afstand:</span>{" "}
-                    {testride.endKm - testride.startKm} km
-                  </p>
+                  <>
+                    <p>
+                      <span className="text-muted-foreground">
+                        {testride.status === "COMPLETED" ? "Eind:" : "Verwachte eindkilometerstand:"}
+                      </span>{" "}
+                      {testride.endKm} km
+                    </p>
+                    <div className="pt-2 mt-2 border-t">
+                      <p className="flex items-center gap-2">
+                        <span className="text-muted-foreground">Gereden kilometers:</span>{" "}
+                        <span className="font-bold text-lg text-autoofy-red">
+                          {testride.endKm - testride.startKm} km
+                        </span>
+                      </p>
+                    </div>
+                  </>
                 )}
               </div>
             </div>
