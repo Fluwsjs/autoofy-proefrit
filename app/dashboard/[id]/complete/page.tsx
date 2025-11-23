@@ -10,7 +10,7 @@ import { SellerSignature } from "@/components/SellerSignature"
 import { CustomerSignature } from "@/components/CustomerSignature"
 import { FormInput } from "@/components/FormInput"
 import { Label } from "@/components/ui/label"
-import { formatDate, formatDateTime } from "@/lib/utils"
+import { formatDate, formatDateTime, formatTime } from "@/lib/utils"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import { useToast } from "@/components/ui/toast"
@@ -45,7 +45,8 @@ export default function CompleteTestridePage() {
     actualEndTime: "",
     actualEndKm: "",
     noDamages: false,
-    noFines: false,
+    dealerPlateCardReturned: false,
+    greenPlatesNotLost: false,
     allKeysReturned: false,
     completionNotes: "",
   })
@@ -94,7 +95,7 @@ export default function CompleteTestridePage() {
       return
     }
     
-    if (!completionData.noDamages || !completionData.noFines || !completionData.allKeysReturned) {
+    if (!completionData.noDamages || !completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost || !completionData.allKeysReturned) {
       showToast("Vink alle controle items aan", "error")
       return
     }
@@ -193,7 +194,7 @@ export default function CompleteTestridePage() {
               </div>
               <div>
                 <p className="text-muted-foreground">Start tijd:</p>
-                <p className="font-medium">{formatDateTime(testride.startTime)}</p>
+                <p className="font-medium">{formatTime(testride.startTime)}</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Start kilometerstand:</p>
@@ -269,13 +270,25 @@ export default function CompleteTestridePage() {
               <label className="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
-                  checked={completionData.noFines}
+                  checked={completionData.dealerPlateCardReturned}
                   onChange={(e) =>
-                    setCompletionData({ ...completionData, noFines: e.target.checked })
+                    setCompletionData({ ...completionData, dealerPlateCardReturned: e.target.checked })
                   }
                   className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
                 />
-                <span className="text-sm font-medium">Geen bekeuringen ontvangen</span>
+                <span className="text-sm font-medium">Handelaarskentekenpasje ingeleverd</span>
+              </label>
+              
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={completionData.greenPlatesNotLost}
+                  onChange={(e) =>
+                    setCompletionData({ ...completionData, greenPlatesNotLost: e.target.checked })
+                  }
+                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                />
+                <span className="text-sm font-medium">Groene platen niet verloren tijdens testrit (klant niet aansprakelijk)</span>
               </label>
               
               <label className="flex items-center gap-3 cursor-pointer">
@@ -331,7 +344,7 @@ export default function CompleteTestridePage() {
           <div className="flex gap-4 pt-4 border-t">
             <Button
               onClick={handleComplete}
-              disabled={completing || !completionSignature || !customerCompletionSignature || !completionData.noDamages || !completionData.noFines || !completionData.allKeysReturned}
+              disabled={completing || !completionSignature || !customerCompletionSignature || !completionData.noDamages || !completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost || !completionData.allKeysReturned}
               className="bg-autoofy-red text-white hover:bg-autoofy-red/90 flex-1"
             >
               {completing ? (

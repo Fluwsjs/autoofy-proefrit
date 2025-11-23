@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { formatDate, formatDateTime } from "@/lib/utils"
+import { formatDate, formatDateTime, formatTime } from "@/lib/utils"
 import { ArrowLeft, Trash2, Download, CheckCircle } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
@@ -271,11 +271,11 @@ export default function TestrideDetailPage() {
                 </p>
                 <p>
                   <span className="text-muted-foreground">Starttijd:</span>{" "}
-                  {formatDateTime(testride.startTime)}
+                  {formatTime(testride.startTime)}
                 </p>
                 <p>
                   <span className="text-muted-foreground">Verwachte eindtijd:</span>{" "}
-                  {formatDateTime(testride.endTime)}
+                  {formatTime(testride.endTime)}
                 </p>
               </div>
             </div>

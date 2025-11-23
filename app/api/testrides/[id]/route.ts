@@ -23,6 +23,9 @@ export async function GET(
         id: id,
         tenantId: session.user.tenantId,
       },
+      include: {
+        dealerPlate: true,
+      },
     })
 
     if (!testride) {
