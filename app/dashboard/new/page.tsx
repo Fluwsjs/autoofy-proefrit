@@ -48,7 +48,8 @@ export default function NewTestridePage() {
     startKm: "",
     endKm: "",
     notes: "",
-    eigenRisico: "",
+    eigenRisico: "0",
+    aantalSleutels: "1",
   })
 
   useEffect(() => {
@@ -122,7 +123,8 @@ export default function NewTestridePage() {
           licensePlate: formData.licensePlate || undefined,
           driverLicenseNumber: formData.driverLicenseNumber || undefined,
           dealerPlateId: formData.dealerPlateId || undefined,
-          eigenRisico: formData.eigenRisico || undefined,
+          eigenRisico: parseInt(formData.eigenRisico),
+          aantalSleutels: parseInt(formData.aantalSleutels),
           notes: formData.notes || undefined,
         }),
       })
@@ -197,7 +199,7 @@ export default function NewTestridePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
-                label="Autotype *"
+                label="Testrit voertuig *"
                 value={formData.carType}
                 onChange={(e) =>
                   setFormData({ ...formData, carType: e.target.value })
@@ -262,7 +264,7 @@ export default function NewTestridePage() {
                 required
               />
               <TimePicker
-                label="Eindtijd"
+                label="Verwachte eindtijd"
                 value={formData.endTime}
                 onChange={(value) =>
                   setFormData({ ...formData, endTime: value })
@@ -283,7 +285,7 @@ export default function NewTestridePage() {
                 min="0"
               />
               <FormInput
-                label="Eindkilometerstand"
+                label="Verwachte eindkilometerstand"
                 type="number"
                 value={formData.endKm}
                 onChange={(e) =>
@@ -294,7 +296,7 @@ export default function NewTestridePage() {
             </div>
 
             <div>
-              <label className="text-sm font-medium mb-2 block">Notities</label>
+              <label className="text-sm font-medium mb-2 block">Notities/ eventuele opmerking</label>
               <textarea
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 value={formData.notes}
@@ -305,14 +307,45 @@ export default function NewTestridePage() {
               />
             </div>
 
-            <FormInput
-              label="Eigen risico (ex btw)"
-              value={formData.eigenRisico}
-              onChange={(e) =>
-                setFormData({ ...formData, eigenRisico: e.target.value })
-              }
-              placeholder="Bijv. €500"
-            />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="eigenRisico">Eigen risico *</Label>
+                <select
+                  id="eigenRisico"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={formData.eigenRisico}
+                  onChange={(e) =>
+                    setFormData({ ...formData, eigenRisico: e.target.value })
+                  }
+                  required
+                >
+                  <option value="0">€0</option>
+                  <option value="200">€200</option>
+                  <option value="400">€400</option>
+                  <option value="600">€600</option>
+                  <option value="800">€800</option>
+                  <option value="1000">€1000</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="aantalSleutels">Aantal sleutels meegegeven *</Label>
+                <select
+                  id="aantalSleutels"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={formData.aantalSleutels}
+                  onChange={(e) =>
+                    setFormData({ ...formData, aantalSleutels: e.target.value })
+                  }
+                  required
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <IdPhotoUpload 
@@ -325,7 +358,7 @@ export default function NewTestridePage() {
               />
             </div>
 
-            <SellerSignature onUse={setSellerSignature} />
+            <SellerSignature onUse={setSellerSignature} hideReuse={true} />
 
             <div className="space-y-2">
               <div className="bg-yellow-50 border border-yellow-200 rounded-md p-3">

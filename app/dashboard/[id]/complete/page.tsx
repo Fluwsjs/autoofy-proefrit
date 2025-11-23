@@ -164,7 +164,7 @@ export default function CompleteTestridePage() {
             <p className="text-sm text-muted-foreground mb-4">
               Teken hieronder uw handtekening om de proefrit officieel af te ronden.
             </p>
-            <SellerSignature onUse={setCompletionSignature} />
+            <SellerSignature onUse={setCompletionSignature} hideReuse={true} />
           </div>
 
           <div className="flex gap-4 pt-4 border-t">

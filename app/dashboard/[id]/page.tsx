@@ -32,7 +32,8 @@ interface Testride {
   customerSignatureUrl: string | null
   sellerSignatureUrl: string | null
   completionSignatureUrl: string | null
-  eigenRisico: string | null
+  eigenRisico: number
+  aantalSleutels: number
   status: string
   completedAt: string | null
   startKm: number
@@ -114,6 +115,7 @@ export default function TestrideDetailPage() {
         sellerSignatureUrl: testride.sellerSignatureUrl,
         completionSignatureUrl: testride.completionSignatureUrl,
         eigenRisico: testride.eigenRisico,
+        aantalSleutels: testride.aantalSleutels,
         status: testride.status,
         completedAt: testride.completedAt,
         startKm: testride.startKm,
@@ -225,10 +227,10 @@ export default function TestrideDetailPage() {
             </div>
 
             <div>
-              <h3 className="font-semibold mb-2">Autogegevens</h3>
+              <h3 className="font-semibold mb-2">Voertuiggegevens</h3>
               <div className="space-y-2 text-sm">
                 <p>
-                  <span className="text-muted-foreground">Type:</span>{" "}
+                  <span className="text-muted-foreground">Testrit voertuig:</span>{" "}
                   {testride.carType}
                 </p>
                 {testride.licensePlate && (
@@ -264,7 +266,7 @@ export default function TestrideDetailPage() {
                   {formatDateTime(testride.startTime)}
                 </p>
                 <p>
-                  <span className="text-muted-foreground">Eindtijd:</span>{" "}
+                  <span className="text-muted-foreground">Verwachte eindtijd:</span>{" "}
                   {formatDateTime(testride.endTime)}
                 </p>
               </div>
@@ -279,7 +281,7 @@ export default function TestrideDetailPage() {
                 </p>
                 {testride.endKm !== null && (
                   <p>
-                    <span className="text-muted-foreground">Eind:</span>{" "}
+                    <span className="text-muted-foreground">Verwachte eindkilometerstand:</span>{" "}
                     {testride.endKm} km
                   </p>
                 )}
@@ -293,16 +295,20 @@ export default function TestrideDetailPage() {
             </div>
           </div>
 
-          {testride.eigenRisico && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold mb-2">Eigen risico (ex btw)</h3>
-              <p className="text-sm">{testride.eigenRisico}</p>
+              <h3 className="font-semibold mb-2">Eigen risico</h3>
+              <p className="text-sm">€{testride.eigenRisico}</p>
             </div>
-          )}
+            <div>
+              <h3 className="font-semibold mb-2">Aantal sleutels meegegeven</h3>
+              <p className="text-sm">{testride.aantalSleutels}</p>
+            </div>
+          </div>
 
           {testride.notes && (
             <div>
-              <h3 className="font-semibold mb-2">Notities</h3>
+              <h3 className="font-semibold mb-2">Notities/ eventuele opmerking</h3>
               <p className="text-sm">{testride.notes}</p>
             </div>
           )}

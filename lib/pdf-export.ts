@@ -19,7 +19,8 @@ interface TestrideData {
   customerSignatureUrl: string | null
   sellerSignatureUrl: string | null
   completionSignatureUrl: string | null
-  eigenRisico: string | null
+  eigenRisico: number
+  aantalSleutels: number
   status: string
   completedAt: string | null
   startKm: number
@@ -248,19 +249,19 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   }
   yPosition += 10
 
-  // Eigen risico
-  if (testride.eigenRisico) {
-    checkPageBreak(20)
-    doc.setFontSize(14)
-    doc.setFont("helvetica", "bold")
-    doc.text("Eigen risico (ex btw)", margin, yPosition)
-    yPosition += 10
+  // Eigen risico en aantal sleutels
+  checkPageBreak(40)
+  doc.setFontSize(14)
+  doc.setFont("helvetica", "bold")
+  doc.text("Aanvullende informatie", margin, yPosition)
+  yPosition += 10
 
-    doc.setFontSize(10)
-    doc.setFont("helvetica", "normal")
-    yPosition += addText(testride.eigenRisico, margin, yPosition, pageWidth - 2 * margin)
-    yPosition += 10
-  }
+  doc.setFontSize(10)
+  doc.setFont("helvetica", "normal")
+  doc.text(`Eigen risico: €${testride.eigenRisico}`, margin, yPosition)
+  yPosition += 7
+  doc.text(`Aantal sleutels meegegeven: ${testride.aantalSleutels}`, margin, yPosition)
+  yPosition += 10
 
   // Notities
   if (testride.notes) {

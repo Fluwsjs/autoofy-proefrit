@@ -9,9 +9,10 @@ import { useToast } from "@/components/ui/toast"
 
 interface SellerSignatureProps {
   onUse: (signatureUrl: string) => void
+  hideReuse?: boolean // Verberg opgeslagen handtekening functionaliteit
 }
 
-export function SellerSignature({ onUse }: SellerSignatureProps) {
+export function SellerSignature({ onUse, hideReuse = false }: SellerSignatureProps) {
   const { data: session } = useSession()
   const { showToast, ToastComponent } = useToast()
   const signatureRef = useRef<SignatureCanvas>(null)
@@ -20,12 +21,14 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
 
-  // Load saved signature on mount
+  // Load saved signature on mount (alleen als hideReuse false is)
   useEffect(() => {
-    if (session?.user?.id) {
+    if (session?.user?.id && !hideReuse) {
       fetchSellerSignature()
+    } else if (hideReuse) {
+      setLoading(false)
     }
-  }, [session])
+  }, [session, hideReuse])
 
   const fetchSellerSignature = async () => {
     try {
@@ -53,6 +56,13 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
   const handleSave = async () => {
     if (signatureRef.current && !signatureRef.current.isEmpty()) {
       const signature = signatureRef.current.getTrimmedCanvas().toDataURL("image/png")
+      
+      // Als hideReuse true is, gebruik de handtekening direct zonder op te slaan
+      if (hideReuse) {
+        onUse(signature)
+        showToast("Verkoper handtekening toegevoegd", "success")
+        return
+      }
       
       setSaving(true)
       try {
@@ -102,7 +112,7 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
       {ToastComponent}
       <Label>Verkoper handtekening/stempel</Label>
       
-      {savedSignature ? (
+      {savedSignature && !hideReuse ? (
         <div className="space-y-4">
           <div className="border rounded-md p-4 bg-white">
             <p className="text-sm font-medium mb-2">Opgeslagen handtekening:</p>
@@ -166,7 +176,10 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
       ) : (
         <div className="border rounded-md p-4 bg-white">
           <p className="text-sm text-muted-foreground mb-4">
-            Teken hieronder uw handtekening of stempel. Deze wordt opgeslagen en kan worden hergebruikt.
+            {hideReuse 
+              ? "Teken hieronder uw handtekening of stempel."
+              : "Teken hieronder uw handtekening of stempel. Deze wordt opgeslagen en kan worden hergebruikt."
+            }
           </p>
           <SignatureCanvas
             ref={signatureRef}
@@ -196,7 +209,7 @@ export function SellerSignature({ onUse }: SellerSignatureProps) {
               disabled={isEmpty || saving}
               className="bg-autoofy-dark text-white hover:bg-autoofy-dark/90"
             >
-              {saving ? "Opslaan..." : "Handtekening opslaan"}
+              {saving ? "Opslaan..." : hideReuse ? "Handtekening gebruiken" : "Handtekening opslaan"}
             </Button>
           </div>
         </div>
