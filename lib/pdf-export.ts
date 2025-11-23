@@ -11,6 +11,7 @@ interface TestrideData {
   carType: string
   licensePlate: string | null
   driverLicenseNumber: string | null
+  idCountryOfOrigin: string | null
   dealerPlate: {
     plate: string
   } | null
@@ -190,6 +191,11 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   }
     if (testride.driverLicenseNumber) {
       yPosition += addText(`Rijbewijs of BSN nummer: ${testride.driverLicenseNumber}`, margin, yPosition, pageWidth - 2 * margin)
+      yPosition += 5
+    }
+    
+    if (testride.idCountryOfOrigin) {
+      yPosition += addText(`Land van herkomst ID/rijbewijs: ${testride.idCountryOfOrigin}`, margin, yPosition, pageWidth - 2 * margin)
       yPosition += 5
     }
   yPosition += 10

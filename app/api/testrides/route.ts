@@ -22,6 +22,7 @@ const testrideSchema = z.object({
   carType: z.string().min(1, "Testrit voertuig is verplicht"),
   licensePlate: z.string().optional(),
   driverLicenseNumber: z.string().optional(),
+  idCountryOfOrigin: z.string().optional(),
   dealerPlateId: z.string().optional(),
   idPhotoFrontUrl: z.string().optional(),
   idPhotoBackUrl: z.string().optional(),
@@ -108,6 +109,7 @@ export async function POST(request: NextRequest) {
       carType: sanitizeString(body.carType || ""),
       licensePlate: body.licensePlate ? sanitizeString(body.licensePlate) : undefined,
       driverLicenseNumber: body.driverLicenseNumber ? sanitizeString(body.driverLicenseNumber) : undefined,
+      idCountryOfOrigin: body.idCountryOfOrigin ? sanitizeString(body.idCountryOfOrigin) : undefined,
       notes: body.notes ? sanitizeText(body.notes) : undefined,
     }
     

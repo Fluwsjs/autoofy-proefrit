@@ -61,6 +61,7 @@ model Testride {
   carType             String
   licensePlate        String?
   driverLicenseNumber String?
+  idCountryOfOrigin   String?  // Land van herkomst ID kaart of rijbewijs
   dealerPlateId       String?
   dealerPlate         DealerPlate? @relation(fields: [dealerPlateId], references: [id], onDelete: SetNull)
   idPhotoFrontUrl     String?   // ID foto voorkant

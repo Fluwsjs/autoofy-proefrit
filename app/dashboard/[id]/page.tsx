@@ -23,6 +23,7 @@ interface Testride {
   carType: string
   licensePlate: string | null
   driverLicenseNumber: string | null
+  idCountryOfOrigin: string | null
   dealerPlate: {
     id: string
     plate: string
@@ -108,6 +109,7 @@ export default function TestrideDetailPage() {
         carType: testride.carType,
         licensePlate: testride.licensePlate,
         driverLicenseNumber: testride.driverLicenseNumber,
+        idCountryOfOrigin: testride.idCountryOfOrigin,
         dealerPlate: testride.dealerPlate ? { plate: testride.dealerPlate.plate } : null,
         idPhotoFrontUrl: testride.idPhotoFrontUrl,
         idPhotoBackUrl: testride.idPhotoBackUrl,
@@ -249,6 +251,12 @@ export default function TestrideDetailPage() {
                          <p>
                            <span className="text-muted-foreground">Rijbewijs of BSN nummer:</span>{" "}
                            {testride.driverLicenseNumber}
+                         </p>
+                       )}
+                       {testride.idCountryOfOrigin && (
+                         <p>
+                           <span className="text-muted-foreground">Land van herkomst ID/rijbewijs:</span>{" "}
+                           {testride.idCountryOfOrigin}
                          </p>
                        )}
               </div>

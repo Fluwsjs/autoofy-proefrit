@@ -44,6 +44,7 @@ export default function NewTestridePage() {
     carType: "",
     licensePlate: "",
     driverLicenseNumber: "",
+    idCountryOfOrigin: "",
     dealerPlateId: "",
     startKm: "",
     endKm: "",
@@ -122,6 +123,7 @@ export default function NewTestridePage() {
           customerPhone: formData.customerPhone || undefined,
           licensePlate: formData.licensePlate || undefined,
           driverLicenseNumber: formData.driverLicenseNumber || undefined,
+          idCountryOfOrigin: formData.idCountryOfOrigin || undefined,
           dealerPlateId: formData.dealerPlateId || undefined,
           eigenRisico: parseInt(formData.eigenRisico),
           aantalSleutels: parseInt(formData.aantalSleutels),
@@ -222,6 +224,17 @@ export default function NewTestridePage() {
                 }
                 placeholder="Bijv. 12345678"
               />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <FormInput
+                label="Land van herkomst ID kaart of rijbewijs"
+                value={formData.idCountryOfOrigin}
+                onChange={(e) =>
+                  setFormData({ ...formData, idCountryOfOrigin: e.target.value })
+                }
+                placeholder="Bijv. Nederland, België, Duitsland"
+              />
               <div className="space-y-2">
                 <Label htmlFor="dealerPlate">Handelaarskenteken</Label>
                 <select
@@ -297,6 +310,9 @@ export default function NewTestridePage() {
 
             <div>
               <label className="text-sm font-medium mb-2 block">Notities/ eventuele opmerking</label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Voeg hier eventuele bijzonderheden toe, zoals: schades aan het voertuig, specifieke afspraken, of andere opmerkingen die relevant zijn voor deze proefrit.
+              </p>
               <textarea
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                 value={formData.notes}
@@ -304,6 +320,7 @@ export default function NewTestridePage() {
                   setFormData({ ...formData, notes: e.target.value })
                 }
                 rows={3}
+                placeholder="Bijvoorbeeld: kleine kras op linker portier, klant wil graag langere proefrit, etc."
               />
             </div>
 
