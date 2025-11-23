@@ -28,6 +28,7 @@ interface Testride {
   endKm: number | null
   status: string
   driverLicenseNumber: string | null
+  idCountryOfOrigin?: string | null
   dealerPlate: {
     plate: string
   } | null
@@ -91,6 +92,7 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
         carType: testride.carType,
         licensePlate: testride.licensePlate,
         driverLicenseNumber: testride.driverLicenseNumber,
+        idCountryOfOrigin: testride.idCountryOfOrigin ?? null,
         dealerPlate: testride.dealerPlate,
         idPhotoFrontUrl: testride.idPhotoFrontUrl ?? null,
         idPhotoBackUrl: testride.idPhotoBackUrl ?? null,
