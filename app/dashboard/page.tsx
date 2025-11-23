@@ -273,7 +273,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="space-y-4 md:space-y-6 animate-in fade-in duration-500 pb-20 lg:pb-0">
+    <div className="space-y-4 animate-in fade-in duration-300 pb-20 lg:pb-0">
       {ToastComponent}
       
       {/* Floating Action Button - Mobile Only */}
@@ -346,92 +346,73 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 via-white to-blue-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-autoofy-dark/5 rounded-full -mr-16 -mt-16"></div>
-          <CardContent className="pt-6 relative">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-600">Totaal proefritten</p>
-                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.total}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Car className="h-3 w-3" />
-                  <span>Alle tijd</span>
-                </div>
+      {/* Statistics Cards - Compact Design */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Card className="bg-blue-50 border-blue-100 hover:shadow-md transition-shadow duration-150">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 bg-blue-500 rounded-lg">
+                <Car className="h-4 w-4 text-white" />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-autoofy-dark to-gray-800 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Car className="h-6 w-6 text-white" />
-              </div>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+              <p className="text-sm text-slate-600 mt-0.5">Totaal proefritten</p>
+              <p className="text-xs text-slate-500 mt-1">Alle tijd</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-red-50 via-white to-red-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-autoofy-red/5 rounded-full -mr-16 -mt-16"></div>
-          <CardContent className="pt-6 relative">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-600">Deze maand</p>
-                <div className="flex items-baseline gap-2">
-                  <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.thisMonth}</p>
-                  {stats.monthGrowth !== 0 && (
-                    <span className={`flex items-center text-xs font-semibold px-2 py-1 rounded-full ${
-                      stats.monthGrowth > 0 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-red-100 text-red-700'
-                    }`}>
-                      {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                      {Math.abs(stats.monthGrowth)}%
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Calendar className="h-3 w-3" />
-                  <span>vs. vorige maand</span>
-                </div>
+        <Card className="bg-red-50 border-red-100 hover:shadow-md transition-shadow duration-150">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 bg-red-500 rounded-lg">
+                <Calendar className="h-4 w-4 text-white" />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-autoofy-red to-red-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Calendar className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <div className="flex items-baseline gap-2">
+                <p className="text-2xl font-bold text-slate-900">{stats.thisMonth}</p>
+                {stats.monthGrowth !== 0 && (
+                  <span className={`text-xs font-semibold ${
+                    stats.monthGrowth > 0 ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {stats.monthGrowth > 0 ? '+' : ''}{stats.monthGrowth}%
+                  </span>
+                )}
               </div>
+              <p className="text-sm text-slate-600 mt-0.5">Deze maand</p>
+              <p className="text-xs text-slate-500 mt-1">vs. vorige maand</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-green-50 via-white to-green-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 rounded-full -mr-16 -mt-16"></div>
-          <CardContent className="pt-6 relative">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-600">Vandaag</p>
-                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.today}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <Clock className="h-3 w-3" />
-                  <span>Gepland</span>
-                </div>
+        <Card className="bg-green-50 border-green-100 hover:shadow-md transition-shadow duration-150">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 bg-green-500 rounded-lg">
+                <Clock className="h-4 w-4 text-white" />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-green-500 to-green-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <Clock className="h-6 w-6 text-white" />
-              </div>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.today}</p>
+              <p className="text-sm text-slate-600 mt-0.5">Vandaag</p>
+              <p className="text-xs text-slate-500 mt-1">Gepland</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 via-white to-purple-50/30 hover:shadow-xl transition-all duration-300 hover:scale-[1.02] group overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 rounded-full -mr-16 -mt-16"></div>
-          <CardContent className="pt-6 relative">
-            <div className="flex items-start justify-between">
-              <div className="space-y-2">
-                <p className="text-sm font-medium text-gray-600">Afgerond</p>
-                <p className="text-4xl font-bold text-autoofy-dark transition-all group-hover:scale-110">{stats.completed}</p>
-                <div className="flex items-center gap-1 text-xs text-gray-500">
-                  <CheckCircle className="h-3 w-3" />
-                  <span>{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% voltooid</span>
-                </div>
+        <Card className="bg-purple-50 border-purple-100 hover:shadow-md transition-shadow duration-150">
+          <CardContent className="p-4">
+            <div className="flex items-start justify-between mb-2">
+              <div className="p-2 bg-purple-500 rounded-lg">
+                <CheckCircle className="h-4 w-4 text-white" />
               </div>
-              <div className="p-3 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                <CheckCircle className="h-6 w-6 text-white" />
-              </div>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-slate-900">{stats.completed}</p>
+              <p className="text-sm text-slate-600 mt-0.5">Afgerond</p>
+              <p className="text-xs text-slate-500 mt-1">{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% voltooid</p>
             </div>
           </CardContent>
         </Card>
@@ -439,25 +420,26 @@ function DashboardContent() {
 
       {/* Quick Actions for Today */}
       {stats.today > 0 && viewMode === "table" && (
-        <Card className="border-0 shadow-lg bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-l-4 border-amber-400">
-          <CardContent className="pt-6">
+        <Card className="bg-amber-50 border-amber-200 border-l-4 border-l-amber-500">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-amber-400 shadow-lg">
-                  <AlertCircle className="h-6 w-6 text-white" />
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-amber-500">
+                  <AlertCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-autoofy-dark text-lg">
+                  <h3 className="font-semibold text-slate-900 text-base">
                     {stats.today} proefrit{stats.today !== 1 ? 'ten' : ''} vandaag
                   </h3>
-                  <p className="text-sm text-gray-600">
-                    Vergeet niet om voor te bereiden en te controleren
+                  <p className="text-sm text-slate-600">
+                    Vergeet niet om voor te bereiden
                   </p>
                 </div>
               </div>
               <Button
                 onClick={() => setDateFilter("today")}
-                className="bg-autoofy-dark hover:bg-autoofy-dark/90 text-white"
+                size="sm"
+                className="bg-autoofy-red hover:bg-autoofy-red/90 text-white h-9"
               >
                 Bekijk vandaag
               </Button>

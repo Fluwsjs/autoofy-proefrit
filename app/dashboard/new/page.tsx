@@ -148,7 +148,7 @@ export default function NewTestridePage() {
   }
 
         return (
-          <div className="max-w-4xl mx-auto space-y-4 md:space-y-6 pb-20 lg:pb-0">
+          <div className="max-w-4xl mx-auto space-y-4 pb-20 lg:pb-0">
             {ToastComponent}
             <Button 
               variant="ghost" 
@@ -160,12 +160,12 @@ export default function NewTestridePage() {
               Terug naar dashboard
             </Button>
 
-      <Card className="shadow-lg">
-        <CardHeader className="bg-gradient-to-r from-autoofy-dark/5 to-autoofy-red/5 border-b">
-          <CardTitle className="text-xl md:text-2xl text-autoofy-dark">Nieuwe Proefrit</CardTitle>
-          <p className="text-sm text-gray-600 mt-1">Vul alle verplichte velden (*) in</p>
+      <Card className="border-slate-200">
+        <CardHeader className="bg-slate-50 border-b border-slate-200 p-4">
+          <CardTitle className="text-lg font-semibold text-slate-900">Nieuwe Proefrit</CardTitle>
+          <p className="text-sm text-slate-600 mt-0.5">Vul alle verplichte velden (*) in</p>
         </CardHeader>
-        <CardContent className="p-4 md:p-6">
+        <CardContent className="p-4">
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormInput
