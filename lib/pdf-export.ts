@@ -531,7 +531,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   yPosition = Math.max(leftY, rightY) + 10
 
   // Footer
-  const footerY = pageHeight - 20
+  let footerY = pageHeight - 20
   doc.setFontSize(8)
   doc.setFont("helvetica", "italic")
   doc.setTextColor(128, 128, 128)
