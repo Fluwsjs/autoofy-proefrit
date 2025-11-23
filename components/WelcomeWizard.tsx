@@ -14,15 +14,17 @@ interface WelcomeWizardProps {
   companyInfoComplete: boolean
   hasDealerPlates: boolean
   hasTestrides: boolean
+  initialStep?: number
 }
 
 export function WelcomeWizard({ 
   onClose, 
   companyInfoComplete, 
   hasDealerPlates, 
-  hasTestrides 
+  hasTestrides,
+  initialStep = 0
 }: WelcomeWizardProps) {
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(initialStep)
 
   const steps = [
     {
@@ -77,8 +79,8 @@ export function WelcomeWizard({
               <p className="text-sm text-yellow-700 mb-4">
                 Dit is belangrijk voor professionele proefrit formulieren.
               </p>
-              <Link href="/dashboard/company-info">
-                <Button className="bg-autoofy-red hover:bg-autoofy-red/90">
+              <Link href="/dashboard/company-info?returnTo=onboarding">
+                <Button className="bg-autoofy-red hover:bg-autoofy-red/90" onClick={onClose}>
                   <Building2 className="h-4 w-4 mr-2" />
                   Bedrijfsgegevens invullen
                 </Button>
@@ -118,8 +120,8 @@ export function WelcomeWizard({
               <p className="text-sm text-blue-700 mb-4">
                 Dit is optioneel, maar bespaart tijd bij het aanmaken van proefritten.
               </p>
-              <Link href="/dashboard/dealer-plates">
-                <Button variant="outline" className="border-blue-300">
+              <Link href="/dashboard/dealer-plates?returnTo=onboarding">
+                <Button variant="outline" className="border-blue-300" onClick={onClose}>
                   <CreditCard className="h-4 w-4 mr-2" />
                   Handelaarskentekens beheren
                 </Button>

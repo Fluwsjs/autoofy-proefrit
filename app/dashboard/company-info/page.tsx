@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,8 @@ import { useToast } from "@/components/ui/toast"
 
 export default function CompanyInfoPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const returnTo = searchParams.get("returnTo")
   const { data: session } = useSession()
   const { showToast, ToastComponent } = useToast()
   const [loading, setLoading] = useState(true)
@@ -79,10 +81,19 @@ export default function CompanyInfoPage() {
 
       if (response.ok) {
         showToast("Bedrijfsgegevens opgeslagen", "success")
-        // Redirect to dashboard after 1 second
-        setTimeout(() => {
-          router.push("/dashboard")
-        }, 1000)
+        
+        // If coming from onboarding, trigger wizard to reopen
+        if (returnTo === "onboarding") {
+          setTimeout(() => {
+            localStorage.removeItem('welcomeWizardShown')
+            router.push("/dashboard?openWizard=true&step=1")
+          }, 1000)
+        } else {
+          // Otherwise redirect to dashboard after 1 second
+          setTimeout(() => {
+            router.push("/dashboard")
+          }, 1000)
+        }
       } else {
         showToast(result.error || "Fout bij opslaan bedrijfsgegevens", "error")
       }
@@ -108,10 +119,17 @@ export default function CompanyInfoPage() {
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => router.push("/dashboard")}
+        onClick={() => {
+          if (returnTo === "onboarding") {
+            localStorage.removeItem('welcomeWizardShown')
+            router.push("/dashboard?openWizard=true&step=1")
+          } else {
+            router.push("/dashboard")
+          }
+        }}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        Terug naar dashboard
+        {returnTo === "onboarding" ? "Terug naar onboarding" : "Terug naar dashboard"}
       </Button>
 
       <Card>
@@ -224,7 +242,14 @@ export default function CompanyInfoPage() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => router.push("/dashboard")}
+                onClick={() => {
+                  if (returnTo === "onboarding") {
+                    localStorage.removeItem('welcomeWizardShown')
+                    router.push("/dashboard?openWizard=true&step=1")
+                  } else {
+                    router.push("/dashboard")
+                  }
+                }}
               >
                 Annuleren
               </Button>

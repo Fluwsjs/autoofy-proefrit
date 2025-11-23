@@ -122,10 +122,17 @@ export default function DealerPlatesPage() {
       <Button 
         variant="ghost" 
         size="sm"
-        onClick={() => router.push(returnTo)}
+        onClick={() => {
+          if (returnTo === "onboarding") {
+            localStorage.removeItem('welcomeWizardShown')
+            router.push("/dashboard?openWizard=true&step=2")
+          } else {
+            router.push(returnTo)
+          }
+        }}
       >
         <ArrowLeft className="h-4 w-4 mr-2" />
-        {returnTo === "/dashboard/new" ? "Terug naar formulier" : "Terug naar dashboard"}
+        {returnTo === "onboarding" ? "Terug naar onboarding" : returnTo === "/dashboard/new" ? "Terug naar formulier" : "Terug naar dashboard"}
       </Button>
 
       <Card className="border-0 shadow-lg">

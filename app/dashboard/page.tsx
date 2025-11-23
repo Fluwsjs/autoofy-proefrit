@@ -39,6 +39,7 @@ function DashboardContent() {
   const [dateFilter, setDateFilter] = useState("all")
   const [viewMode, setViewMode] = useState<"table" | "calendar" | "analytics">("table")
   const [showWelcomeWizard, setShowWelcomeWizard] = useState(false)
+  const [wizardStep, setWizardStep] = useState(0)
   const [companyInfoComplete, setCompanyInfoComplete] = useState(false)
   const [hasDealerPlates, setHasDealerPlates] = useState(false)
 
@@ -74,6 +75,17 @@ function DashboardContent() {
         const platesResult = await platesResponse.json()
         const plates = platesResult.data || platesResult
         setHasDealerPlates(plates.length > 0)
+      }
+      
+      // Check if we should open wizard from query params
+      const openWizard = searchParams.get("openWizard")
+      const stepParam = searchParams.get("step")
+      if (openWizard === "true") {
+        setWizardStep(stepParam ? parseInt(stepParam) : 0)
+        setShowWelcomeWizard(true)
+        // Remove query param from URL
+        router.replace("/dashboard")
+        return
       }
       
       // Show wizard if not shown before and company info is not complete
@@ -241,6 +253,7 @@ function DashboardContent() {
           companyInfoComplete={companyInfoComplete}
           hasDealerPlates={hasDealerPlates}
           hasTestrides={testrides.length > 0}
+          initialStep={wizardStep}
         />
       )}
       
