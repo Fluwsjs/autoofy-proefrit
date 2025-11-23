@@ -363,12 +363,12 @@ export default function CompleteTestridePage() {
             <Button
               onClick={handleComplete}
               disabled={
-                completing || 
+                !!completing || 
                 !completionSignature || 
                 !customerCompletionSignature || 
                 !completionData.noDamages || 
                 !completionData.allKeysReturned ||
-                (testride?.dealerPlate && (!completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost))
+                (!!testride?.dealerPlate && (!completionData.dealerPlateCardReturned || !completionData.greenPlatesNotLost))
               }
               className="bg-autoofy-red text-white hover:bg-autoofy-red/90 flex-1"
             >
