@@ -12,7 +12,7 @@ import Link from "next/link"
 interface WelcomeWizardProps {
   onClose: () => void
   companyInfoComplete: boolean
-  hasDealer Plates: boolean
+  hasDealerPlates: boolean
   hasTestrides: boolean
 }
 
