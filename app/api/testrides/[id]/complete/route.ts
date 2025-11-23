@@ -6,7 +6,11 @@ import { z } from "zod"
 import { validateSignatureImage } from "@/lib/file-validation"
 
 const completeSchema = z.object({
-  completionSignatureUrl: z.string().min(1, "Handtekening is verplicht"),
+  completionSignatureUrl: z.string().min(1, "Bedrijfshandtekening is verplicht"),
+  customerCompletionSignatureUrl: z.string().min(1, "Klanthandtekening is verplicht"),
+  actualEndTime: z.string(),
+  actualEndKm: z.number().int().positive("Eindkilometerstand moet positief zijn"),
+  completionNotes: z.string().optional(),
 })
 
 export async function POST(
@@ -27,11 +31,19 @@ export async function POST(
     const body = await request.json()
     const validatedData = completeSchema.parse(body)
 
-    // Validate completion signature
-    const signatureValidation = validateSignatureImage(validatedData.completionSignatureUrl)
-    if (!signatureValidation.valid) {
+    // Validate completion signatures
+    const sellerSignatureValidation = validateSignatureImage(validatedData.completionSignatureUrl)
+    if (!sellerSignatureValidation.valid) {
       return NextResponse.json(
-        { error: signatureValidation.error },
+        { error: sellerSignatureValidation.error },
+        { status: 400 }
+      )
+    }
+    
+    const customerSignatureValidation = validateSignatureImage(validatedData.customerCompletionSignatureUrl)
+    if (!customerSignatureValidation.valid) {
+      return NextResponse.json(
+        { error: customerSignatureValidation.error },
         { status: 400 }
       )
     }
@@ -64,7 +76,12 @@ export async function POST(
       data: {
         status: "COMPLETED",
         completionSignatureUrl: validatedData.completionSignatureUrl,
-        completedAt: new Date(),
+        customerCompletionSignatureUrl: validatedData.customerCompletionSignatureUrl,
+        endKm: validatedData.actualEndKm,
+        completedAt: new Date(validatedData.actualEndTime),
+        notes: validatedData.completionNotes 
+          ? `${testride.notes ? testride.notes + '\n\n' : ''}Afrondingsnotities:\n${validatedData.completionNotes}`
+          : testride.notes,
       },
     })
 

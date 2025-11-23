@@ -235,7 +235,7 @@ export function CalendarView({ testrides }: CalendarViewProps) {
                         ? "bg-green-100 text-green-800" 
                         : "bg-yellow-100 text-yellow-800"
                     }`}>
-                      {testride.status === "COMPLETED" ? "Afgerond" : "In behandeling"}
+                      {testride.status === "COMPLETED" ? "Afgerond" : "Bezig met testrit"}
                     </div>
                   </div>
                 </div>

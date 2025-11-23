@@ -140,7 +140,7 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
               ) : (
                 <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm font-medium bg-yellow-100 text-yellow-700 border border-yellow-300">
                   <Clock className="h-4 w-4" />
-                  In behandeling
+                  Bezig met testrit
                 </span>
               )}
               

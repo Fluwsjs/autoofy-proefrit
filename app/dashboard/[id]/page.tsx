@@ -412,7 +412,7 @@ export default function TestrideDetailPage() {
                     </>
                   ) : (
                     <>
-                      <span className="text-yellow-600 font-medium">In behandeling</span>
+                      <span className="text-yellow-600 font-medium">Bezig met testrit</span>
                     </>
                   )}
                 </div>

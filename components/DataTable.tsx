@@ -5,7 +5,7 @@ import { formatDate, formatTime } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { Trash2, Eye, CheckCircle, Clock, PlayCircle, XCircle, Car } from "lucide-react"
+import { Trash2, Eye, CheckCircle, Clock, PlayCircle, XCircle, Car, Edit, FileCheck } from "lucide-react"
 import { EmptyState } from "@/components/EmptyState"
 import { QuickViewModal } from "@/components/QuickViewModal"
 
@@ -46,7 +46,7 @@ const getStatusBadge = (status: string) => {
     return (
       <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-700 border border-amber-200">
         <Clock className="h-3.5 w-3.5" />
-        In behandeling
+        Bezig met testrit
       </span>
     )
   }
@@ -216,7 +216,7 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                     {getStatusBadge(testride.status)}
                   </td>
                   <td className="p-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5">
                       <Button 
                         variant="ghost" 
                         size="icon"
@@ -229,12 +229,25 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                       <Link href={`/dashboard/${testride.id}`}>
                         <Button
                           variant="ghost"
-                          size="sm"
-                          className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 font-medium"
+                          size="icon"
+                          className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 hover:scale-110"
+                          title="Details bekijken"
                         >
-                          Details
+                          <Edit className="h-4 w-4" />
                         </Button>
                       </Link>
+                      {testride.status !== "COMPLETED" && (
+                        <Link href={`/dashboard/${testride.id}/complete`}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="hover:bg-green-100 hover:text-green-600 transition-all duration-200 hover:scale-110"
+                            title="Proefrit afronden"
+                          >
+                            <FileCheck className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                      )}
                       {onDelete && (
                         <Button
                           variant="ghost"

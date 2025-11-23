@@ -68,6 +68,7 @@ model Testride {
   customerSignatureUrl String? // Klant handtekening (per proefrit)
   sellerSignatureUrl   String?  // Verkoper handtekening/stempel (optioneel, kan van User komen)
   completionSignatureUrl String? // Verkoper handtekening bij afronding
+  customerCompletionSignatureUrl String? // Klant handtekening bij afronding
   eigenRisico         Int      @default(0) // Eigen risico bedrag (0-1000)
   aantalSleutels      Int      @default(1) // Aantal sleutels meegegeven (1-4)
   status              TestrideStatus @default(PENDING) // Status van de proefrit
