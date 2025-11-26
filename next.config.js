@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ['localhost'],
+    domains: ['localhost', 'proefrit-autoofy.nl'],
     unoptimized: true, // For static exports if needed
   },
   experimental: {

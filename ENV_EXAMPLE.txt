@@ -5,14 +5,14 @@
 DATABASE_URL=postgresql://postgres:password@host:5432/database
 
 # NextAuth
-# DEVELOPMENT: http://localhost:3000
-# PRODUCTION: https://proefrit-autoofy.nl (je eigen domein!)
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your-secret-key-here
+# ⚠️ PRODUCTIE: Gebruik je echte domein met HTTPS!
+NEXTAUTH_URL=https://proefrit-autoofy.nl
+NEXTAUTH_SECRET=your-secret-key-here-min-32-chars-random
 
-# ⚠️ BELANGRIJK VOOR EMAIL LINKS:
-# - Development: NEXTAUTH_URL=http://localhost:3000 (email links wijzen naar localhost)
-# - Productie: NEXTAUTH_URL=https://proefrit-autoofy.nl (email links wijzen naar je domein)
+# ⚠️ BELANGRIJK:
+# - NEXTAUTH_URL bepaalt de BASE URL voor alle email links (verificatie, password reset)
+# - Productie: MOET https://proefrit-autoofy.nl zijn (met HTTPS, geen trailing slash)
+# - Development lokaal: gebruik http://localhost:3000
 # Email verificatie en wachtwoord reset links gebruiken deze URL!
 
 # Email Service (Kies Resend OF SMTP)
