@@ -148,6 +148,12 @@ export const authOptions: NextAuthOptions = {
           
           console.log(`[AUTH] User found: ${user.email}`)
 
+          // Check if email is verified
+          if (!user.emailVerified) {
+            console.error(`[AUTH] Email not verified for: ${normalizedEmail}`)
+            throw new Error("Uw e-mailadres is nog niet geverifieerd. Controleer uw inbox voor de verificatielink.")
+          }
+
           console.log(`[AUTH] Verifying password for: ${normalizedEmail}`)
           const isPasswordValid = await bcrypt.compare(
             credentials.password,

@@ -5,6 +5,8 @@ import { z } from "zod"
 import { registerRateLimit, getRateLimitHeaders } from "@/lib/rate-limit"
 import { validatePasswordStrength } from "@/lib/password-validation"
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
+import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
+import { sendVerificationEmail } from "@/lib/email"
 
 const registerSchema = z.object({
   tenantName: z.string().min(1, "Bedrijfsnaam is verplicht").trim(),
@@ -67,6 +69,10 @@ export async function POST(request: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(validatedData.password, 10)
 
+    // Generate email verification token
+    const verificationToken = generateVerificationToken()
+    const tokenExpiresAt = getVerificationTokenExpiry()
+
     // Create tenant and admin user in a transaction
     const result = await prisma.$transaction(async (tx) => {
       const tenant = await tx.tenant.create({
@@ -83,12 +89,30 @@ export async function POST(request: NextRequest) {
           password: hashedPassword,
           role: "ADMIN",
           tenantId: tenant.id,
-          emailVerified: true, // Direct verified - no email verification needed
-          emailVerifiedAt: new Date(),
+          emailVerified: false, // Requires email verification
+          emailVerifiedAt: null,
+        },
+      })
+
+      // Create verification token
+      await tx.verificationToken.create({
+        data: {
+          token: verificationToken,
+          userId: user.id,
+          expiresAt: tokenExpiresAt,
         },
       })
 
       return { tenant, user }
+    })
+
+    // Send verification email (async, don't wait for it)
+    sendVerificationEmail(
+      validatedData.email,
+      verificationToken,
+      validatedData.userName
+    ).catch((error) => {
+      console.error("Failed to send verification email:", error)
     })
 
     // Get rate limit headers
@@ -102,9 +126,10 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(
       {
-        message: "Account succesvol aangemaakt. U kunt nu inloggen.",
+        message: "Account succesvol aangemaakt. Controleer uw e-mail om uw account te activeren.",
         tenantId: result.tenant.id,
         email: validatedData.email,
+        requiresVerification: true,
       },
       { 
         status: 201,

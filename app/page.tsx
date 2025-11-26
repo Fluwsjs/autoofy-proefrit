@@ -110,24 +110,18 @@ function HomePageForm() {
         return
       }
 
-      setSuccessMessage("🎉 Account succesvol aangemaakt! U wordt nu ingelogd...")
+      // Show success message with email verification instruction
+      setSuccessMessage(
+        data.message || 
+        "🎉 Account succesvol aangemaakt! Controleer uw e-mail om uw account te activeren."
+      )
       
-      // Auto login after successful registration
-      setTimeout(async () => {
-        const result = await signIn("credentials", {
-          email: registerData.email,
-          password: registerData.password,
-          redirect: false,
-        })
-        
-        if (result?.ok) {
-          router.push("/dashboard")
-        } else {
-          setIsLogin(true)
-          setLoginData(prev => ({ ...prev, email: registerData.email }))
-          setSuccessMessage("Account aangemaakt! Log nu in.")
-        }
-      }, 1500)
+      // Switch to login view after showing message
+      setTimeout(() => {
+        setIsLogin(true)
+        setLoginData(prev => ({ ...prev, email: registerData.email }))
+        setSuccessMessage("") // Clear message
+      }, 5000)
 
     } catch (err) {
       setError("Er is een fout opgetreden bij het aanmaken van het account")

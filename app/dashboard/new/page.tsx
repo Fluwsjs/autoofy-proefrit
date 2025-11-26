@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
 import { SellerSignature } from "@/components/SellerSignature"
 import { CustomerSignature } from "@/components/CustomerSignature"
-import { IdPhotoUpload } from "@/components/IdPhotoUpload"
+import { IdPhotoUploadSimple } from "@/components/IdPhotoUploadSimple"
 import { TimePicker } from "@/components/TimePicker"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -384,11 +384,11 @@ export default function NewTestridePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <IdPhotoUpload 
+              <IdPhotoUploadSimple 
                 onSave={setIdPhotoFrontUrl} 
                 label="Rijbewijs of ID foto voorkant"
               />
-              <IdPhotoUpload 
+              <IdPhotoUploadSimple 
                 onSave={setIdPhotoBackUrl} 
                 label="Rijbewijs of ID foto achterkant"
               />
