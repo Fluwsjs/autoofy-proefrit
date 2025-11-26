@@ -12,7 +12,7 @@ const SMTP_SECURE = process.env.SMTP_SECURE === "true"
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
 
 // Common Configuration
-const FROM_EMAIL = process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "noreply@autoofy.nl"
+const FROM_EMAIL = process.env.FROM_EMAIL || process.env.RESEND_FROM_EMAIL || "support@proefrit-autoofy.nl"
 const FROM_NAME = process.env.FROM_NAME || process.env.RESEND_FROM_NAME || "Autoofy"
 const BASE_URL = process.env.NEXTAUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
