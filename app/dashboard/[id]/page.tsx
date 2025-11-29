@@ -168,7 +168,8 @@ export default function TestrideDetailPage() {
               />
               <CardTitle className="mb-0">Proefrit Details</CardTitle>
             </div>
-            <div className="flex gap-2">
+            {/* Desktop: All buttons visible */}
+            <div className="hidden md:flex gap-2">
               {testride.status !== "COMPLETED" && (
                 <Link href={`/dashboard/${testride.id}/complete`}>
                   <Button
@@ -200,6 +201,43 @@ export default function TestrideDetailPage() {
                 Verwijderen
               </Button>
             </div>
+            
+            {/* Mobile: Primary action prominent */}
+            <div className="md:hidden">
+              {testride.status !== "COMPLETED" && (
+                <Link href={`/dashboard/${testride.id}/complete`}>
+                  <Button
+                    size="sm"
+                    className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Afronden
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+          
+          {/* Mobile: Secondary actions */}
+          <div className="md:hidden flex gap-2 mt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportPDF}
+              className="flex-1"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              PDF
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDelete}
+              className="text-red-600 border-red-600 hover:bg-red-50"
+            >
+              <Trash2 className="h-4 w-4 mr-2" />
+              Verwijder
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="space-y-6">

@@ -92,7 +92,48 @@ export function AnalyticsChart({ testrides }: AnalyticsChartProps) {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={300} className="md:hidden">
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis 
+                dataKey="date" 
+                className="text-[10px]"
+                tick={{ fill: '#6b7280', fontSize: 10 }}
+                interval="preserveStartEnd"
+              />
+              <YAxis 
+                className="text-[10px]"
+                tick={{ fill: '#6b7280', fontSize: 10 }}
+                width={30}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '12px'
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: '12px' }} />
+              <Line 
+                type="monotone" 
+                dataKey="count" 
+                stroke="#1D3557" 
+                strokeWidth={2}
+                name="Totaal"
+                dot={false}
+              />
+              <Line 
+                type="monotone" 
+                dataKey="completed" 
+                stroke="#10b981" 
+                strokeWidth={2}
+                name="Afgerond"
+                dot={false}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={350} className="hidden md:block">
             <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
@@ -144,7 +185,47 @@ export function AnalyticsChart({ testrides }: AnalyticsChartProps) {
           </div>
         </CardHeader>
         <CardContent className="pt-6">
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={280} className="md:hidden">
+            <BarChart data={monthlyData}>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+              <XAxis 
+                dataKey="month" 
+                className="text-[9px]"
+                tick={{ fill: '#6b7280', fontSize: 9 }}
+                angle={-45}
+                textAnchor="end"
+                height={60}
+                interval={0}
+              />
+              <YAxis 
+                className="text-[10px]"
+                tick={{ fill: '#6b7280', fontSize: 10 }}
+                width={30}
+              />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: '#fff', 
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
+                  fontSize: '12px'
+                }}
+              />
+              <Legend wrapperStyle={{ fontSize: '11px' }} />
+              <Bar 
+                dataKey="total" 
+                fill="#1D3557" 
+                name="Totaal"
+                radius={[4, 4, 0, 0]}
+              />
+              <Bar 
+                dataKey="completed" 
+                fill="#10b981" 
+                name="Afgerond"
+                radius={[4, 4, 0, 0]}
+              />
+            </BarChart>
+          </ResponsiveContainer>
+          <ResponsiveContainer width="100%" height={350} className="hidden md:block">
             <BarChart data={monthlyData}>
               <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
               <XAxis 
