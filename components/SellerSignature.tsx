@@ -141,13 +141,13 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
           
           <div className="border-t pt-4">
             <p className="text-sm text-muted-foreground mb-2">Of teken een nieuwe handtekening:</p>
-            <div className="border rounded-md p-4 bg-white">
+            <div className="border rounded-md p-2 sm:p-4 bg-white">
               <SignatureCanvas
                 ref={signatureRef}
                 canvasProps={{
-                  width: 500,
+                  width: typeof window !== 'undefined' ? Math.min(600, Math.max(280, window.innerWidth - 80)) : 500,
                   height: 200,
-                  className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
+                  className: "signature-canvas w-full h-40 sm:h-48 border rounded cursor-crosshair touch-none",
                 }}
                 onEnd={handleEnd}
                 onBegin={() => setIsEmpty(false)}
@@ -177,7 +177,7 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
           </div>
         </div>
       ) : (
-        <div className="border rounded-md p-4 bg-white">
+        <div className="border rounded-md p-2 sm:p-4 bg-white">
           <p className="text-sm text-muted-foreground mb-4">
             {hideReuse 
               ? "Teken hieronder uw handtekening of stempel."
@@ -187,9 +187,9 @@ export function SellerSignature({ onUse, hideReuse = false }: SellerSignaturePro
           <SignatureCanvas
             ref={signatureRef}
             canvasProps={{
-              width: 500,
+              width: typeof window !== 'undefined' ? Math.min(600, Math.max(280, window.innerWidth - 80)) : 500,
               height: 200,
-              className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
+              className: "signature-canvas w-full h-40 sm:h-48 border rounded cursor-crosshair touch-none",
             }}
             onEnd={handleEnd}
             onBegin={() => setIsEmpty(false)}

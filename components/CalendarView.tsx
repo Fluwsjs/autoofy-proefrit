@@ -125,83 +125,181 @@ export function CalendarView({ testrides }: CalendarViewProps) {
 
     if (viewMode === "month") {
       return (
-        <div className="grid grid-cols-7 gap-2">
-          {daysOfWeek.map((day) => (
-            <div key={day} className="p-2 text-center font-semibold text-sm text-muted-foreground">
-              {day}
-            </div>
-          ))}
-          {days.map((day, index) => {
-            const isCurrentMonthDay = isCurrentMonth(day.date)
-            const isTodayDay = isToday(day.date)
-            
-            return (
-              <div
-                key={index}
-                className={`min-h-[100px] p-2 border rounded-lg ${
-                  isCurrentMonthDay ? "bg-white" : "bg-muted/30"
-                } ${isTodayDay ? "ring-2 ring-autoofy-red" : ""}`}
-              >
-                <div className={`text-sm font-medium mb-1 ${isTodayDay ? "text-autoofy-red" : ""}`}>
-                  {day.date.getDate()}
-                </div>
-                <div className="space-y-1">
-                  {day.testrides.slice(0, 3).map((testride) => (
-                    <Link
-                      key={testride.id}
-                      href={`/dashboard/${testride.id}`}
-                      className="block text-xs p-1 rounded bg-autoofy-dark/10 hover:bg-autoofy-dark/20 transition-colors truncate"
-                      title={`${testride.customerName} - ${testride.carType}`}
-                    >
-                      <div className="font-medium truncate">{testride.customerName}</div>
-                      <div className="text-muted-foreground truncate">{formatTime(testride.startTime)}</div>
-                    </Link>
-                  ))}
-                  {day.testrides.length > 3 && (
-                    <div className="text-xs text-muted-foreground p-1">
-                      +{day.testrides.length - 3} meer
-                    </div>
-                  )}
-                </div>
+        <>
+          {/* Desktop: Grid View */}
+          <div className="hidden md:grid grid-cols-7 gap-2">
+            {daysOfWeek.map((day) => (
+              <div key={day} className="p-2 text-center font-semibold text-sm text-muted-foreground">
+                {day}
               </div>
-            )
-          })}
-        </div>
+            ))}
+            {days.map((day, index) => {
+              const isCurrentMonthDay = isCurrentMonth(day.date)
+              const isTodayDay = isToday(day.date)
+              
+              return (
+                <div
+                  key={index}
+                  className={`min-h-[100px] p-2 border rounded-lg ${
+                    isCurrentMonthDay ? "bg-white" : "bg-muted/30"
+                  } ${isTodayDay ? "ring-2 ring-autoofy-red" : ""}`}
+                >
+                  <div className={`text-sm font-medium mb-1 ${isTodayDay ? "text-autoofy-red" : ""}`}>
+                    {day.date.getDate()}
+                  </div>
+                  <div className="space-y-1">
+                    {day.testrides.slice(0, 3).map((testride) => (
+                      <Link
+                        key={testride.id}
+                        href={`/dashboard/${testride.id}`}
+                        className="block text-xs p-1 rounded bg-autoofy-dark/10 hover:bg-autoofy-dark/20 transition-colors truncate"
+                        title={`${testride.customerName} - ${testride.carType}`}
+                      >
+                        <div className="font-medium truncate">{testride.customerName}</div>
+                        <div className="text-muted-foreground truncate">{formatTime(testride.startTime)}</div>
+                      </Link>
+                    ))}
+                    {day.testrides.length > 3 && (
+                      <div className="text-xs text-muted-foreground p-1">
+                        +{day.testrides.length - 3} meer
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          
+          {/* Mobile: Compact List View */}
+          <div className="md:hidden space-y-2">
+            {days
+              .filter(day => isCurrentMonth(day.date) && day.testrides.length > 0)
+              .map((day, index) => {
+                const isTodayDay = isToday(day.date)
+                return (
+                  <div key={index} className={`border rounded-lg overflow-hidden ${isTodayDay ? "ring-2 ring-autoofy-red" : ""}`}>
+                    <div className={`px-3 py-2 font-semibold text-sm ${isTodayDay ? "bg-autoofy-red text-white" : "bg-slate-100 text-slate-900"}`}>
+                      {formatDate(day.date.toISOString())}
+                      <span className="ml-2 text-xs font-normal opacity-80">
+                        ({day.testrides.length} {day.testrides.length === 1 ? "proefrit" : "proefritten"})
+                      </span>
+                    </div>
+                    <div className="divide-y">
+                      {day.testrides.map((testride) => (
+                        <Link
+                          key={testride.id}
+                          href={`/dashboard/${testride.id}`}
+                          className="block p-3 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm text-slate-900 truncate">{testride.customerName}</div>
+                              <div className="text-xs text-slate-600 truncate">{testride.carType}</div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-xs font-medium text-slate-900">
+                                {formatTime(testride.startTime)}
+                              </div>
+                              <div className={`text-xs px-2 py-0.5 rounded mt-1 ${
+                                testride.status === "COMPLETED" 
+                                  ? "bg-green-100 text-green-800" 
+                                  : "bg-yellow-100 text-yellow-800"
+                              }`}>
+                                {testride.status === "COMPLETED" ? "Afgerond" : "Actief"}
+                              </div>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })}
+            {days.filter(day => isCurrentMonth(day.date) && day.testrides.length > 0).length === 0 && (
+              <div className="text-center py-12 text-muted-foreground border rounded-lg">
+                Geen proefritten deze maand
+              </div>
+            )}
+          </div>
+        </>
       )
     } else if (viewMode === "week") {
       return (
-        <div className="grid grid-cols-7 gap-4">
-          {days.map((day, index) => {
-            const isTodayDay = isToday(day.date)
-            return (
-              <div key={index} className="border rounded-lg p-4 min-h-[400px]">
-                <div className={`text-lg font-semibold mb-4 ${isTodayDay ? "text-autoofy-red" : ""}`}>
-                  {daysOfWeek[index]} {day.date.getDate()}
-                </div>
-                <div className="space-y-2">
-                  {day.testrides.map((testride) => (
-                    <Link
-                      key={testride.id}
-                      href={`/dashboard/${testride.id}`}
-                      className="block p-2 rounded bg-autoofy-dark/10 hover:bg-autoofy-dark/20 transition-colors"
-                    >
-                      <div className="font-medium text-sm">{testride.customerName}</div>
-                      <div className="text-xs text-muted-foreground">{testride.carType}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {formatTime(testride.startTime)} - {formatTime(testride.endTime)}
+        <>
+          {/* Desktop: 7-column grid */}
+          <div className="hidden lg:grid grid-cols-7 gap-4">
+            {days.map((day, index) => {
+              const isTodayDay = isToday(day.date)
+              return (
+                <div key={index} className="border rounded-lg p-4 min-h-[400px]">
+                  <div className={`text-lg font-semibold mb-4 ${isTodayDay ? "text-autoofy-red" : ""}`}>
+                    {daysOfWeek[index]} {day.date.getDate()}
+                  </div>
+                  <div className="space-y-2">
+                    {day.testrides.map((testride) => (
+                      <Link
+                        key={testride.id}
+                        href={`/dashboard/${testride.id}`}
+                        className="block p-2 rounded bg-autoofy-dark/10 hover:bg-autoofy-dark/20 transition-colors"
+                      >
+                        <div className="font-medium text-sm">{testride.customerName}</div>
+                        <div className="text-xs text-muted-foreground">{testride.carType}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {formatTime(testride.startTime)} - {formatTime(testride.endTime)}
+                        </div>
+                      </Link>
+                    ))}
+                    {day.testrides.length === 0 && (
+                      <div className="text-sm text-muted-foreground text-center py-8">
+                        Geen proefritten
                       </div>
-                    </Link>
-                  ))}
-                  {day.testrides.length === 0 && (
-                    <div className="text-sm text-muted-foreground text-center py-8">
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          
+          {/* Mobile & Tablet: Single column */}
+          <div className="lg:hidden space-y-3">
+            {days.map((day, index) => {
+              const isTodayDay = isToday(day.date)
+              return (
+                <div key={index} className={`border rounded-lg overflow-hidden ${isTodayDay ? "ring-2 ring-autoofy-red" : ""}`}>
+                  <div className={`px-4 py-2 font-semibold ${isTodayDay ? "bg-autoofy-red text-white" : "bg-slate-100 text-slate-900"}`}>
+                    {daysOfWeek[index]} {day.date.getDate()}
+                    {day.testrides.length > 0 && (
+                      <span className="ml-2 text-xs font-normal opacity-80">
+                        ({day.testrides.length})
+                      </span>
+                    )}
+                  </div>
+                  {day.testrides.length > 0 ? (
+                    <div className="divide-y">
+                      {day.testrides.map((testride) => (
+                        <Link
+                          key={testride.id}
+                          href={`/dashboard/${testride.id}`}
+                          className="block p-3 hover:bg-slate-50 active:bg-slate-100 transition-colors"
+                        >
+                          <div className="font-medium text-sm">{testride.customerName}</div>
+                          <div className="text-xs text-muted-foreground mt-0.5">{testride.carType}</div>
+                          <div className="text-xs text-slate-600 mt-1">
+                            {formatTime(testride.startTime)} - {formatTime(testride.endTime)}
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="p-4 text-sm text-muted-foreground text-center">
                       Geen proefritten
                     </div>
                   )}
                 </div>
-              </div>
-            )
-          })}
-        </div>
+              )
+            })}
+          </div>
+        </>
       )
     } else {
       // Day view
@@ -272,13 +370,13 @@ export function CalendarView({ testrides }: CalendarViewProps) {
             <CalendarIcon className="h-5 w-5" />
             Kalender
           </CardTitle>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1">
+          <div className="flex items-center gap-2 flex-wrap w-full sm:w-auto">
+            <div className="flex items-center gap-1 bg-white/10 rounded-lg p-1 w-full sm:w-auto">
               <Button
                 variant={viewMode === "month" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("month")}
-                className={viewMode === "month" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}
+                className={`flex-1 sm:flex-none min-h-[44px] text-xs sm:text-sm ${viewMode === "month" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}`}
               >
                 Maand
               </Button>
@@ -286,7 +384,7 @@ export function CalendarView({ testrides }: CalendarViewProps) {
                 variant={viewMode === "week" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("week")}
-                className={viewMode === "week" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}
+                className={`flex-1 sm:flex-none min-h-[44px] text-xs sm:text-sm ${viewMode === "week" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}`}
               >
                 Week
               </Button>
@@ -294,7 +392,7 @@ export function CalendarView({ testrides }: CalendarViewProps) {
                 variant={viewMode === "day" ? "default" : "ghost"}
                 size="sm"
                 onClick={() => setViewMode("day")}
-                className={viewMode === "day" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}
+                className={`flex-1 sm:flex-none min-h-[44px] text-xs sm:text-sm ${viewMode === "day" ? "bg-white text-autoofy-dark" : "text-white hover:bg-white/20"}`}
               >
                 Dag
               </Button>
@@ -309,27 +407,27 @@ export function CalendarView({ testrides }: CalendarViewProps) {
               variant="outline"
               size="sm"
               onClick={() => navigateDate("prev")}
-              className="hover:bg-autoofy-dark hover:text-white"
+              className="hover:bg-autoofy-dark hover:text-white min-w-[44px] min-h-[44px] p-2"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-5 w-5" />
             </Button>
-            <h3 className="text-base sm:text-lg font-semibold min-w-[150px] sm:min-w-[200px] text-center">
+            <h3 className="text-sm sm:text-base lg:text-lg font-semibold min-w-[180px] sm:min-w-[200px] text-center">
               {getViewTitle()}
             </h3>
             <Button
               variant="outline"
               size="sm"
               onClick={() => navigateDate("next")}
-              className="hover:bg-autoofy-dark hover:text-white"
+              className="hover:bg-autoofy-dark hover:text-white min-w-[44px] min-h-[44px] p-2"
             >
-              <ChevronRight className="h-4 w-4" />
+              <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
           <Button
             variant="outline"
             size="sm"
             onClick={goToToday}
-            className="hover:bg-autoofy-red hover:text-white w-full sm:w-auto"
+            className="hover:bg-autoofy-red hover:text-white w-full sm:w-auto min-h-[44px]"
           >
             Vandaag
           </Button>

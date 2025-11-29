@@ -260,52 +260,52 @@ export default function CompleteTestridePage() {
           <div className="border-t pt-6">
             <h3 className="font-semibold mb-4 text-lg text-autoofy-dark">Controle Checklist</h3>
             <div className="space-y-3 bg-green-50 border border-green-200 rounded-lg p-4">
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   checked={completionData.noDamages}
                   onChange={(e) =>
                     setCompletionData({ ...completionData, noDamages: e.target.checked })
                   }
-                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="h-6 w-6 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
                 />
-                <span className="text-sm font-medium">Geen schades geconstateerd</span>
+                <span className="text-sm sm:text-base font-medium">Geen schades geconstateerd</span>
               </label>
               
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   checked={completionData.dealerPlateCardReturned}
                   onChange={(e) =>
                     setCompletionData({ ...completionData, dealerPlateCardReturned: e.target.checked })
                   }
-                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="h-6 w-6 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
                 />
-                <span className="text-sm font-medium">Handelaarskentekenpasje ingeleverd</span>
+                <span className="text-sm sm:text-base font-medium">Handelaarskentekenpasje ingeleverd</span>
               </label>
               
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   checked={completionData.greenPlatesNotLost}
                   onChange={(e) =>
                     setCompletionData({ ...completionData, greenPlatesNotLost: e.target.checked })
                   }
-                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="h-6 w-6 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
                 />
-                <span className="text-sm font-medium">Groene platen niet verloren tijdens testrit (klant niet aansprakelijk)</span>
+                <span className="text-sm sm:text-base font-medium">Groene platen niet verloren tijdens testrit (klant niet aansprakelijk)</span>
               </label>
               
-              <label className="flex items-center gap-3 cursor-pointer">
+              <label className="flex items-center gap-3 cursor-pointer min-h-[44px] py-2">
                 <input
                   type="checkbox"
                   checked={completionData.allKeysReturned}
                   onChange={(e) =>
                     setCompletionData({ ...completionData, allKeysReturned: e.target.checked })
                   }
-                  className="h-5 w-5 rounded border-gray-300 text-green-600 focus:ring-green-500"
+                  className="h-6 w-6 rounded border-gray-300 text-green-600 focus:ring-green-500 flex-shrink-0"
                 />
-                <span className="text-sm font-medium">Alle sleutels zijn ingeleverd</span>
+                <span className="text-sm sm:text-base font-medium">Alle sleutels zijn ingeleverd</span>
               </label>
             </div>
           </div>

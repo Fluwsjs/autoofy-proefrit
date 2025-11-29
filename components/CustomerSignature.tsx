@@ -45,13 +45,13 @@ export function CustomerSignature({ onSave, initialSignature }: CustomerSignatur
   return (
     <div className="space-y-2">
       <Label>Klant handtekening</Label>
-      <div className="border rounded-md p-4 bg-white">
+      <div className="border rounded-md p-2 sm:p-4 bg-white">
         <SignatureCanvas
           ref={signatureRef}
           canvasProps={{
-            width: 500,
+            width: typeof window !== 'undefined' ? Math.min(600, Math.max(280, window.innerWidth - 80)) : 500,
             height: 200,
-            className: "signature-canvas w-full h-48 border rounded cursor-crosshair",
+            className: "signature-canvas w-full h-40 sm:h-48 border rounded cursor-crosshair touch-none",
           }}
           onEnd={handleEnd}
           onBegin={handleBegin}
