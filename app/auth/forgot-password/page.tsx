@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
-import { Mail, ArrowLeft, CheckCircle, ChevronRight } from "lucide-react"
+import { Mail, ArrowLeft, CheckCircle, ChevronRight, Shield, Clock, Send } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
@@ -44,147 +44,190 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative overflow-hidden">
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-0 -left-4 w-72 h-72 bg-autoofy-red/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute top-20 right-10 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }}></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }}></div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 relative overflow-hidden flex items-center justify-center p-4">
+      {/* Decorative Elements */}
+      <div className="fixed top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-autoofy-red/5 to-transparent rounded-full blur-3xl -z-10"></div>
+      <div className="fixed bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-blue-500/5 to-transparent rounded-full blur-3xl -z-10"></div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <div className="flex items-center justify-center gap-3 mb-8">
-            <Image 
-              src="/autoofy-logo.svg" 
-              alt="Autoofy" 
-              width={40} 
-              height={40}
-              className="rounded-lg"
-            />
-            <h1 className="text-2xl font-bold text-white">Autoofy</h1>
-          </div>
+      <div className="w-full max-w-md">
+        {/* Back Button */}
+        <Link 
+          href="/" 
+          className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-6 group"
+        >
+          <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+          Terug naar inloggen
+        </Link>
 
-          <Card className="border-0 shadow-2xl bg-white/95 backdrop-blur-xl overflow-hidden">
-            <div className="p-8">
-              {success ? (
-                <div className="text-center space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                  {/* Success Icon */}
-                  <div className="flex justify-center">
-                    <div className="relative">
-                      <div className="absolute inset-0 bg-green-500/20 rounded-full blur-xl"></div>
-                      <div className="relative p-4 rounded-full bg-gradient-to-br from-green-500 to-green-600 shadow-xl">
-                        <CheckCircle className="h-12 w-12 text-white" />
-                      </div>
-                    </div>
+        <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden">
+          <div className="p-8 lg:p-10">
+            {!success ? (
+              <>
+                {/* Icon */}
+                <div className="mb-6 flex justify-center">
+                  <div className="p-4 bg-gradient-to-br from-autoofy-red/10 to-red-100 rounded-2xl">
+                    <Mail className="w-10 h-10 text-autoofy-red" />
                   </div>
+                </div>
 
-                  {/* Success Message */}
-                  <div className="space-y-3">
-                    <h2 className="text-3xl font-bold text-autoofy-dark">
-                      E-mail verzonden!
-                    </h2>
-                    <p className="text-gray-600 leading-relaxed">
-                      Als dit e-mailadres bij ons geregistreerd is, ontvangt u een e-mail met instructies om uw wachtwoord te resetten.
-                    </p>
-                    <div className="pt-2 px-4 py-3 bg-blue-50 rounded-xl border border-blue-100">
-                      <p className="text-sm text-blue-800">
-                        💡 <strong>Tip:</strong> Controleer ook uw spam folder als u de e-mail niet ziet.
+                {/* Header */}
+                <div className="text-center space-y-2 mb-8">
+                  <h1 className="text-3xl font-bold text-gray-900">
+                    Wachtwoord vergeten?
+                  </h1>
+                  <p className="text-gray-600">
+                    Geen zorgen! We sturen u een link om uw wachtwoord te resetten.
+                  </p>
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-800 font-medium">{error}</p>
+                  </div>
+                )}
+
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  <FormInput
+                    label="E-mailadres"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    icon={<Mail className="w-5 h-5" />}
+                    placeholder="uw@email.nl"
+                    autoComplete="email"
+                  />
+
+                  <Button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full h-12 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                  >
+                    {loading ? (
+                      <span className="flex items-center gap-2">
+                        <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                        Bezig met verzenden...
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        <Send className="w-5 h-5" />
+                        Verstuur reset link
+                        <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      </span>
+                    )}
+                  </Button>
+                </form>
+
+                {/* Security Info */}
+                <div className="mt-8 space-y-3">
+                  <div className="flex items-start gap-3 p-3 bg-blue-50 border border-blue-100 rounded-xl">
+                    <Shield className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-blue-900">Veilig & Beveiligd</p>
+                      <p className="text-xs text-blue-700 mt-0.5">
+                        Reset links zijn 1 uur geldig en kunnen maar 1x gebruikt worden
                       </p>
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div className="space-y-3 pt-4">
-                    <Link href="/" className="block">
-                      <Button className="w-full bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group">
-                        <span className="flex items-center gap-2">
-                          Terug naar inloggen
-                          <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-                        </span>
-                      </Button>
-                    </Link>
+                  <div className="flex items-start gap-3 p-3 bg-amber-50 border border-amber-100 rounded-xl">
+                    <Clock className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-medium text-amber-900">Binnen enkele minuten</p>
+                      <p className="text-xs text-amber-700 mt-0.5">
+                        Check ook je spam folder als je de email niet ziet
+                      </p>
+                    </div>
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-6">
-                  {/* Header */}
-                  <div className="text-center space-y-2">
-                    <h2 className="text-3xl font-bold text-autoofy-dark">
-                      Wachtwoord vergeten?
-                    </h2>
-                    <p className="text-gray-600">
-                      Geen zorgen, we sturen u instructies om uw wachtwoord te resetten
+              </>
+            ) : (
+              /* Success State */
+              <div className="text-center space-y-6">
+                {/* Success Icon */}
+                <div className="flex justify-center">
+                  <div className="p-4 bg-gradient-to-br from-green-500 to-green-600 rounded-full animate-bounce">
+                    <CheckCircle className="w-12 h-12 text-white" />
+                  </div>
+                </div>
+
+                {/* Success Message */}
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-bold text-gray-900">
+                    Email verzonden!
+                  </h2>
+                  <p className="text-gray-600 max-w-sm mx-auto">
+                    Als dit e-mailadres bij ons geregistreerd is, ontvangt u binnen enkele minuten een e-mail met instructies.
+                  </p>
+                </div>
+
+                {/* Email Address */}
+                <div className="p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                  <p className="text-sm text-gray-600 mb-1">Email verzonden naar:</p>
+                  <p className="font-semibold text-gray-900">{email}</p>
+                </div>
+
+                {/* Instructions */}
+                <div className="space-y-3 pt-4">
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-left">
+                    <h3 className="font-semibold text-blue-900 mb-2 flex items-center gap-2">
+                      <Mail className="w-4 h-4" />
+                      Wat nu?
+                    </h3>
+                    <ol className="text-sm text-blue-800 space-y-2 ml-6 list-decimal">
+                      <li>Check je inbox (en spam folder!)</li>
+                      <li>Klik op de reset link in de email</li>
+                      <li>Kies een nieuw wachtwoord</li>
+                      <li>Log in met je nieuwe wachtwoord</li>
+                    </ol>
+                  </div>
+
+                  <div className="p-4 bg-amber-50 border border-amber-100 rounded-xl text-left">
+                    <p className="text-sm text-amber-800">
+                      <span className="font-semibold">Email niet ontvangen?</span>
+                      <br />
+                      • Check je spam/ongewenste email folder
+                      <br />
+                      • Wacht nog 5-10 minuten
+                      <br />
+                      • Zoek naar emails van <code className="bg-amber-100 px-1 rounded">support@proefrit-autoofy.nl</code>
                     </p>
                   </div>
-
-                  {/* Error Message */}
-                  {error && (
-                    <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg animate-in slide-in-from-left-4">
-                      <p className="text-red-800 text-sm font-medium">{error}</p>
-                    </div>
-                  )}
-
-                  {/* Form */}
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <FormInput
-                      label="E-mailadres"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      icon={<Mail className="w-5 h-5" />}
-                      placeholder="uw@email.nl"
-                      autoComplete="email"
-                    />
-
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
-                    >
-                      {loading ? (
-                        <span className="flex items-center gap-2">
-                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Bezig met verzenden...
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-2">
-                          <Mail className="w-5 h-5" />
-                          Verstuur reset link
-                          <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </span>
-                      )}
-                    </Button>
-
-                    <Link href="/" className="block">
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        className="w-full hover:bg-gray-100 transition-colors group"
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                        Terug naar inloggen
-                      </Button>
-                    </Link>
-                  </form>
                 </div>
-              )}
-            </div>
-          </Card>
 
-          {/* Footer Link */}
-          <div className="text-center mt-6">
-            <Link 
-              href="https://autoofy.nl" 
-              target="_blank"
-              className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm group"
-            >
-              <span>Meer info op Autoofy.nl</span>
-              <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </Link>
+                {/* Actions */}
+                <div className="flex flex-col gap-3 pt-4">
+                  <Link href="/">
+                    <Button className="w-full h-12 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all">
+                      Terug naar inloggen
+                    </Button>
+                  </Link>
+                  
+                  <button
+                    onClick={() => {
+                      setSuccess(false)
+                      setEmail("")
+                    }}
+                    className="text-sm text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    Andere email proberen
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
+        </Card>
+
+        {/* Help Link */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-600">
+            Nog steeds problemen?{" "}
+            <a href="mailto:support@proefrit-autoofy.nl" className="text-autoofy-red hover:text-red-700 font-medium transition-colors">
+              Neem contact op
+            </a>
+          </p>
         </div>
       </div>
     </div>

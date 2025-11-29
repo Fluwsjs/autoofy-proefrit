@@ -11,8 +11,8 @@ import { PasswordStrengthIndicator } from "@/components/PasswordStrengthIndicato
 import Image from "next/image"
 import { 
   Mail, Lock, Building2, User, ArrowRight, Car, Clock, FileCheck, 
-  ChevronRight, CheckCircle2, BarChart3,
-  ChevronLeft, Eye, EyeOff
+  ChevronRight, CheckCircle2, BarChart3, Shield, Zap, Users,
+  ChevronLeft, Eye, EyeOff, Sparkles
 } from "lucide-react"
 
 function HomePageForm() {
@@ -107,197 +107,194 @@ function HomePageForm() {
 
       if (!res.ok) {
         setError(data.error || "Er is een fout opgetreden")
-        return
+      } else {
+        setSuccessMessage("Account succesvol aangemaakt! Controleer uw e-mail om uw account te activeren.")
+        setRegisterData({
+          tenantName: "",
+          userName: "",
+          email: "",
+          password: "",
+        })
+        setRegisterStep(1)
       }
-
-      // Show success message with email verification instruction
-      setSuccessMessage(
-        data.message || 
-        "🎉 Account succesvol aangemaakt! Controleer uw e-mail om uw account te activeren."
-      )
-      
-      // Switch to login view after showing message
-      setTimeout(() => {
-        setIsLogin(true)
-        setLoginData(prev => ({ ...prev, email: registerData.email }))
-        setSuccessMessage("") // Clear message
-      }, 5000)
-
     } catch (err) {
-      setError("Er is een fout opgetreden bij het aanmaken van het account")
+      setError("Er is een fout opgetreden")
     } finally {
       setLoading(false)
     }
   }
 
-  const switchMode = () => {
-    setIsLogin(!isLogin)
-    setError("")
-    setSuccessMessage("")
-    setRegisterStep(1)
-  }
-
   return (
-    <div className="min-h-screen bg-slate-50 relative overflow-hidden">
-      {/* Subtle Background Pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      {/* Navigation */}
+      <nav className="absolute top-0 left-0 right-0 z-50 px-6 py-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="bg-gradient-to-br from-autoofy-red to-red-600 p-2 rounded-xl shadow-lg">
+              <Car className="w-6 h-6 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-autoofy-red to-red-600 bg-clip-text text-transparent">
+                Autoofy
+              </h1>
+              <p className="text-xs text-gray-600">Proefrit Beheer</p>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-      <div className="relative z-10 flex min-h-screen">
-        {/* Left Side - Branding & Features */}
-        <div className="hidden lg:flex lg:w-1/2 p-8 xl:p-12 flex-col justify-between bg-white border-r border-slate-200">
-          {/* Logo & Title */}
-          <div className="space-y-6">
-            <div className="flex items-center gap-2.5">
-              <Image 
-                src="/autoofy-logo.svg" 
-                alt="Autoofy" 
-                width={140} 
-                height={16}
-                className="h-8 w-auto"
-              />
+      <div className="container mx-auto px-4 py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
+          {/* Left Side - Hero Content */}
+          <div className="space-y-8 text-center lg:text-left">
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200">
+              <Sparkles className="w-4 h-4 text-autoofy-red" />
+              <span className="text-sm font-medium text-gray-700">Professioneel Proefrit Beheer</span>
             </div>
 
-            {/* Hero Message */}
-            <div className="space-y-3 max-w-lg">
-              <h2 className="text-4xl font-semibold text-slate-900 leading-tight">
-                Proefritten Digitaal Geregeld
-              </h2>
-              
-              <p className="text-base text-slate-600 leading-relaxed">
+            {/* Heading */}
+            <div className="space-y-4">
+              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+                <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
+                  Proefritten
+                </span>
+                <br />
+                <span className="bg-gradient-to-r from-autoofy-red via-red-600 to-red-700 bg-clip-text text-transparent">
+                  Digitaal Geregeld
+                </span>
+              </h1>
+              <p className="text-lg lg:text-xl text-gray-600 max-w-xl">
                 De moderne oplossing voor het professioneel beheren van proefritten in uw autobedrijf.
               </p>
             </div>
 
-            {/* Features Grid - Compact */}
-            <div className="grid grid-cols-2 gap-3 pt-4">
-              <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                <Clock className="w-5 h-5 text-blue-600 mb-2" />
-                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Realtime Tracking</h3>
-                <p className="text-slate-600 text-xs">Volg alle proefritten live</p>
+            {/* Features Grid */}
+            <div className="grid sm:grid-cols-2 gap-4 pt-4">
+              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-2 bg-blue-100 rounded-lg">
+                  <Clock className="w-5 h-5 text-blue-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Realtime Tracking</h3>
+                  <p className="text-sm text-gray-600">Volg alle proefritten live</p>
+                </div>
               </div>
 
-              <div className="p-4 bg-green-50 rounded-lg border border-green-100">
-                <FileCheck className="w-5 h-5 text-green-600 mb-2" />
-                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Digitale Handtekening</h3>
-                <p className="text-slate-600 text-xs">Juridisch bindend</p>
+              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-2 bg-green-100 rounded-lg">
+                  <FileCheck className="w-5 h-5 text-green-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Digitale Handtekening</h3>
+                  <p className="text-sm text-gray-600">Juridisch bindend</p>
+                </div>
               </div>
 
-              <div className="p-4 bg-purple-50 rounded-lg border border-purple-100">
-                <Car className="w-5 h-5 text-purple-600 mb-2" />
-                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Handelaarskenteken</h3>
-                <p className="text-slate-600 text-xs">Centraal beheer</p>
+              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-2 bg-purple-100 rounded-lg">
+                  <Shield className="w-5 h-5 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Veilig & Beveiligd</h3>
+                  <p className="text-sm text-gray-600">ID verificatie & beveiligde data</p>
+                </div>
               </div>
 
-              <div className="p-4 bg-amber-50 rounded-lg border border-amber-100">
-                <BarChart3 className="w-5 h-5 text-amber-600 mb-2" />
-                <h3 className="text-slate-900 font-medium text-sm mb-0.5">Analytics</h3>
-                <p className="text-slate-600 text-xs">Inzicht in data</p>
+              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <BarChart3 className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900">Analytics</h3>
+                  <p className="text-sm text-gray-600">Inzicht in data</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Social Proof */}
+            <div className="flex items-center gap-6 pt-4">
+              <div className="flex -space-x-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                  JH
+                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                  MB
+                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                  PV
+                </div>
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                  +5
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">Vertrouwd door dealers</p>
+                <p className="text-xs text-gray-600">En steeds meer</p>
               </div>
             </div>
           </div>
 
-          {/* Footer */}
-          <div>
-            <Link 
-              href="https://autoofy.nl" 
-              target="_blank"
-              className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 transition-colors text-sm"
-            >
-              <span>Meer informatie op Autoofy.nl</span>
-              <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
+          {/* Right Side - Auth Forms */}
+          <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto">
+            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden">
+              {/* Tabs */}
+              <div className="grid grid-cols-2 p-1 bg-gray-100/80 rounded-t-xl">
+                <button
+                  onClick={() => {
+                    setIsLogin(true)
+                    setError("")
+                    setSuccessMessage("")
+                  }}
+                  className={`py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                    isLogin
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Inloggen
+                </button>
+                <button
+                  onClick={() => {
+                    setIsLogin(false)
+                    setError("")
+                    setSuccessMessage("")
+                    setRegisterStep(1)
+                  }}
+                  className={`py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
+                    !isLogin
+                      ? "bg-white text-gray-900 shadow-sm"
+                      : "text-gray-600 hover:text-gray-900"
+                  }`}
+                >
+                  Registreren
+                </button>
+              </div>
 
-        {/* Right Side - Auth Forms */}
-        <div className="flex-1 flex items-center justify-center p-4 lg:p-8">
-          <div className="w-full max-w-md">
-            {/* Mobile Logo */}
-            <div className="lg:hidden flex items-center justify-center mb-6">
-              <Image 
-                src="/autoofy-logo.svg" 
-                alt="Autoofy" 
-                width={120} 
-                height={14}
-                className="h-7 w-auto"
-              />
-            </div>
-
-            <Card className="border border-slate-200 shadow-sm bg-white overflow-hidden">
-              {/* Header with Tabs */}
-              <div className="p-6 pb-0">
-                <div className="flex gap-0.5 p-0.5 bg-slate-100 rounded-md mb-6 border border-slate-200">
-                  <button
-                    onClick={() => !loading && switchMode()}
-                    className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-all duration-150 ${
-                      isLogin 
-                        ? 'bg-white text-slate-900 shadow-sm' 
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Inloggen
-                  </button>
-                  <button
-                    onClick={() => !loading && switchMode()}
-                    className={`flex-1 py-2 px-3 rounded text-sm font-medium transition-all duration-150 ${
-                      !isLogin 
-                        ? 'bg-white text-slate-900 shadow-sm' 
-                        : 'text-slate-600 hover:text-slate-900'
-                    }`}
-                  >
-                    Registreren
-                  </button>
-                </div>
-
-                <div className="mb-5">
-                  <h2 className="text-xl font-semibold text-slate-900 mb-1">
-                    {isLogin ? "Welkom terug" : "Account aanmaken"}
-                  </h2>
-                  <p className="text-gray-600">
-                    {isLogin 
-                      ? "Log in om verder te gaan" 
-                      : "Start binnen 2 minuten"}
-                  </p>
-                </div>
-
-                {/* Progress Bar for Registration */}
-                {!isLogin && (
-                  <div className="mb-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm font-medium text-gray-600">
-                        Stap {registerStep} van 2
-                      </span>
-                      <span className="text-sm text-gray-500">
-                        {registerStep === 1 ? "Bedrijfsgegevens" : "Account gegevens"}
-                      </span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div 
-                        className="h-full bg-gradient-to-r from-autoofy-red to-red-600 transition-all duration-500 ease-out"
-                        style={{ width: `${(registerStep / 2) * 100}%` }}
-                      />
-                    </div>
+              <div className="p-8">
+                {/* Success Message */}
+                {successMessage && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3">
+                    <CheckCircle2 className="w-5 h-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <p className="text-sm text-green-800 font-medium">{successMessage}</p>
                   </div>
                 )}
-              </div>
 
-              {/* Messages */}
-              {error && (
-                <div className="mx-8 mb-4 p-4 bg-red-50 border-l-4 border-red-500 rounded-r-lg animate-in slide-in-from-left-4">
-                  <p className="text-red-800 text-sm font-medium">{error}</p>
-                </div>
-              )}
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                    <p className="text-sm text-red-800 font-medium">{error}</p>
+                  </div>
+                )}
 
-              {successMessage && (
-                <div className="mx-8 mb-4 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg animate-in slide-in-from-left-4">
-                  <p className="text-green-800 text-sm font-medium">{successMessage}</p>
-                </div>
-              )}
-
-              {/* Forms */}
-              <div className="p-8 pt-4">
+                {/* Login Form */}
                 {isLogin ? (
                   <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-2">
+                      <h2 className="text-2xl font-bold text-gray-900">Welkom terug</h2>
+                      <p className="text-sm text-gray-600">Log in om verder te gaan</p>
+                    </div>
+
                     <FormInput
                       label="E-mailadres"
                       type="email"
@@ -305,8 +302,8 @@ function HomePageForm() {
                       onChange={(e) => setLoginData({ ...loginData, email: e.target.value })}
                       required
                       icon={<Mail className="w-5 h-5" />}
-                      autoComplete="email"
                       placeholder="uw@email.nl"
+                      autoComplete="email"
                     />
 
                     <div className="relative">
@@ -317,26 +314,31 @@ function HomePageForm() {
                         onChange={(e) => setLoginData({ ...loginData, password: e.target.value })}
                         required
                         icon={<Lock className="w-5 h-5" />}
-                        autoComplete="current-password"
                         placeholder="••••••••"
+                        autoComplete="current-password"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-[42px] text-gray-500 hover:text-gray-700"
+                        className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors"
                       >
                         {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                       </button>
                     </div>
 
                     <div className="flex items-center justify-between text-sm">
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="rounded border-gray-300" />
-                        <span className="text-gray-600">Onthoud mij</span>
+                      <label className="flex items-center gap-2 cursor-pointer group">
+                        <input 
+                          type="checkbox" 
+                          className="rounded border-gray-300 text-autoofy-red focus:ring-autoofy-red transition-all" 
+                        />
+                        <span className="text-gray-600 group-hover:text-gray-900 transition-colors">
+                          Onthoud mij
+                        </span>
                       </label>
                       <Link 
                         href="/auth/forgot-password" 
-                        className="text-autoofy-red hover:text-autoofy-red/80 font-medium"
+                        className="text-autoofy-red hover:text-red-700 font-medium transition-colors"
                       >
                         Wachtwoord vergeten?
                       </Link>
@@ -345,166 +347,170 @@ function HomePageForm() {
                     <Button
                       type="submit"
                       disabled={loading}
-                      className="w-full bg-autoofy-red hover:bg-autoofy-red/90 text-white h-10 text-sm font-medium shadow-sm transition-all duration-150"
+                      className="w-full h-12 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
                     >
                       {loading ? (
                         <span className="flex items-center gap-2">
-                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                           Bezig met inloggen...
                         </span>
                       ) : (
-                        "Inloggen"
+                        <span className="flex items-center gap-2">
+                          Inloggen
+                          <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </span>
                       )}
                     </Button>
                   </form>
                 ) : (
-                  <form onSubmit={registerStep === 1 ? (e) => { e.preventDefault(); handleRegisterNext(); } : handleRegister} className="space-y-5">
-                    {registerStep === 1 ? (
-                      <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
-                        <FormInput
-                          label="Bedrijfsnaam"
-                          type="text"
-                          value={registerData.tenantName}
-                          onChange={(e) => setRegisterData({ ...registerData, tenantName: e.target.value })}
-                          required
-                          icon={<Building2 className="w-5 h-5" />}
-                          autoComplete="organization"
-                          placeholder="Uw autobedrijf"
-                        />
+                  /* Register Form */
+                  registerStep === 1 ? (
+                    <form onSubmit={(e) => { e.preventDefault(); handleRegisterNext(); }} className="space-y-5">
+                      <div className="space-y-2">
+                        <h2 className="text-2xl font-bold text-gray-900">Account aanmaken</h2>
+                        <p className="text-sm text-gray-600">Start binnen 2 minuten</p>
+                      </div>
 
-                        <FormInput
-                          label="Uw volledige naam"
-                          type="text"
-                          value={registerData.userName}
-                          onChange={(e) => setRegisterData({ ...registerData, userName: e.target.value })}
-                          required
-                          icon={<User className="w-5 h-5" />}
-                          autoComplete="name"
-                          placeholder="Jan Jansen"
-                        />
+                      {/* Progress */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-autoofy-red rounded-full"></div>
+                        <div className="flex-1 h-2 bg-gray-200 rounded-full"></div>
+                      </div>
+                      <p className="text-xs text-gray-600 text-center">Stap 1 van 2</p>
 
-                        <Button
-                          type="submit"
-                          disabled={loading}
-                          className="w-full bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      <FormInput
+                        label="Bedrijfsnaam"
+                        type="text"
+                        value={registerData.tenantName}
+                        onChange={(e) => setRegisterData({ ...registerData, tenantName: e.target.value })}
+                        required
+                        icon={<Building2 className="w-5 h-5" />}
+                        placeholder="Uw Autobedrijf BV"
+                        autoComplete="organization"
+                      />
+
+                      <FormInput
+                        label="Uw naam"
+                        type="text"
+                        value={registerData.userName}
+                        onChange={(e) => setRegisterData({ ...registerData, userName: e.target.value })}
+                        required
+                        icon={<User className="w-5 h-5" />}
+                        placeholder="Jan de Vries"
+                        autoComplete="name"
+                      />
+
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-12 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
+                      >
+                        <span className="flex items-center gap-2">
+                          Volgende
+                          <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </span>
+                      </Button>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleRegister} className="space-y-5">
+                      <div className="space-y-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRegisterStep(1)
+                            setError("")
+                          }}
+                          className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 transition-colors mb-4"
                         >
-                          <span className="flex items-center gap-2">
-                            Volgende stap
-                            <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                          </span>
-                        </Button>
+                          <ChevronLeft className="w-4 h-4" />
+                          Terug
+                        </button>
+                        <h2 className="text-2xl font-bold text-gray-900">Account gegevens</h2>
+                        <p className="text-sm text-gray-600">Bijna klaar!</p>
                       </div>
-                    ) : (
-                      <div className="space-y-5 animate-in fade-in slide-in-from-right-4 duration-300">
+
+                      {/* Progress */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex-1 h-2 bg-autoofy-red rounded-full"></div>
+                        <div className="flex-1 h-2 bg-autoofy-red rounded-full"></div>
+                      </div>
+                      <p className="text-xs text-gray-600 text-center">Stap 2 van 2</p>
+
+                      <FormInput
+                        label="E-mailadres"
+                        type="email"
+                        value={registerData.email}
+                        onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                        required
+                        icon={<Mail className="w-5 h-5" />}
+                        placeholder="uw@email.nl"
+                        autoComplete="email"
+                      />
+
+                      <div className="relative">
                         <FormInput
-                          label="E-mailadres"
-                          type="email"
-                          value={registerData.email}
-                          onChange={(e) => setRegisterData({ ...registerData, email: e.target.value })}
+                          label="Wachtwoord"
+                          type={showPassword ? "text" : "password"}
+                          value={registerData.password}
+                          onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
                           required
-                          icon={<Mail className="w-5 h-5" />}
-                          autoComplete="email"
-                          placeholder="uw@email.nl"
+                          icon={<Lock className="w-5 h-5" />}
+                          placeholder="Minimaal 8 tekens"
+                          autoComplete="new-password"
                         />
-
-                        <div>
-                          <div className="relative">
-                            <FormInput
-                              label="Wachtwoord"
-                              type={showPassword ? "text" : "password"}
-                              value={registerData.password}
-                              onChange={(e) => setRegisterData({ ...registerData, password: e.target.value })}
-                              required
-                              icon={<Lock className="w-5 h-5" />}
-                              autoComplete="new-password"
-                              placeholder="Minimaal 8 tekens"
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setShowPassword(!showPassword)}
-                              className="absolute right-3 top-[42px] text-gray-500 hover:text-gray-700"
-                            >
-                              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                            </button>
-                          </div>
-                          <PasswordStrengthIndicator password={registerData.password} />
-                        </div>
-
-                        <div className="flex gap-3">
-                          <Button
-                            type="button"
-                            onClick={() => { setRegisterStep(1); setError(""); }}
-                            variant="outline"
-                            className="flex-1 h-12"
-                          >
-                            <ChevronLeft className="w-5 h-5 mr-2" />
-                            Terug
-                          </Button>
-                          <Button
-                            type="submit"
-                            disabled={loading}
-                            className="flex-1 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group"
-                          >
-                            {loading ? (
-                              <span className="flex items-center gap-2">
-                                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                                Account aanmaken...
-                              </span>
-                            ) : (
-                              <span className="flex items-center gap-2">
-                                Account aanmaken
-                                <CheckCircle2 className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                              </span>
-                            )}
-                          </Button>
-                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-9 text-gray-400 hover:text-gray-600 transition-colors"
+                        >
+                          {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        </button>
                       </div>
-                    )}
-                  </form>
-                )}
 
-                {/* Terms */}
-                {!isLogin && registerStep === 2 && (
-                  <p className="text-xs text-center text-gray-500 mt-4">
-                    Door een account aan te maken, gaat u akkoord met onze{" "}
-                    <Link href="/terms" className="text-autoofy-red hover:underline">
-                      Algemene Voorwaarden
-                    </Link>{" "}
-                    en{" "}
-                    <Link href="/privacy" className="text-autoofy-red hover:underline">
-                      Privacybeleid
-                    </Link>
-                  </p>
+                      <PasswordStrengthIndicator password={registerData.password} />
+
+                      <Button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full h-12 bg-gradient-to-r from-autoofy-red to-red-600 hover:from-autoofy-red/90 hover:to-red-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300"
+                      >
+                        {loading ? (
+                          <span className="flex items-center gap-2">
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                            Account aanmaken...
+                          </span>
+                        ) : (
+                          "Account aanmaken"
+                        )}
+                      </Button>
+
+                      <p className="text-xs text-gray-500 text-center">
+                        Door te registreren gaat u akkoord met onze{" "}
+                        <a href="#" className="text-autoofy-red hover:underline">Voorwaarden</a>
+                        {" "}en{" "}
+                        <a href="#" className="text-autoofy-red hover:underline">Privacybeleid</a>
+                      </p>
+                    </form>
+                  )
                 )}
               </div>
             </Card>
-
-            {/* Mobile Back Link */}
-            <div className="lg:hidden text-center mt-6">
-              <Link 
-                href="https://autoofy.nl" 
-                target="_blank"
-                className="inline-flex items-center gap-2 text-gray-400 hover:text-white transition-colors text-sm"
-              >
-                <span>Meer info op Autoofy.nl</span>
-                <ChevronRight className="w-4 h-4" />
-              </Link>
-            </div>
           </div>
         </div>
       </div>
+
+      {/* Decorative Elements */}
+      <div className="fixed top-0 right-0 w-1/2 h-1/2 bg-gradient-to-br from-autoofy-red/5 to-transparent rounded-full blur-3xl -z-10"></div>
+      <div className="fixed bottom-0 left-0 w-1/2 h-1/2 bg-gradient-to-tr from-blue-500/5 to-transparent rounded-full blur-3xl -z-10"></div>
     </div>
   )
 }
 
-export default function Home() {
+export default function HomePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-slate-900">
-        <div className="space-y-4 text-center">
-          <div className="w-12 h-12 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto" />
-          <p className="text-white">Laden...</p>
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-autoofy-red"></div>
       </div>
     }>
       <HomePageForm />
