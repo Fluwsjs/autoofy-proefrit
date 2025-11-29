@@ -153,7 +153,7 @@ export const authRateLimit = rateLimitByIp({
 })
 
 export const registerRateLimit = rateLimitByIp({
-  maxRequests: 3, // 3 registrations
+  maxRequests: 10, // 10 registrations (was 3, verhoogd voor development/testing)
   windowMs: 60 * 60 * 1000, // 1 hour
 })
 
