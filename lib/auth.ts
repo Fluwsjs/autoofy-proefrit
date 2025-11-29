@@ -226,4 +226,22 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
+  useSecureCookies: process.env.NODE_ENV === "production",
+  cookies: {
+    sessionToken: {
+      name: process.env.NODE_ENV === "production" 
+        ? `__Secure-next-auth.session-token`
+        : `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        // Let NextAuth auto-detect domain from NEXTAUTH_URL
+        // This ensures cookies work correctly on your actual domain
+      },
+    },
+  },
+  // Add debug logging in production to help troubleshoot
+  debug: process.env.NODE_ENV === "production",
 }
