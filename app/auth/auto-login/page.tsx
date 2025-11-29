@@ -16,8 +16,8 @@ function AutoLoginForm() {
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
 
     if (token && userId) {
-      // Attempt auto-login using EmailLink provider
-      signIn("EmailLink", {
+      // Attempt auto-login using email-link provider
+      signIn("email-link", {
         token,
         userId,
         redirect: true,
