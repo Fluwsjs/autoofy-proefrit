@@ -309,3 +309,94 @@ export async function resendVerificationEmail(email: string, token: string, name
     text: `Hallo ${name},\n\nU heeft verzocht om de verificatie e-mail opnieuw te ontvangen. Klik op de volgende link:\n\n${verificationUrl}\n\nDeze link verloopt over 24 uur.`
   })
 }
+
+/**
+ * Send feedback request email after test drive completion
+ */
+export async function sendFeedbackEmail(
+  customerEmail: string, 
+  customerName: string,
+  companyName: string,
+  carType: string
+) {
+  const content = `
+    <div style="color: #1f2937;">
+      <h2 style="color: #1D3557; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">
+        Bedankt voor uw proefrit, ${customerName}!
+      </h2>
+      <p style="color: #4b5563; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
+        We hopen dat u een aangename proefrit heeft gehad met de <strong>${carType}</strong>. 
+        Uw mening is belangrijk voor ons en helpt ons om onze service te verbeteren.
+      </p>
+      
+      <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 24px; margin: 24px 0;">
+        <h3 style="color: #1D3557; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">
+          📋 Wij horen graag uw ervaringen
+        </h3>
+        <p style="color: #374151; margin: 0 0 16px 0; font-size: 15px; line-height: 1.6;">
+          Zou u zo vriendelijk willen zijn om de volgende vragen te beantwoorden? U kunt simpelweg op deze email antwoorden.
+        </p>
+        
+        <div style="background-color: white; border-radius: 8px; padding: 20px; margin-top: 16px;">
+          <ol style="color: #374151; margin: 0; padding-left: 20px; font-size: 15px; line-height: 2;">
+            <li style="margin-bottom: 12px;"><strong>Hoe was de testrit?</strong><br><span style="color: #6b7280; font-size: 14px;">Verliep alles volgens verwachting?</span></li>
+            <li style="margin-bottom: 12px;"><strong>Waren er bijzonderheden?</strong><br><span style="color: #6b7280; font-size: 14px;">Opmerkingen over het voertuig of de service?</span></li>
+            <li style="margin-bottom: 12px;"><strong>Heeft u de auto gekocht?</strong><br><span style="color: #6b7280; font-size: 14px;">Of overweegt u dit nog?</span></li>
+            <li style="margin-bottom: 12px;"><strong>Hoe bent u bij ${companyName} gekomen?</strong><br><span style="color: #6b7280; font-size: 14px;">Online, via een bekende, of op een andere manier?</span></li>
+            <li><strong>Hoe beoordeelt u onze service?</strong><br><span style="color: #6b7280; font-size: 14px;">Een cijfer of korte feedback is al voldoende</span></li>
+          </ol>
+        </div>
+      </div>
+
+      <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0; border-radius: 4px;">
+        <p style="color: #92400e; font-size: 14px; margin: 0; line-height: 1.5;">
+          <strong>⭐ Uw feedback helpt ons!</strong><br>
+          Met uw waardevolle input kunnen we onze service blijven verbeteren en andere klanten beter van dienst zijn.
+        </p>
+      </div>
+
+      <p style="color: #4b5563; margin: 24px 0 0 0; font-size: 15px; line-height: 1.6;">
+        U kunt simpelweg op deze e-mail antwoorden. We kijken uit naar uw reactie!
+      </p>
+
+      <p style="color: #4b5563; margin: 20px 0 0 0; font-size: 15px; line-height: 1.6;">
+        Met vriendelijke groet,<br>
+        <strong style="color: #1D3557;">${companyName}</strong>
+      </p>
+    </div>
+  `
+
+  const html = getEmailTemplate(content, "Uw mening is belangrijk!")
+  const plainText = `Bedankt voor uw proefrit, ${customerName}!
+
+We hopen dat u een aangename proefrit heeft gehad met de ${carType}. Uw mening is belangrijk voor ons en helpt ons om onze service te verbeteren.
+
+Wij horen graag uw ervaringen:
+
+1. Hoe was de testrit?
+   Verliep alles volgens verwachting?
+
+2. Waren er bijzonderheden?
+   Opmerkingen over het voertuig of de service?
+
+3. Heeft u de auto gekocht?
+   Of overweegt u dit nog?
+
+4. Hoe bent u bij ${companyName} gekomen?
+   Online, via een bekende, of op een andere manier?
+
+5. Hoe beoordeelt u onze service?
+   Een cijfer of korte feedback is al voldoende
+
+U kunt simpelweg op deze e-mail antwoorden. We kijken uit naar uw reactie!
+
+Met vriendelijke groet,
+${companyName}`
+
+  return sendEmail({
+    to: customerEmail,
+    subject: `Uw mening over de proefrit - ${companyName}`,
+    html,
+    text: plainText,
+  })
+}

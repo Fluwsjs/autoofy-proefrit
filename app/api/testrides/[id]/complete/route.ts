@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { validateSignatureImage } from "@/lib/file-validation"
+import { sendFeedbackEmail } from "@/lib/email"
 
 const completeSchema = z.object({
   completionSignatureUrl: z.string().min(1, "Bedrijfshandtekening is verplicht"),
@@ -54,6 +55,17 @@ export async function POST(
         id,
         tenantId: session.user.tenantId,
       },
+      include: {
+        tenant: {
+          select: {
+            companyInfo: {
+              select: {
+                companyName: true,
+              }
+            }
+          }
+        }
+      }
     })
 
     if (!testride) {
@@ -84,6 +96,21 @@ export async function POST(
           : testride.notes,
       },
     })
+
+    // Send feedback email to customer
+    try {
+      const companyName = testride.tenant?.companyInfo?.companyName || "Uw autobedrijf"
+      await sendFeedbackEmail(
+        testride.customerEmail,
+        testride.customerName,
+        companyName,
+        testride.carType
+      )
+      console.log(`✅ Feedback email sent to ${testride.customerEmail}`)
+    } catch (emailError) {
+      // Log error but don't fail the request - testride is already completed
+      console.error("⚠️ Error sending feedback email:", emailError)
+    }
 
     return NextResponse.json(updatedTestride)
   } catch (error) {
