@@ -144,13 +144,13 @@ function HomePageForm() {
         </div>
       </nav>
 
-      <div className="container mx-auto px-4 py-20 lg:py-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
+      <div className="container mx-auto px-4 py-16 sm:py-20 lg:py-32">
+        <div className="grid lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
           {/* Left Side - Hero Content */}
           <div className="space-y-8 text-center lg:text-left">
             {/* Heading */}
-            <div className="space-y-4">
-              <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
+            <div className="space-y-3 sm:space-y-4">
+              <h1 className="text-3xl sm:text-4xl lg:text-6xl font-bold leading-tight">
                 <span className="bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
                   Proefritten
                 </span>
@@ -159,72 +159,72 @@ function HomePageForm() {
                   Digitaal Geregeld
                 </span>
               </h1>
-              <p className="text-lg lg:text-xl text-gray-600 max-w-xl">
+              <p className="text-base sm:text-lg lg:text-xl text-gray-600 max-w-xl mx-auto lg:mx-0">
                 De moderne oplossing voor het professioneel beheren van proefritten in uw autobedrijf.
               </p>
             </div>
 
             {/* Features Grid */}
-            <div className="grid sm:grid-cols-2 gap-4 pt-4">
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <Clock className="w-5 h-5 text-blue-600" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4">
+              <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
+                  <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Realtime Tracking</h3>
-                  <p className="text-sm text-gray-600">Volg alle proefritten live</p>
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">Realtime Tracking</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Volg alle proefritten live</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
-                <div className="p-2 bg-green-100 rounded-lg">
-                  <FileCheck className="w-5 h-5 text-green-600" />
+              <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
+                  <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Digitale Handtekening</h3>
-                  <p className="text-sm text-gray-600">Juridisch bindend</p>
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">Digitale Handtekening</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Juridisch bindend</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
-                <div className="p-2 bg-purple-100 rounded-lg">
-                  <Shield className="w-5 h-5 text-purple-600" />
+              <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg flex-shrink-0">
+                  <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Veilig & Beveiligd</h3>
-                  <p className="text-sm text-gray-600">ID verificatie & beveiligde data</p>
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">Veilig & Beveiligd</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">ID verificatie & beveiligde data</p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-3 p-4 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
-                <div className="p-2 bg-amber-100 rounded-lg">
-                  <BarChart3 className="w-5 h-5 text-amber-600" />
+              <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
+                <div className="p-1.5 sm:p-2 bg-amber-100 rounded-lg flex-shrink-0">
+                  <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900">Analytics</h3>
-                  <p className="text-sm text-gray-600">Inzicht in data</p>
+                  <h3 className="text-sm sm:text-base font-semibold text-gray-900">Analytics</h3>
+                  <p className="text-xs sm:text-sm text-gray-600">Inzicht in data</p>
                 </div>
               </div>
             </div>
 
             {/* Social Proof */}
-            <div className="flex items-center gap-6 pt-4">
-              <div className="flex -space-x-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+            <div className="flex items-center justify-center lg:justify-start gap-4 sm:gap-6 pt-4">
+              <div className="flex -space-x-2 sm:-space-x-3">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                   JH
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                   MB
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                   PV
                 </div>
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-sm">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 border-2 border-white shadow-lg flex items-center justify-center text-white font-semibold text-xs sm:text-sm">
                   +5
                 </div>
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">Vertrouwd door dealers</p>
+                <p className="text-xs sm:text-sm font-semibold text-gray-900">Vertrouwd door dealers</p>
                 <p className="text-xs text-gray-600">En steeds meer</p>
               </div>
             </div>
