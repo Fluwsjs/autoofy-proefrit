@@ -165,12 +165,12 @@ function HomePageForm() {
             </div>
 
             {/* Features Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 pt-4 max-w-2xl mx-auto lg:mx-0">
               <div className="flex items-start gap-2 sm:gap-3 p-3 sm:p-4 bg-white/60 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-gray-200 hover:shadow-lg transition-all">
                 <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg flex-shrink-0">
                   <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900">Realtime Tracking</h3>
                   <p className="text-xs sm:text-sm text-gray-600">Volg alle proefritten live</p>
                 </div>
@@ -180,7 +180,7 @@ function HomePageForm() {
                 <div className="p-1.5 sm:p-2 bg-green-100 rounded-lg flex-shrink-0">
                   <FileCheck className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900">Digitale Handtekening</h3>
                   <p className="text-xs sm:text-sm text-gray-600">Juridisch bindend</p>
                 </div>
@@ -190,7 +190,7 @@ function HomePageForm() {
                 <div className="p-1.5 sm:p-2 bg-purple-100 rounded-lg flex-shrink-0">
                   <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900">Veilig & Beveiligd</h3>
                   <p className="text-xs sm:text-sm text-gray-600">ID verificatie & beveiligde data</p>
                 </div>
@@ -200,7 +200,7 @@ function HomePageForm() {
                 <div className="p-1.5 sm:p-2 bg-amber-100 rounded-lg flex-shrink-0">
                   <BarChart3 className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="text-sm sm:text-base font-semibold text-gray-900">Analytics</h3>
                   <p className="text-xs sm:text-sm text-gray-600">Inzicht in data</p>
                 </div>
@@ -231,8 +231,18 @@ function HomePageForm() {
           </div>
 
           {/* Right Side - Auth Forms */}
-          <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto">
-            <Card className="border-0 shadow-2xl bg-white/80 backdrop-blur-xl overflow-hidden">
+          <div className="w-full max-w-md mx-auto lg:mx-0 lg:ml-auto order-first lg:order-last mb-8 lg:mb-0">
+            {/* Mobile CTA Header */}
+            <div className="lg:hidden text-center mb-4 p-4 bg-gradient-to-r from-autoofy-red/10 to-red-100 rounded-2xl border-2 border-autoofy-red/20">
+              <h3 className="text-lg font-bold text-gray-900 mb-1">
+                Start vandaag nog
+              </h3>
+              <p className="text-sm text-gray-600">
+                Login of maak een gratis account aan
+              </p>
+            </div>
+            
+            <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-xl overflow-hidden ring-2 ring-autoofy-red/10">
               {/* Tabs */}
               <div className="grid grid-cols-2 p-1 bg-gray-100/80 rounded-t-xl">
                 <button
