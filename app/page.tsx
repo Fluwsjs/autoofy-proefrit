@@ -148,12 +148,6 @@ function HomePageForm() {
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center max-w-7xl mx-auto">
           {/* Left Side - Hero Content */}
           <div className="space-y-8 text-center lg:text-left">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg border border-gray-200">
-              <Sparkles className="w-4 h-4 text-autoofy-red" />
-              <span className="text-sm font-medium text-gray-700">Professioneel Proefrit Beheer</span>
-            </div>
-
             {/* Heading */}
             <div className="space-y-4">
               <h1 className="text-4xl lg:text-6xl font-bold leading-tight">
