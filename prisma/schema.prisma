@@ -46,6 +46,7 @@ model User {
   role              Role     @default(STAFF)
   emailVerified     Boolean  @default(false)
   emailVerifiedAt   DateTime?
+  isActive          Boolean  @default(true) // Account actief/gedeactiveerd
   sellerSignatureUrl String? // Eenmalige verkoper handtekening/stempel (herbruikbaar)
   twoFactorEnabled  Boolean  @default(false)
   twoFactorSecret   String?

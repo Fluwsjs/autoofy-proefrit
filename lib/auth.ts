@@ -147,6 +147,12 @@ export const authOptions: NextAuthOptions = {
           }
           
           console.log(`[AUTH] User found: ${user.email}`)
+          
+          // Check if user account is active
+          if (!user.isActive) {
+            console.error(`[AUTH] User account is deactivated: ${user.email}`)
+            throw new Error("Uw account is gedeactiveerd. Neem contact op met de beheerder.")
+          }
 
           // Check if email is verified
           if (!user.emailVerified) {

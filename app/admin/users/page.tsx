@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
 import { useToast } from "@/components/ui/toast"
-import { ArrowLeft, Key, Eye, EyeOff } from "lucide-react"
+import { ArrowLeft, Key, Eye, EyeOff, Trash2, UserX, UserCheck } from "lucide-react"
 import Link from "next/link"
 import { formatDate } from "@/lib/utils"
 
@@ -17,6 +17,7 @@ interface User {
   email: string
   role: string
   emailVerified: boolean
+  isActive: boolean
   tenant: {
     id: string
     name: string
@@ -32,6 +33,8 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true)
   const [resettingUserId, setResettingUserId] = useState<string | null>(null)
   const [approvingUserId, setApprovingUserId] = useState<string | null>(null)
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null)
+  const [togglingUserId, setTogglingUserId] = useState<string | null>(null)
   const [newPassword, setNewPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -91,6 +94,62 @@ export default function AdminUsersPage() {
       showToast("Er is een fout opgetreden", "error")
     } finally {
       setApprovingUserId(null)
+    }
+  }
+
+  const handleDeleteUser = async (userId: string, userName: string) => {
+    if (!confirm(`Weet je zeker dat je gebruiker "${userName}" wilt verwijderen? Dit kan niet ongedaan worden gemaakt.`)) {
+      return
+    }
+
+    setDeletingUserId(userId)
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "DELETE",
+      })
+
+      if (response.ok) {
+        setUsers(users.filter(u => u.id !== userId))
+        showToast("Gebruiker succesvol verwijderd", "success")
+      } else {
+        const data = await response.json()
+        showToast(data.error || "Fout bij verwijderen gebruiker", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    } finally {
+      setDeletingUserId(null)
+    }
+  }
+
+  const handleToggleActive = async (userId: string, currentStatus: boolean) => {
+    const action = currentStatus ? "deactiveren" : "activeren"
+    if (!confirm(`Weet je zeker dat je deze gebruiker wilt ${action}?`)) {
+      return
+    }
+
+    setTogglingUserId(userId)
+    try {
+      const response = await fetch(`/api/admin/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setUsers(users.map(u => 
+          u.id === userId ? { ...u, isActive: !currentStatus } : u
+        ))
+        showToast(data.message, "success")
+      } else {
+        const data = await response.json()
+        showToast(data.error || "Fout bij bijwerken gebruiker", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    } finally {
+      setTogglingUserId(null)
     }
   }
 
@@ -204,21 +263,35 @@ export default function AdminUsersPage() {
                         </span>
                       </td>
                       <td className="p-4">
-                        {user.emailVerified ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                            Geverifieerd
-                          </span>
-                        ) : (
-                          <Button 
-                            size="sm" 
-                            variant="outline" 
-                            className="h-7 text-xs bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800"
-                            onClick={() => handleApproveUser(user.id)}
-                            disabled={approvingUserId === user.id}
-                          >
-                            {approvingUserId === user.id ? "Bezig..." : "Goedkeuren"}
-                          </Button>
-                        )}
+                        <div className="flex flex-col gap-1">
+                          {/* Email Verified Status */}
+                          {user.emailVerified ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
+                              ✓ Geverifieerd
+                            </span>
+                          ) : (
+                            <Button 
+                              size="sm" 
+                              variant="outline" 
+                              className="h-7 text-xs bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800"
+                              onClick={() => handleApproveUser(user.id)}
+                              disabled={approvingUserId === user.id}
+                            >
+                              {approvingUserId === user.id ? "Bezig..." : "Goedkeuren"}
+                            </Button>
+                          )}
+                          
+                          {/* Account Active Status */}
+                          {user.isActive ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                              ✓ Actief
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                              ✕ Gedeactiveerd
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="p-4 text-sm text-muted-foreground">
                         {formatDate(user.createdAt)}
@@ -268,15 +341,60 @@ export default function AdminUsersPage() {
                             </Button>
                           </div>
                         ) : (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => setResettingUserId(user.id)}
-                            className="gap-2"
-                          >
-                            <Key className="h-4 w-4" />
-                            Reset Wachtwoord
-                          </Button>
+                          <div className="flex flex-wrap gap-2">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => setResettingUserId(user.id)}
+                              className="gap-2"
+                            >
+                              <Key className="h-4 w-4" />
+                              Reset Wachtwoord
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleToggleActive(user.id, user.isActive)}
+                              disabled={togglingUserId === user.id}
+                              className={`gap-2 ${
+                                user.isActive 
+                                  ? "text-orange-700 border-orange-200 hover:bg-orange-50" 
+                                  : "text-green-700 border-green-200 hover:bg-green-50"
+                              }`}
+                            >
+                              {togglingUserId === user.id ? (
+                                "Bezig..."
+                              ) : user.isActive ? (
+                                <>
+                                  <UserX className="h-4 w-4" />
+                                  Deactiveren
+                                </>
+                              ) : (
+                                <>
+                                  <UserCheck className="h-4 w-4" />
+                                  Activeren
+                                </>
+                              )}
+                            </Button>
+                            
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => handleDeleteUser(user.id, user.name)}
+                              disabled={deletingUserId === user.id}
+                              className="gap-2"
+                            >
+                              {deletingUserId === user.id ? (
+                                "Verwijderen..."
+                              ) : (
+                                <>
+                                  <Trash2 className="h-4 w-4" />
+                                  Verwijderen
+                                </>
+                              )}
+                            </Button>
+                          </div>
                         )}
                       </td>
                     </tr>
