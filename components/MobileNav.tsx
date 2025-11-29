@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { 
   Menu, X, Home, Plus, CreditCard, Building2, 
-  User, Users, BarChart3, Settings, LogOut, Sparkles 
+  User, Settings, LogOut, Sparkles 
 } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
@@ -25,10 +25,6 @@ export function MobileNav() {
     { href: "/dashboard/company-info", label: "Bedrijfsgegevens", icon: Building2 },
     { href: "/dashboard/profile", label: "Mijn Profiel", icon: User },
   ]
-
-  if (session?.user?.role === "ADMIN") {
-    navItems.push({ href: "/dashboard/users", label: "Gebruikers", icon: Users })
-  }
 
   const isActive = (href: string) => pathname === href
 
@@ -122,15 +118,6 @@ export function MobileNav() {
               <Sparkles className="h-4 w-4 text-autoofy-red" />
               <span className="text-sm font-medium">Onboarding</span>
             </button>
-
-            <Link
-              href="/dashboard"
-              onClick={closeMenu}
-              className="flex items-center gap-3 px-4 py-2.5 text-slate-700 hover:bg-slate-50 transition-colors"
-            >
-              <BarChart3 className="h-4 w-4 text-slate-500" />
-              <span className="text-sm font-medium">Statistieken</span>
-            </Link>
           </nav>
 
           {/* Footer */}
