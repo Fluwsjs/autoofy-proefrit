@@ -129,17 +129,18 @@ function HomePageForm() {
       {/* Navigation */}
       <nav className="absolute top-0 left-0 right-0 z-50 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="bg-gradient-to-br from-autoofy-red to-red-600 p-2 rounded-xl shadow-lg">
-              <Car className="w-6 h-6 text-white" />
+          <Link href="/" className="flex items-center gap-3 group">
+            <div className="relative bg-white/80 backdrop-blur-sm px-4 py-2 rounded-xl shadow-lg border border-gray-200 group-hover:shadow-xl transition-all">
+              <Image
+                src="/autoofy-logo.svg"
+                alt="Autoofy Logo"
+                width={120}
+                height={24}
+                className="object-contain"
+                priority
+              />
             </div>
-            <div>
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-autoofy-red to-red-600 bg-clip-text text-transparent">
-                Autoofy
-              </h1>
-              <p className="text-xs text-gray-600">Proefrit Beheer</p>
-            </div>
-          </div>
+          </Link>
         </div>
       </nav>
 
