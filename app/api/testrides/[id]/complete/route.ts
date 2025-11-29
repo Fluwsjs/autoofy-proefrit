@@ -58,11 +58,7 @@ export async function POST(
       include: {
         tenant: {
           select: {
-            companyInfo: {
-              select: {
-                companyName: true,
-              }
-            }
+            companyName: true,
           }
         }
       }
@@ -99,7 +95,7 @@ export async function POST(
 
     // Send feedback email to customer
     try {
-      const companyName = testride.tenant?.companyInfo?.companyName || "Uw autobedrijf"
+      const companyName = testride.tenant?.companyName || "Uw autobedrijf"
       await sendFeedbackEmail(
         testride.customerEmail,
         testride.customerName,
