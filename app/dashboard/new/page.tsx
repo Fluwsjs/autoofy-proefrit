@@ -54,6 +54,76 @@ export default function NewTestridePage() {
     dealerPlateCardGiven: false,
   })
 
+  // Load saved form data from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem('newTestrideFormData')
+    const savedSignatures = localStorage.getItem('newTestrideSignatures')
+    const savedPhotos = localStorage.getItem('newTestridePhotos')
+    
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData)
+        setFormData(parsedData)
+        showToast("Formulierdata hersteld", "info")
+      } catch (error) {
+        console.error("Error parsing saved form data:", error)
+      }
+    }
+    
+    if (savedSignatures) {
+      try {
+        const parsedSignatures = JSON.parse(savedSignatures)
+        setCustomerSignature(parsedSignatures.customer || "")
+        setSellerSignature(parsedSignatures.seller || "")
+      } catch (error) {
+        console.error("Error parsing saved signatures:", error)
+      }
+    }
+    
+    if (savedPhotos) {
+      try {
+        const parsedPhotos = JSON.parse(savedPhotos)
+        setIdPhotoFrontUrl(parsedPhotos.front || "")
+        setIdPhotoBackUrl(parsedPhotos.back || "")
+      } catch (error) {
+        console.error("Error parsing saved photos:", error)
+      }
+    }
+  }, [])
+
+  // Auto-save form data to localStorage
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('newTestrideFormData', JSON.stringify(formData))
+    }, 500) // Debounce 500ms
+    
+    return () => clearTimeout(timeoutId)
+  }, [formData])
+
+  // Auto-save signatures
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('newTestrideSignatures', JSON.stringify({
+        customer: customerSignature,
+        seller: sellerSignature
+      }))
+    }, 500)
+    
+    return () => clearTimeout(timeoutId)
+  }, [customerSignature, sellerSignature])
+
+  // Auto-save photos
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      localStorage.setItem('newTestridePhotos', JSON.stringify({
+        front: idPhotoFrontUrl,
+        back: idPhotoBackUrl
+      }))
+    }, 500)
+    
+    return () => clearTimeout(timeoutId)
+  }, [idPhotoFrontUrl, idPhotoBackUrl])
+
   useEffect(() => {
     if (session) {
       fetchDealerPlates()
@@ -73,6 +143,39 @@ export default function NewTestridePage() {
       console.error("Error fetching dealer plates:", error)
     } finally {
       setLoadingPlates(false)
+    }
+  }
+
+  const clearFormData = () => {
+    if (confirm("Weet u zeker dat u alle ingevulde gegevens wilt wissen?")) {
+      setFormData({
+        customerName: "",
+        customerEmail: "",
+        customerPhone: "",
+        address: "",
+        startTime: "",
+        endTime: "",
+        date: "",
+        carType: "",
+        licensePlate: "",
+        driverLicenseNumber: "",
+        idCountryOfOrigin: "",
+        dealerPlateId: "",
+        startKm: "",
+        endKm: "",
+        notes: "",
+        eigenRisico: "0",
+        aantalSleutels: "1",
+        dealerPlateCardGiven: false,
+      })
+      setCustomerSignature("")
+      setSellerSignature("")
+      setIdPhotoFrontUrl("")
+      setIdPhotoBackUrl("")
+      localStorage.removeItem('newTestrideFormData')
+      localStorage.removeItem('newTestrideSignatures')
+      localStorage.removeItem('newTestridePhotos')
+      showToast("Formulier gewist", "success")
     }
   }
 
@@ -138,6 +241,10 @@ export default function NewTestridePage() {
       if (!response.ok) {
         setError(data.error || "Er is een fout opgetreden")
       } else {
+        // Clear saved form data after successful submit
+        localStorage.removeItem('newTestrideFormData')
+        localStorage.removeItem('newTestrideSignatures')
+        localStorage.removeItem('newTestridePhotos')
         router.push("/dashboard?success=true")
       }
     } catch (err) {
@@ -150,20 +257,38 @@ export default function NewTestridePage() {
         return (
           <div className="max-w-4xl mx-auto space-y-4 pb-20 lg:pb-0">
             {ToastComponent}
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => router.push("/dashboard")}
-              className="min-h-[44px]"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Terug naar dashboard
-            </Button>
+            <div className="flex items-center justify-between gap-2">
+              <Button 
+                variant="ghost" 
+                size="sm"
+                onClick={() => router.push("/dashboard")}
+                className="min-h-[44px]"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Terug naar dashboard
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={clearFormData}
+                className="min-h-[44px] text-red-600 border-red-600 hover:bg-red-50"
+              >
+                Wis formulier
+              </Button>
+            </div>
 
       <Card className="border-slate-200">
         <CardHeader className="bg-slate-50 border-b border-slate-200 p-4">
-          <CardTitle className="text-lg font-semibold text-slate-900">Nieuwe Proefrit</CardTitle>
-          <p className="text-sm text-slate-600 mt-0.5">Vul alle verplichte velden (*) in</p>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-lg font-semibold text-slate-900">Nieuwe Proefrit</CardTitle>
+              <p className="text-sm text-slate-600 mt-0.5">Vul alle verplichte velden (*) in</p>
+            </div>
+            <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded flex items-center gap-1">
+              <span className="inline-block w-2 h-2 bg-green-600 rounded-full animate-pulse"></span>
+              Auto-opgeslagen
+            </div>
+          </div>
         </CardHeader>
         <CardContent className="p-4">
           <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
