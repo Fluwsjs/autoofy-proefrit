@@ -107,12 +107,22 @@ export async function POST(request: NextRequest) {
     })
 
     // Send verification email (async, don't wait for it)
+    console.log(`🔍 [REGISTER] Attempting to send verification email to: ${validatedData.email}`)
     sendVerificationEmail(
       validatedData.email,
       verificationToken,
       validatedData.userName
-    ).catch((error) => {
-      console.error("Failed to send verification email:", error)
+    ).then((result) => {
+      if (result.success) {
+        console.log(`✅ [REGISTER] Verification email sent successfully to: ${validatedData.email}`)
+        console.log(`   Email ID: ${result.data?.id || 'N/A'}`)
+      } else {
+        console.error(`❌ [REGISTER] Failed to send verification email to: ${validatedData.email}`)
+        console.error(`   Error: ${result.error}`)
+      }
+    }).catch((error) => {
+      console.error(`❌ [REGISTER] Exception sending verification email to: ${validatedData.email}`)
+      console.error("   Error details:", error)
     })
 
     // Get rate limit headers
