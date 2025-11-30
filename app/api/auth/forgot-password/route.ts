@@ -46,10 +46,18 @@ export async function POST(request: NextRequest) {
         },
       })
 
-      // Send password reset email (don't await - fire and forget)
-      sendPasswordResetEmail(user.email, resetToken, user.name).catch((error) => {
+      // Send password reset email (AWAIT in serverless - must complete before response)
+      try {
+        const emailResult = await sendPasswordResetEmail(user.email, resetToken, user.name)
+        if (emailResult.success) {
+          console.log(`✅ [FORGOT-PASSWORD] Reset email sent successfully to: ${user.email}`)
+        } else {
+          console.error(`❌ [FORGOT-PASSWORD] Failed to send reset email to: ${user.email}`)
+          console.error(`   Error: ${emailResult.error}`)
+        }
+      } catch (error) {
         console.error("Failed to send password reset email:", error)
-      })
+      }
     }
 
     // Always return success to prevent email enumeration

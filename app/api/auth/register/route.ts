@@ -106,26 +106,31 @@ export async function POST(request: NextRequest) {
       return { tenant, user }
     })
 
-    // Send verification email (async, don't wait for it)
+    // Send verification email (AWAIT in serverless - must complete before response)
     console.log(`🔍 [REGISTER] Attempting to send verification email to: ${validatedData.email}`)
-    sendVerificationEmail(
-      validatedData.email,
-      verificationToken,
-      validatedData.userName
-    ).then((result) => {
-      if (result.success) {
+    
+    try {
+      const emailResult = await sendVerificationEmail(
+        validatedData.email,
+        verificationToken,
+        validatedData.userName
+      )
+      
+      if (emailResult.success) {
         console.log(`✅ [REGISTER] Verification email sent successfully to: ${validatedData.email}`)
         // Resend returns {id}, SMTP returns {messageId}
-        const emailId = (result.data as any)?.id || (result.data as any)?.messageId || 'N/A'
+        const emailId = (emailResult.data as any)?.id || (emailResult.data as any)?.messageId || 'N/A'
         console.log(`   Email ID: ${emailId}`)
       } else {
         console.error(`❌ [REGISTER] Failed to send verification email to: ${validatedData.email}`)
-        console.error(`   Error: ${result.error}`)
+        console.error(`   Error: ${emailResult.error}`)
+        // Don't fail registration if email fails - user can resend later
       }
-    }).catch((error) => {
+    } catch (emailError) {
       console.error(`❌ [REGISTER] Exception sending verification email to: ${validatedData.email}`)
-      console.error("   Error details:", error)
-    })
+      console.error("   Error details:", emailError)
+      // Don't fail registration if email fails - user can resend later
+    }
 
     // Get rate limit headers
     const forwarded = request.headers.get("x-forwarded-for")
