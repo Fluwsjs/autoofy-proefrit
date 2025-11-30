@@ -28,12 +28,27 @@ export const authOptions: NextAuthOptions = {
 
           // If no verification token, check if user is already verified and use userId
           if (!verificationToken) {
+            console.log(`[EMAIL-LINK] Token not found, checking user by ID: ${credentials.userId}`)
             const user = await prisma.user.findUnique({
               where: { id: credentials.userId },
               include: { tenant: true },
             })
 
-            if (user && user.emailVerified) {
+            if (!user) {
+              console.error(`[EMAIL-LINK] User not found: ${credentials.userId}`)
+              return null
+            }
+
+            console.log(`[EMAIL-LINK] User found: ${user.email}, emailVerified: ${user.emailVerified}, isActive: ${user.isActive}`)
+
+            // Check if user is active
+            if (!user.isActive) {
+              console.error(`[EMAIL-LINK] User account deactivated: ${user.email}`)
+              return null
+            }
+
+            if (user.emailVerified) {
+              console.log(`[EMAIL-LINK] ✅ User verified and active, logging in: ${user.email}`)
               return {
                 id: user.id,
                 email: user.email,
@@ -44,15 +59,27 @@ export const authOptions: NextAuthOptions = {
                 isSuperAdmin: false,
               }
             }
+            
+            console.error(`[EMAIL-LINK] User not verified yet: ${user.email}`)
             return null
           }
 
+          console.log(`[EMAIL-LINK] Token found for user: ${verificationToken.user.email}`)
+
           // Check if token is expired
           if (verificationToken.expiresAt < new Date()) {
+            console.error(`[EMAIL-LINK] Token expired for user: ${verificationToken.user.email}`)
+            return null
+          }
+
+          // Check if user is active
+          if (!verificationToken.user.isActive) {
+            console.error(`[EMAIL-LINK] User account deactivated: ${verificationToken.user.email}`)
             return null
           }
 
           // Verify the user
+          console.log(`[EMAIL-LINK] Verifying user and deleting token: ${verificationToken.user.email}`)
           const user = await prisma.$transaction(async (tx) => {
             const updatedUser = await tx.user.update({
               where: { id: verificationToken.userId },
@@ -70,6 +97,8 @@ export const authOptions: NextAuthOptions = {
 
             return updatedUser
           })
+
+          console.log(`[EMAIL-LINK] ✅ User verified successfully: ${user.email}`)
 
           return {
             id: user.id,

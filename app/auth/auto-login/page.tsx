@@ -15,30 +15,45 @@ function AutoLoginForm() {
     const userId = searchParams.get("userId")
     const callbackUrl = searchParams.get("callbackUrl") || "/dashboard"
 
+    console.log("[AUTO-LOGIN] Starting auto-login process")
+    console.log("[AUTO-LOGIN] Token:", token?.substring(0, 20) + "...")
+    console.log("[AUTO-LOGIN] UserId:", userId)
+    console.log("[AUTO-LOGIN] CallbackUrl:", callbackUrl)
+
     if (token && userId) {
       // Attempt auto-login using email-link provider
+      console.log("[AUTO-LOGIN] Calling signIn with email-link provider...")
       signIn("email-link", {
         token,
         userId,
-        redirect: true,
+        redirect: false, // Changed to false to see the result
         callbackUrl,
       })
         .then((result) => {
-          // If signIn returns an error, redirect to login page
-          // The email is already verified, so user can login manually
-          if (result?.error) {
-            console.error("Auto-login error:", result.error)
+          console.log("[AUTO-LOGIN] SignIn result:", result)
+          
+          // If signIn was successful, manually redirect
+          if (result?.ok && !result?.error) {
+            console.log("[AUTO-LOGIN] ✅ Success! Redirecting to:", callbackUrl)
+            router.push(callbackUrl)
+          } else {
+            // If signIn returns an error, redirect to login page
+            // The email is already verified, so user can login manually
+            console.error("[AUTO-LOGIN] ❌ SignIn failed with error:", result?.error)
+            console.error("[AUTO-LOGIN] Result status:", result?.status)
+            console.error("[AUTO-LOGIN] Result URL:", result?.url)
             // Email is already verified, so redirect to login with success message
-            router.push("/?verified=true")
+            router.push("/?verified=true&message=" + encodeURIComponent("Uw email is geverifieerd! U kunt nu inloggen."))
           }
         })
         .catch((error) => {
-          console.error("Auto-login error:", error)
+          console.error("[AUTO-LOGIN] ❌ Exception during signIn:", error)
           // Email is already verified, so redirect to login with success message
           // User can now login manually with their credentials
-          router.push("/?verified=true")
+          router.push("/?verified=true&message=" + encodeURIComponent("Uw email is geverifieerd! U kunt nu inloggen."))
         })
     } else {
+      console.error("[AUTO-LOGIN] ❌ Missing token or userId")
       router.push("/?error=invalid_token")
     }
   }, [searchParams, router])
