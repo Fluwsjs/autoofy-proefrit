@@ -115,7 +115,9 @@ export async function POST(request: NextRequest) {
     ).then((result) => {
       if (result.success) {
         console.log(`✅ [REGISTER] Verification email sent successfully to: ${validatedData.email}`)
-        console.log(`   Email ID: ${result.data?.id || 'N/A'}`)
+        // Resend returns {id}, SMTP returns {messageId}
+        const emailId = (result.data as any)?.id || (result.data as any)?.messageId || 'N/A'
+        console.log(`   Email ID: ${emailId}`)
       } else {
         console.error(`❌ [REGISTER] Failed to send verification email to: ${validatedData.email}`)
         console.error(`   Error: ${result.error}`)
