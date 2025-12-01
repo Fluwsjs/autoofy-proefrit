@@ -85,7 +85,7 @@ async function sendEmail({ to, subject, html, text, replyTo }: EmailOptions) {
         subject,
         html,
         text,
-        replyTo: replyTo || undefined,
+        reply_to: replyTo || undefined,
       })
 
       if (error) {
