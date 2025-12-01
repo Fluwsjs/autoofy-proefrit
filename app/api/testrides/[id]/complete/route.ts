@@ -59,6 +59,7 @@ export async function POST(
         tenant: {
           select: {
             companyName: true,
+            email: true,
           }
         }
       }
@@ -93,16 +94,19 @@ export async function POST(
       },
     })
 
-    // Send feedback email to customer
+    // Send feedback email to customer with tenant's email as Reply-To
     try {
       const companyName = testride.tenant?.companyName || "Uw autobedrijf"
+      const tenantEmail = testride.tenant?.email // Bedrijf/dealer hoofdaccount e-mail
+      
       await sendFeedbackEmail(
         testride.customerEmail,
         testride.customerName,
         companyName,
-        testride.carType
+        testride.carType,
+        tenantEmail
       )
-      console.log(`✅ Feedback email sent to ${testride.customerEmail}`)
+      console.log(`✅ Feedback email sent to ${testride.customerEmail} (Reply-To: ${tenantEmail})`)
     } catch (emailError) {
       // Log error but don't fail the request - testride is already completed
       console.error("⚠️ Error sending feedback email:", emailError)

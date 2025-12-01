@@ -43,22 +43,24 @@ interface EmailOptions {
   subject: string
   html: string
   text: string
+  replyTo?: string
 }
 
 /**
  * Send email using available provider (SMTP prefers over Resend)
  */
-async function sendEmail({ to, subject, html, text }: EmailOptions) {
+async function sendEmail({ to, subject, html, text, replyTo }: EmailOptions) {
   // Try SMTP first if configured
   if (transporter) {
     try {
-      console.log(`Sending email via SMTP to: ${to}`)
+      console.log(`Sending email via SMTP to: ${to}${replyTo ? ` (Reply-To: ${replyTo})` : ''}`)
       const info = await transporter.sendMail({
         from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
         to,
         subject,
         html,
         text,
+        replyTo: replyTo || undefined,
       })
       console.log("SMTP Email sent:", info.messageId)
       return { success: true, data: info }
@@ -76,13 +78,14 @@ async function sendEmail({ to, subject, html, text }: EmailOptions) {
   // Try Resend if SMTP not configured or failed
   if (resend) {
     try {
-      console.log(`Sending email via Resend to: ${to}`)
+      console.log(`Sending email via Resend to: ${to}${replyTo ? ` (Reply-To: ${replyTo})` : ''}`)
       const { data, error } = await resend.emails.send({
         from: `${FROM_NAME} <${FROM_EMAIL}>`,
         to: [to],
         subject,
         html,
         text,
+        replyTo: replyTo || undefined,
       })
 
       if (error) {
@@ -317,7 +320,8 @@ export async function sendFeedbackEmail(
   customerEmail: string, 
   customerName: string,
   companyName: string,
-  carType: string
+  carType: string,
+  dealerEmail?: string
 ) {
   const content = `
     <div style="color: #1f2937;">
@@ -355,9 +359,12 @@ export async function sendFeedbackEmail(
         </p>
       </div>
 
-      <p style="color: #4b5563; margin: 24px 0 0 0; font-size: 15px; line-height: 1.6;">
-        U kunt simpelweg op deze e-mail antwoorden. We kijken uit naar uw reactie!
-      </p>
+      <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; border-radius: 4px;">
+        <p style="color: #1e40af; font-size: 14px; margin: 0; line-height: 1.5;">
+          <strong>💬 Eenvoudig antwoorden:</strong> Klik gewoon op "Antwoorden" of "Reply" in uw e-mailprogramma. 
+          Uw bericht komt dan direct bij ons binnen!
+        </p>
+      </div>
 
       <p style="color: #4b5563; margin: 20px 0 0 0; font-size: 15px; line-height: 1.6;">
         Met vriendelijke groet,<br>
@@ -388,7 +395,7 @@ Wij horen graag uw ervaringen:
 5. Hoe beoordeelt u onze service?
    Een cijfer of korte feedback is al voldoende
 
-U kunt simpelweg op deze e-mail antwoorden. We kijken uit naar uw reactie!
+💬 Eenvoudig antwoorden: Klik gewoon op "Antwoorden" of "Reply" in uw e-mailprogramma. Uw bericht komt dan direct bij ons binnen!
 
 Met vriendelijke groet,
 ${companyName}`
@@ -398,5 +405,6 @@ ${companyName}`
     subject: `Uw mening over de proefrit - ${companyName}`,
     html,
     text: plainText,
+    replyTo: dealerEmail,
   })
 }
