@@ -58,18 +58,26 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await bcrypt.hash(validatedData.password, 10)
 
     // Update password and delete reset token in a transaction
+    // Also verify email since user has proven they own this email address
     await prisma.$transaction(async (tx) => {
-      // Update user password
+      // Update user password AND verify email (since they proved email ownership)
       await tx.user.update({
         where: { id: resetToken.userId },
         data: {
           password: hashedPassword,
+          emailVerified: true,  // Password reset proves email ownership
+          emailVerifiedAt: new Date(),
         },
       })
 
       // Delete reset token
       await tx.passwordResetToken.delete({
         where: { id: resetToken.id },
+      })
+      
+      // Also delete any pending verification tokens for this user
+      await tx.verificationToken.deleteMany({
+        where: { userId: resetToken.userId },
       })
     })
 
