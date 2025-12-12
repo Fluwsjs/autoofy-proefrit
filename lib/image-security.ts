@@ -25,10 +25,10 @@ export async function addWatermarkToImage(
 ): Promise<string> {
   const {
     text = "AUTOOFY - ALLEEN VERIFICATIE",
-    opacity = 0.3,
-    fontSize = 40,
+    opacity = 0.6,  // DIKKER: verhoogd van 0.3 naar 0.6
+    fontSize = 72,   // GROTER: verhoogd van 40 naar 72
     color = "#B22234",
-    angle = -45,
+    angle = -35,     // Iets minder scheef voor betere leesbaarheid
   } = options
 
   return new Promise((resolve, reject) => {
@@ -53,11 +53,11 @@ export async function addWatermarkToImage(
         // Draw original image
         ctx.drawImage(img, 0, 0)
 
-        // Prepare watermark
+        // Prepare watermark - DIKKER EN DUIDELIJKER
         ctx.save()
         ctx.globalAlpha = opacity
         ctx.fillStyle = color
-        ctx.font = `bold ${fontSize}px Arial`
+        ctx.font = `bold ${fontSize}px Arial, sans-serif`
         ctx.textAlign = "center"
         ctx.textBaseline = "middle"
 
@@ -65,34 +65,56 @@ export async function addWatermarkToImage(
         ctx.translate(canvas.width / 2, canvas.height / 2)
         ctx.rotate((angle * Math.PI) / 180)
 
-        // Draw multiple watermarks for better coverage
-        const spacing = 200
-        const rows = Math.ceil(canvas.height / spacing) + 2
-        const cols = Math.ceil(canvas.width / spacing) + 2
+        // Draw multiple watermarks for better coverage - DICHTER OP ELKAAR
+        const spacing = 180  // Kleiner voor meer dekking
+        const rows = Math.ceil(canvas.height / spacing) + 3
+        const cols = Math.ceil(canvas.width / spacing) + 3
 
         for (let row = -rows; row < rows; row++) {
           for (let col = -cols; col < cols; col++) {
+            // Teken eerst een witte outline/schaduw voor contrast
+            ctx.strokeStyle = "#FFFFFF"
+            ctx.lineWidth = 4
+            ctx.globalAlpha = opacity * 0.5
+            ctx.strokeText(text, col * spacing, row * spacing)
+            
+            // Dan de rode tekst
+            ctx.fillStyle = color
+            ctx.globalAlpha = opacity
             ctx.fillText(text, col * spacing, row * spacing)
           }
         }
 
         ctx.restore()
 
-        // Add border indicator (subtle red border)
+        // Add DIKKERE border indicator (prominent red border)
         ctx.strokeStyle = color
-        ctx.lineWidth = 8
-        ctx.globalAlpha = 0.6
+        ctx.lineWidth = 16  // Verhoogd van 8 naar 16
+        ctx.globalAlpha = 0.8  // Verhoogd van 0.6 naar 0.8
         ctx.strokeRect(0, 0, canvas.width, canvas.height)
 
-        // Add small timestamp in corner
-        ctx.globalAlpha = 0.5
+        // Add prominent "KOPIE" text in corners
+        ctx.globalAlpha = 0.7
         ctx.fillStyle = color
-        ctx.font = "bold 14px Arial"
+        ctx.font = "bold 28px Arial, sans-serif"
+        
+        // Linksboven
+        ctx.textAlign = "left"
+        ctx.fillText("KOPIE - NIET GELDIG ALS IDENTIFICATIE", 20, 35)
+        
+        // Rechtsonder
+        ctx.textAlign = "right"
+        ctx.fillText("KOPIE - NIET GELDIG ALS IDENTIFICATIE", canvas.width - 20, canvas.height - 45)
+
+        // Add timestamp - groter en duidelijker
+        ctx.globalAlpha = 0.7
+        ctx.fillStyle = color
+        ctx.font = "bold 20px Arial, sans-serif"
         ctx.textAlign = "right"
         ctx.fillText(
-          `Gearchiveerd: ${new Date().toLocaleDateString("nl-NL")}`,
-          canvas.width - 10,
-          canvas.height - 10
+          `Gearchiveerd: ${new Date().toLocaleDateString("nl-NL")} - Autoofy Proefrit`,
+          canvas.width - 20,
+          canvas.height - 20
         )
 
         // Convert canvas to base64

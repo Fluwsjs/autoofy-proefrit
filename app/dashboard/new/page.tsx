@@ -68,6 +68,21 @@ export default function NewTestridePage() {
       } catch (error) {
         console.error("Error parsing saved form data:", error)
       }
+    } else {
+      // No saved data - auto-fill current time and today's date
+      const now = new Date()
+      const currentTime = now.toLocaleTimeString('nl-NL', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      })
+      const currentDate = now.toISOString().split('T')[0] // YYYY-MM-DD format
+      
+      setFormData(prev => ({
+        ...prev,
+        startTime: currentTime,
+        date: currentDate
+      }))
     }
     
     if (savedSignatures) {
@@ -356,14 +371,125 @@ export default function NewTestridePage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <FormInput
-                label="Land van herkomst ID kaart of rijbewijs"
-                value={formData.idCountryOfOrigin}
-                onChange={(e) =>
-                  setFormData({ ...formData, idCountryOfOrigin: e.target.value })
-                }
-                placeholder="Bijv. Nederland, België, Duitsland"
-              />
+              <div className="space-y-2">
+                <Label htmlFor="idCountryOfOrigin">Land van herkomst ID kaart of rijbewijs</Label>
+                <select
+                  id="idCountryOfOrigin"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={formData.idCountryOfOrigin}
+                  onChange={(e) =>
+                    setFormData({ ...formData, idCountryOfOrigin: e.target.value })
+                  }
+                >
+                  <option value="">Selecteer land...</option>
+                  <optgroup label="Meest voorkomend">
+                    <option value="Nederland">Nederland</option>
+                    <option value="België">België</option>
+                    <option value="Duitsland">Duitsland</option>
+                    <option value="Polen">Polen</option>
+                    <option value="Roemenië">Roemenië</option>
+                    <option value="Bulgarije">Bulgarije</option>
+                  </optgroup>
+                  <optgroup label="West-Europa">
+                    <option value="Frankrijk">Frankrijk</option>
+                    <option value="Verenigd Koninkrijk">Verenigd Koninkrijk</option>
+                    <option value="Ierland">Ierland</option>
+                    <option value="Luxemburg">Luxemburg</option>
+                    <option value="Zwitserland">Zwitserland</option>
+                    <option value="Oostenrijk">Oostenrijk</option>
+                    <option value="Liechtenstein">Liechtenstein</option>
+                    <option value="Monaco">Monaco</option>
+                  </optgroup>
+                  <optgroup label="Noord-Europa">
+                    <option value="Denemarken">Denemarken</option>
+                    <option value="Zweden">Zweden</option>
+                    <option value="Noorwegen">Noorwegen</option>
+                    <option value="Finland">Finland</option>
+                    <option value="IJsland">IJsland</option>
+                    <option value="Estland">Estland</option>
+                    <option value="Letland">Letland</option>
+                    <option value="Litouwen">Litouwen</option>
+                  </optgroup>
+                  <optgroup label="Oost-Europa">
+                    <option value="Tsjechië">Tsjechië</option>
+                    <option value="Slowakije">Slowakije</option>
+                    <option value="Hongarije">Hongarije</option>
+                    <option value="Oekraïne">Oekraïne</option>
+                    <option value="Moldavië">Moldavië</option>
+                    <option value="Wit-Rusland">Wit-Rusland</option>
+                    <option value="Rusland">Rusland</option>
+                  </optgroup>
+                  <optgroup label="Zuid-Europa">
+                    <option value="Italië">Italië</option>
+                    <option value="Spanje">Spanje</option>
+                    <option value="Portugal">Portugal</option>
+                    <option value="Griekenland">Griekenland</option>
+                    <option value="Kroatië">Kroatië</option>
+                    <option value="Slovenië">Slovenië</option>
+                    <option value="Servië">Servië</option>
+                    <option value="Bosnië en Herzegovina">Bosnië en Herzegovina</option>
+                    <option value="Montenegro">Montenegro</option>
+                    <option value="Noord-Macedonië">Noord-Macedonië</option>
+                    <option value="Albanië">Albanië</option>
+                    <option value="Kosovo">Kosovo</option>
+                    <option value="Malta">Malta</option>
+                    <option value="Cyprus">Cyprus</option>
+                  </optgroup>
+                  <optgroup label="Turkije & Midden-Oosten">
+                    <option value="Turkije">Turkije</option>
+                    <option value="Marokko">Marokko</option>
+                    <option value="Tunesië">Tunesië</option>
+                    <option value="Algerije">Algerije</option>
+                    <option value="Egypte">Egypte</option>
+                    <option value="Libanon">Libanon</option>
+                    <option value="Syrië">Syrië</option>
+                    <option value="Irak">Irak</option>
+                    <option value="Iran">Iran</option>
+                    <option value="Saoedi-Arabië">Saoedi-Arabië</option>
+                    <option value="Verenigde Arabische Emiraten">Verenigde Arabische Emiraten</option>
+                  </optgroup>
+                  <optgroup label="Afrika">
+                    <option value="Zuid-Afrika">Zuid-Afrika</option>
+                    <option value="Nigeria">Nigeria</option>
+                    <option value="Ghana">Ghana</option>
+                    <option value="Senegal">Senegal</option>
+                    <option value="Kameroen">Kameroen</option>
+                    <option value="Kenia">Kenia</option>
+                    <option value="Ethiopië">Ethiopië</option>
+                    <option value="Eritrea">Eritrea</option>
+                    <option value="Somalië">Somalië</option>
+                  </optgroup>
+                  <optgroup label="Azië">
+                    <option value="China">China</option>
+                    <option value="India">India</option>
+                    <option value="Pakistan">Pakistan</option>
+                    <option value="Bangladesh">Bangladesh</option>
+                    <option value="Indonesië">Indonesië</option>
+                    <option value="Thailand">Thailand</option>
+                    <option value="Vietnam">Vietnam</option>
+                    <option value="Filipijnen">Filipijnen</option>
+                    <option value="Japan">Japan</option>
+                    <option value="Zuid-Korea">Zuid-Korea</option>
+                    <option value="Afghanistan">Afghanistan</option>
+                  </optgroup>
+                  <optgroup label="Amerika">
+                    <option value="Verenigde Staten">Verenigde Staten</option>
+                    <option value="Canada">Canada</option>
+                    <option value="Mexico">Mexico</option>
+                    <option value="Brazilië">Brazilië</option>
+                    <option value="Argentinië">Argentinië</option>
+                    <option value="Colombia">Colombia</option>
+                    <option value="Suriname">Suriname</option>
+                    <option value="Curaçao">Curaçao</option>
+                    <option value="Aruba">Aruba</option>
+                  </optgroup>
+                  <optgroup label="Overig">
+                    <option value="Australië">Australië</option>
+                    <option value="Nieuw-Zeeland">Nieuw-Zeeland</option>
+                    <option value="Anders">Anders</option>
+                  </optgroup>
+                </select>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="dealerPlate">Handelaarskenteken</Label>
                 <select

@@ -67,20 +67,41 @@ function DashboardContent() {
   
   const checkOnboardingStatus = async () => {
     try {
-      // Check if wizard has been shown before
-      const wizardShown = localStorage.getItem('welcomeWizardShown')
-      
-      let isComplete = false
+      // Check if wizard has been dismissed before - if so, NEVER show again
+      const wizardDismissed = localStorage.getItem('welcomeWizardDismissed')
+      if (wizardDismissed === 'true') {
+        // User has dismissed the wizard before, don't show it again
+        // But still fetch the data for other purposes
+        try {
+          const companyResponse = await fetch("/api/company-info")
+          if (companyResponse.ok) {
+            const companyData = await companyResponse.json()
+            setCompanyInfoComplete(!!(companyData.companyName && companyData.companyAddress))
+          }
+        } catch (err) {
+          console.error("Error fetching company info:", err)
+        }
+        
+        try {
+          const platesResponse = await fetch("/api/dealer-plates")
+          if (platesResponse.ok) {
+            const platesResult = await platesResponse.json()
+            const plates = platesResult.data || platesResult
+            setHasDealerPlates(plates.length > 0)
+          }
+        } catch (err) {
+          console.error("Error fetching dealer plates:", err)
+        }
+        return // Don't show wizard
+      }
       
       // Check company info
       try {
         const companyResponse = await fetch("/api/company-info")
         if (companyResponse.ok) {
           const companyData = await companyResponse.json()
-          isComplete = !!(companyData.companyName && companyData.companyAddress)
-          setCompanyInfoComplete(isComplete)
+          setCompanyInfoComplete(!!(companyData.companyName && companyData.companyAddress))
         } else {
-          // If 404 or error, company info is not complete
           setCompanyInfoComplete(false)
         }
       } catch (err) {
@@ -107,19 +128,18 @@ function DashboardContent() {
       if (openWizard === "true") {
         setWizardStep(stepParam ? parseInt(stepParam) : 0)
         setShowWelcomeWizard(true)
-        // Remove query param from URL
         router.replace("/dashboard")
         return
       }
       
-      // Show wizard if not shown before OR if company info is not complete
-      // This ensures new users always see the wizard
-      if (!wizardShown || !isComplete) {
+      // Show wizard only if never shown before (first time users)
+      const wizardShown = localStorage.getItem('welcomeWizardShown')
+      if (!wizardShown) {
         setShowWelcomeWizard(true)
       }
     } catch (error) {
       console.error("Error checking onboarding status:", error)
-      // On error, show wizard for safety (better to show than not show)
+      // On error, only show wizard if never shown before
       const wizardShown = localStorage.getItem('welcomeWizardShown')
       if (!wizardShown) {
         setShowWelcomeWizard(true)
@@ -130,6 +150,7 @@ function DashboardContent() {
   const handleCloseWizard = () => {
     setShowWelcomeWizard(false)
     localStorage.setItem('welcomeWizardShown', 'true')
+    localStorage.setItem('welcomeWizardDismissed', 'true') // Permanent dismissal - never show again
   }
 
   useEffect(() => {
