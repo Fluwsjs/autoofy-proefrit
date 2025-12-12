@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button"
 import { TermsAndConditions } from "@/components/TermsAndConditions"
 import { SellerSignature } from "@/components/SellerSignature"
 import { CustomerSignature } from "@/components/CustomerSignature"
-import { FormInput } from "@/components/FormInput"
 import { Label } from "@/components/ui/label"
 import { formatDate, formatTime } from "@/lib/utils"
 import { 
@@ -373,14 +372,14 @@ export default function CompleteTestridePage() {
                       <Calendar className="h-4 w-4 text-autoofy-red" />
                       Exacte einddatum *
                     </Label>
-                    <FormInput
+                    <input
                       type="date"
                       value={completionData.actualEndDate}
                       onChange={(e) =>
                         setCompletionData({ ...completionData, actualEndDate: e.target.value })
                       }
                       required
-                      className="h-12 text-base"
+                      className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                   <div className="space-y-2">
@@ -388,14 +387,14 @@ export default function CompleteTestridePage() {
                       <Clock className="h-4 w-4 text-autoofy-red" />
                       Exacte eindtijd *
                     </Label>
-                    <FormInput
+                    <input
                       type="time"
                       value={completionData.actualEndTime}
                       onChange={(e) =>
                         setCompletionData({ ...completionData, actualEndTime: e.target.value })
                       }
                       required
-                      className="h-12 text-base"
+                      className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                   <div className="space-y-2">
@@ -403,7 +402,7 @@ export default function CompleteTestridePage() {
                       <Gauge className="h-4 w-4 text-autoofy-red" />
                       Eindkilometerstand *
                     </Label>
-                    <FormInput
+                    <input
                       type="number"
                       value={completionData.actualEndKm}
                       onChange={(e) =>
@@ -412,7 +411,7 @@ export default function CompleteTestridePage() {
                       required
                       min={testride.startKm}
                       placeholder={`Min. ${testride.startKm}`}
-                      className="h-12 text-base"
+                      className="flex h-12 w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     />
                   </div>
                 </div>
