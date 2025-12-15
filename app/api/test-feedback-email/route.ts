@@ -2,20 +2,19 @@ import { NextRequest, NextResponse } from "next/server"
 import { sendFeedbackEmail } from "@/lib/email"
 
 /**
- * Test endpoint for feedback email with Reply-To
- * Usage: /api/test-feedback-email?to=customer@example.com&replyTo=dealer@example.com
+ * Test endpoint for feedback email with form link
+ * Usage: /api/test-feedback-email?to=customer@example.com
  */
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams
     const to = searchParams.get("to")
-    const replyTo = searchParams.get("replyTo")
 
     if (!to) {
       return NextResponse.json(
         { 
           error: "Missing 'to' parameter",
-          usage: "/api/test-feedback-email?to=customer@example.com&replyTo=dealer@example.com"
+          usage: "/api/test-feedback-email?to=customer@example.com"
         },
         { status: 400 }
       )
@@ -23,22 +22,25 @@ export async function GET(request: NextRequest) {
 
     console.log(`📧 Testing feedback email...`)
     console.log(`   To: ${to}`)
-    console.log(`   Reply-To: ${replyTo || '(not set)'}`)
+
+    // Create a test feedback URL
+    const baseUrl = process.env.NEXTAUTH_URL || "https://proefrit-autoofy.nl"
+    const testFeedbackUrl = `${baseUrl}/feedback/test-token-12345`
 
     const result = await sendFeedbackEmail(
       to,
       "Test Klant",
       "Test Autobedrijf BV",
       "BMW 3 Serie",
-      replyTo || undefined
+      testFeedbackUrl
     )
 
     if (result.success) {
       return NextResponse.json({
         success: true,
         message: `✅ Test feedback email verzonden naar ${to}`,
-        replyTo: replyTo || "niet ingesteld",
-        note: "Controleer je inbox en test of de Reply-To functionaliteit werkt door op de email te antwoorden."
+        feedbackUrl: testFeedbackUrl,
+        note: "Controleer je inbox. Let op: de test-link in de email werkt niet (alleen voor test doeleinden)."
       })
     } else {
       return NextResponse.json(
@@ -62,4 +64,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-

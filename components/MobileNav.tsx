@@ -4,7 +4,7 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { 
   Menu, X, Home, Plus, CreditCard, Building2, 
-  User, Settings, LogOut, Sparkles 
+  User, Settings, LogOut, Sparkles, Users, MessageSquare
 } from "lucide-react"
 import Link from "next/link"
 import { signOut, useSession } from "next-auth/react"
@@ -22,6 +22,8 @@ export function MobileNav() {
     { href: "/dashboard", label: "Dashboard", icon: Home },
     { href: "/dashboard/new", label: "Nieuwe Proefrit", icon: Plus },
     { href: "/dashboard/dealer-plates", label: "Handelaarskentekens", icon: CreditCard },
+    { href: "/dashboard/sellers", label: "Verkopers", icon: Users },
+    { href: "/dashboard/feedback", label: "Klant Feedback", icon: MessageSquare },
     { href: "/dashboard/company-info", label: "Bedrijfsgegevens", icon: Building2 },
     { href: "/dashboard/profile", label: "Mijn Profiel", icon: User },
   ]

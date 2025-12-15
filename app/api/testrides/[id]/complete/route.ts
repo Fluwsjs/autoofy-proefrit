@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma"
 import { z } from "zod"
 import { validateSignatureImage } from "@/lib/file-validation"
 import { sendFeedbackEmail } from "@/lib/email"
+import crypto from "crypto"
 
 const completeSchema = z.object({
   completionSignatureUrl: z.string().min(1, "Bedrijfshandtekening is verplicht"),
@@ -102,16 +103,31 @@ export async function POST(
     if (validatedData.sendFeedbackEmail) {
       try {
         const companyName = testride.tenant?.companyName || "Uw autobedrijf"
-        const tenantEmail = testride.tenant?.email // Bedrijf/dealer hoofdaccount e-mail
+        
+        // Generate a unique feedback token
+        const feedbackToken = crypto.randomBytes(32).toString("hex")
+        
+        // Create feedback token in database (expires in 30 days)
+        await prisma.feedbackToken.create({
+          data: {
+            token: feedbackToken,
+            testrideId: testride.id,
+            expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days
+          },
+        })
+        
+        // Build feedback URL
+        const baseUrl = process.env.NEXTAUTH_URL || "https://proefrit-autoofy.nl"
+        const feedbackUrl = `${baseUrl}/feedback/${feedbackToken}`
         
         await sendFeedbackEmail(
           testride.customerEmail,
           testride.customerName,
           companyName,
           testride.carType,
-          tenantEmail
+          feedbackUrl
         )
-        console.log(`✅ Feedback email sent to ${testride.customerEmail} (Reply-To: ${tenantEmail})`)
+        console.log(`✅ Feedback email sent to ${testride.customerEmail} with form link`)
       } catch (emailError) {
         // Log error but don't fail the request - testride is already completed
         console.error("⚠️ Error sending feedback email:", emailError)

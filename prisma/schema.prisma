@@ -107,6 +107,7 @@ model Testride {
   endKm               Int?
   notes               String?
   createdAt           DateTime  @default(now())
+  feedback            Feedback?
 }
 
 enum Role {
@@ -143,5 +144,34 @@ model PasswordResetToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   createdAt DateTime @default(now())
+}
+
+model Feedback {
+  id                  String   @id @default(cuid())
+  testrideId          String   @unique
+  testride            Testride @relation(fields: [testrideId], references: [id], onDelete: Cascade)
+  
+  // Ratings (1-5 sterren)
+  overallRating       Int      // Algehele ervaring
+  serviceRating       Int      // Service van verkoper
+  vehicleRating       Int      // Staat van het voertuig
+  infoRating          Int      // Informatie voorziening
+  
+  // Open vragen
+  bestPart            String?  // Wat vond u het beste?
+  improvements        String?  // Wat kunnen we verbeteren?
+  wouldRecommend      Boolean  // Zou u ons aanbevelen?
+  additionalComments  String?  // Overige opmerkingen
+  
+  createdAt           DateTime @default(now())
+}
+
+model FeedbackToken {
+  id          String   @id @default(cuid())
+  token       String   @unique
+  testrideId  String   @unique
+  expiresAt   DateTime
+  usedAt      DateTime? // Null als nog niet gebruikt
+  createdAt   DateTime @default(now())
 }
 
