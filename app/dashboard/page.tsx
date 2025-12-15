@@ -8,7 +8,7 @@ import { SearchAndFilter } from "@/components/SearchAndFilter"
 import { useToast } from "@/components/ui/toast"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { Plus, TrendingUp, Calendar, Car, Clock, CheckCircle, AlertCircle, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Plus, TrendingUp, Calendar, Car, Clock, CheckCircle, AlertCircle, ArrowUpRight, ArrowDownRight, MessageSquare } from "lucide-react"
 import Link from "next/link"
 import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/SkeletonLoader"
 import { AnalyticsChart } from "@/components/AnalyticsChart"
@@ -44,6 +44,7 @@ function DashboardContent() {
   const [wizardStep, setWizardStep] = useState(0)
   const [companyInfoComplete, setCompanyInfoComplete] = useState(false)
   const [hasDealerPlates, setHasDealerPlates] = useState(false)
+  const [feedbackStats, setFeedbackStats] = useState({ total: 0, hotLeads: 0 })
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -55,8 +56,27 @@ function DashboardContent() {
     if (session) {
       fetchTestrides()
       checkOnboardingStatus()
+      fetchFeedbackStats()
     }
   }, [session])
+  
+  const fetchFeedbackStats = async () => {
+    try {
+      const response = await fetch("/api/feedback")
+      if (response.ok) {
+        const data = await response.json()
+        const hotLeads = data.feedbacks?.filter((f: any) => 
+          f.purchaseLikelihood === "zeer_groot" || f.purchaseLikelihood === "groot"
+        ).length || 0
+        setFeedbackStats({
+          total: data.stats?.total || 0,
+          hotLeads
+        })
+      }
+    } catch (error) {
+      console.error("Error fetching feedback stats:", error)
+    }
+  }
   
   // Re-check onboarding status when wizard is opened
   useEffect(() => {
@@ -368,7 +388,7 @@ function DashboardContent() {
       </div>
 
       {/* Statistics Cards - Compact Design */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <Card className="bg-blue-50 border-blue-100 hover:shadow-md transition-shadow duration-150">
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-2">
@@ -437,6 +457,28 @@ function DashboardContent() {
             </div>
           </CardContent>
         </Card>
+
+        <Link href="/dashboard/feedback" className="block">
+          <Card className="bg-amber-50 border-amber-100 hover:shadow-md transition-shadow duration-150 h-full cursor-pointer hover:bg-amber-100/50">
+            <CardContent className="p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div className="p-2 bg-amber-500 rounded-lg">
+                  <MessageSquare className="h-4 w-4 text-white" />
+                </div>
+                {feedbackStats.hotLeads > 0 && (
+                  <span className="px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full">
+                    🔥 {feedbackStats.hotLeads}
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-slate-900">{feedbackStats.total}</p>
+                <p className="text-sm text-slate-600 mt-0.5">Klant feedback</p>
+                <p className="text-xs text-amber-600 mt-1 font-medium">Bekijk →</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Quick Actions for Today */}
