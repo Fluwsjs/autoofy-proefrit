@@ -113,8 +113,9 @@ model Testride {
 }
 
 enum Role {
-  ADMIN
-  STAFF
+  ADMIN   // Tenant beheerder (eigenaar van het account)
+  DEALER  // Dealer/autobedrijf gebruiker
+  STAFF   // Medewerker
 }
 
 enum TestrideStatus {

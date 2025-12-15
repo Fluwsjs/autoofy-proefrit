@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
           name: validatedData.userName,
           email: validatedData.email,
           password: hashedPassword,
-          role: "ADMIN",
+          role: "DEALER", // Dealer rol voor nieuwe registraties
           tenantId: tenant.id,
           emailVerified: false, // Requires email verification
           emailVerifiedAt: null,
