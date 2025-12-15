@@ -17,6 +17,7 @@ interface User {
   email: string
   role: string
   emailVerified: boolean
+  isApproved: boolean
   isActive: boolean
   tenant: {
     id: string
@@ -84,11 +85,12 @@ export default function AdminUsersPage() {
       if (response.ok) {
         // Update local state
         setUsers(users.map(u => 
-          u.id === userId ? { ...u, emailVerified: true } : u
+          u.id === userId ? { ...u, isApproved: true } : u
         ))
-        showToast("Gebruiker succesvol goedgekeurd", "success")
+        showToast("Gebruiker succesvol goedgekeurd en e-mail verstuurd", "success")
       } else {
-        showToast("Fout bij goedkeuren gebruiker", "error")
+        const data = await response.json()
+        showToast(data.error || "Fout bij goedkeuren gebruiker", "error")
       }
     } catch (error) {
       showToast("Er is een fout opgetreden", "error")
@@ -222,6 +224,27 @@ export default function AdminUsersPage() {
           </Link>
         </div>
 
+        {/* Pending Users Alert */}
+        {users.filter(u => u.emailVerified && !u.isApproved).length > 0 && (
+          <Card className="border-2 border-amber-300 bg-amber-50 shadow-lg">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-200 rounded-full">
+                  <span className="text-2xl">⏳</span>
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-amber-800 text-lg">
+                    {users.filter(u => u.emailVerified && !u.isApproved).length} gebruiker(s) wachten op goedkeuring
+                  </h3>
+                  <p className="text-amber-700 text-sm">
+                    Deze gebruikers hebben hun e-mail geverifieerd en wachten op uw goedkeuring om te kunnen inloggen.
+                  </p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <Card className="border-0 shadow-lg">
           <CardHeader className="bg-autoofy-dark border-b">
             <CardTitle className="text-xl font-bold text-white">
@@ -267,27 +290,38 @@ export default function AdminUsersPage() {
                           {/* Email Verified Status */}
                           {user.emailVerified ? (
                             <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                              ✓ Geverifieerd
+                              ✓ E-mail geverifieerd
                             </span>
                           ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 border border-yellow-200">
+                              ⏳ Wacht op verificatie
+                            </span>
+                          )}
+                          
+                          {/* Approval Status */}
+                          {user.isApproved ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
+                              ✓ Goedgekeurd
+                            </span>
+                          ) : user.emailVerified ? (
                             <Button 
                               size="sm" 
                               variant="outline" 
-                              className="h-7 text-xs bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100 hover:text-yellow-800"
+                              className="h-7 text-xs bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100 hover:text-amber-800"
                               onClick={() => handleApproveUser(user.id)}
                               disabled={approvingUserId === user.id}
                             >
-                              {approvingUserId === user.id ? "Bezig..." : "Goedkeuren"}
+                              {approvingUserId === user.id ? "Bezig..." : "⏳ Goedkeuren"}
                             </Button>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600 border border-gray-200">
+                              — Wacht op e-mail
+                            </span>
                           )}
                           
                           {/* Account Active Status */}
-                          {user.isActive ? (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                              ✓ Actief
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
+                          {!user.isActive && (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 border border-red-200">
                               ✕ Gedeactiveerd
                             </span>
                           )}

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { authOptions } from "@/lib/auth"
 import { getServerSession } from "next-auth"
+import { sendApprovalEmail } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -36,25 +37,53 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Update user verification status
-    await prisma.user.update({
+    // Check if user has verified their email first
+    if (!user.emailVerified) {
+      return NextResponse.json(
+        { error: "Gebruiker moet eerst hun e-mail verifiëren voordat ze goedgekeurd kunnen worden" },
+        { status: 400 }
+      )
+    }
+
+    // Check if already approved
+    if (user.isApproved) {
+      return NextResponse.json(
+        { error: "Gebruiker is al goedgekeurd" },
+        { status: 400 }
+      )
+    }
+
+    // Update user approval status
+    const updatedUser = await prisma.user.update({
       where: { id: userId },
       data: {
-        emailVerified: true,
-        emailVerifiedAt: new Date(),
+        isApproved: true,
+        approvedAt: new Date(),
       },
     })
 
-    // Delete any pending verification tokens for this user
-    await prisma.verificationToken.deleteMany({
-      where: { userId },
-    })
+    // Send approval email to user
+    try {
+      await sendApprovalEmail(user.email, user.name)
+      console.log(`✅ Approval email sent to ${user.email}`)
+    } catch (emailError) {
+      console.error(`❌ Failed to send approval email to ${user.email}:`, emailError)
+      // Don't fail the approval if email fails - user is still approved
+    }
 
-    return NextResponse.json({ message: "User verified successfully" })
+    return NextResponse.json({ 
+      message: "Gebruiker succesvol goedgekeurd",
+      user: {
+        id: updatedUser.id,
+        email: updatedUser.email,
+        name: updatedUser.name,
+        isApproved: updatedUser.isApproved,
+      }
+    })
   } catch (error) {
-    console.error("Error verifying user:", error)
+    console.error("Error approving user:", error)
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Fout bij goedkeuren gebruiker" },
       { status: 500 }
     )
   }

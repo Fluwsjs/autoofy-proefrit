@@ -48,7 +48,13 @@ export const authOptions: NextAuthOptions = {
             }
 
             if (user.emailVerified) {
-              console.log(`[EMAIL-LINK] ✅ User verified and active, logging in: ${user.email}`)
+              // Check if account is approved
+              if (!user.isApproved) {
+                console.error(`[EMAIL-LINK] Account not approved yet: ${user.email}`)
+                return null
+              }
+              
+              console.log(`[EMAIL-LINK] ✅ User verified, approved and active, logging in: ${user.email}`)
               return {
                 id: user.id,
                 email: user.email,
@@ -99,6 +105,13 @@ export const authOptions: NextAuthOptions = {
           })
 
           console.log(`[EMAIL-LINK] ✅ User verified successfully: ${user.email}`)
+
+          // Check if account is approved - don't auto-login if not approved
+          if (!user.isApproved) {
+            console.log(`[EMAIL-LINK] User verified but not approved yet: ${user.email}`)
+            // Return null to prevent auto-login, user will see the approval pending message
+            return null
+          }
 
           return {
             id: user.id,
@@ -187,6 +200,12 @@ export const authOptions: NextAuthOptions = {
           if (!user.emailVerified) {
             console.error(`[AUTH] Email not verified for: ${normalizedEmail}`)
             throw new Error("Uw e-mailadres is nog niet geverifieerd. Controleer uw inbox voor de verificatielink.")
+          }
+
+          // Check if account is approved by admin
+          if (!user.isApproved) {
+            console.error(`[AUTH] Account not approved for: ${normalizedEmail}`)
+            throw new Error("Uw aanvraag moet nog worden goedgekeurd. U ontvangt een e-mail zodra uw account is geactiveerd.")
           }
 
           console.log(`[AUTH] Verifying password for: ${normalizedEmail}`)

@@ -5,14 +5,14 @@ import { useSearchParams, useRouter } from "next/navigation"
 import { signIn } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { CheckCircle, XCircle, AlertCircle, Mail, RefreshCw } from "lucide-react"
+import { CheckCircle, XCircle, AlertCircle, Mail, RefreshCw, Clock } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 
 function VerifyEmailForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
-  const [status, setStatus] = useState<"loading" | "success" | "error" | null>(null)
+  const [status, setStatus] = useState<"loading" | "success" | "error" | "pending_approval" | null>(null)
   const [errorType, setErrorType] = useState<string | null>(null)
   const [autoLoginAttempted, setAutoLoginAttempted] = useState(false)
   const [resendLoading, setResendLoading] = useState(false)
@@ -23,13 +23,16 @@ function VerifyEmailForm() {
   useEffect(() => {
     const error = searchParams.get("error")
     const success = searchParams.get("success")
+    const statusParam = searchParams.get("status")
     const emailParam = searchParams.get("email")
 
     if (emailParam) {
       setEmail(emailParam)
     }
 
-    if (success === "true") {
+    if (statusParam === "pending_approval") {
+      setStatus("pending_approval")
+    } else if (success === "true") {
       setStatus("success")
       
       // Redirect to login page after 2 seconds with success message and email pre-filled
@@ -113,6 +116,38 @@ function VerifyEmailForm() {
           </CardTitle>
         </CardHeader>
         <CardContent className="pt-8">
+          {status === "pending_approval" && (
+            <div className="text-center space-y-6">
+              <div className="flex justify-center">
+                <div className="p-4 rounded-full bg-amber-100">
+                  <Clock className="h-12 w-12 text-amber-600" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-2xl font-bold text-autoofy-dark">
+                  E-mail geverifieerd!
+                </h2>
+                <p className="text-muted-foreground">
+                  Uw e-mailadres is succesvol geverifieerd.
+                </p>
+              </div>
+              <div className="p-4 bg-amber-50 border border-amber-200 rounded-lg space-y-2">
+                <p className="text-amber-800 font-semibold">
+                  ⏳ Aanvraag in behandeling
+                </p>
+                <p className="text-sm text-amber-700">
+                  Uw account moet nog worden goedgekeurd door een beheerder. 
+                  U ontvangt een e-mail zodra uw account is geactiveerd.
+                </p>
+              </div>
+              <Link href="/">
+                <Button variant="outline" className="w-full">
+                  Terug naar inloggen
+                </Button>
+              </Link>
+            </div>
+          )}
+
           {status === "success" && (
             <div className="text-center space-y-6">
               <div className="flex justify-center">

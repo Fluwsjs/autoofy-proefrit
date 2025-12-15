@@ -67,8 +67,22 @@ export async function GET(request: NextRequest) {
     // Log successful verification
     console.log(`✅ Email verified for user: ${user.email} (ID: ${user.id})`)
 
-    // Redirect to auto-login page that will use the EmailLink provider
     const baseUrl = new URL(request.url)
+
+    // Check if user is approved
+    if (!user.isApproved) {
+      console.log(`⏳ User verified but pending approval: ${user.email}`)
+      // Delete the verification token since email is verified
+      await prisma.verificationToken.delete({
+        where: { id: verificationToken.id },
+      })
+      // Redirect to pending approval page
+      return NextResponse.redirect(
+        new URL("/auth/verify-email?status=pending_approval", baseUrl.origin)
+      )
+    }
+
+    // Redirect to auto-login page that will use the EmailLink provider
     const redirectUrl = new URL("/auth/auto-login", baseUrl.origin)
     redirectUrl.searchParams.set("token", verificationToken.token)
     redirectUrl.searchParams.set("userId", user.id)

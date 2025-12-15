@@ -404,3 +404,152 @@ ${companyName}`
     text: plainText,
   })
 }
+
+/**
+ * Send notification to admin when a new user registers
+ */
+export async function sendNewUserNotificationEmail(
+  adminEmail: string,
+  userName: string,
+  userEmail: string,
+  companyName: string
+) {
+  const adminUrl = `${BASE_URL}/admin/users`
+  
+  const content = `
+    <div style="color: #1f2937;">
+      <h2 style="color: #1D3557; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">
+        🆕 Nieuwe gebruiker geregistreerd
+      </h2>
+      <p style="color: #4b5563; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
+        Er heeft zich een nieuwe gebruiker geregistreerd die wacht op goedkeuring.
+      </p>
+      
+      <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 12px; padding: 24px; margin: 24px 0;">
+        <h3 style="color: #1D3557; margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">
+          📋 Gebruikersgegevens
+        </h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Naam:</td>
+            <td style="padding: 8px 0; color: #1f2937; font-size: 14px; font-weight: 600;">${userName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">E-mail:</td>
+            <td style="padding: 8px 0; color: #1f2937; font-size: 14px; font-weight: 600;">${userEmail}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px 0; color: #6b7280; font-size: 14px;">Bedrijf:</td>
+            <td style="padding: 8px 0; color: #1f2937; font-size: 14px; font-weight: 600;">${companyName}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${adminUrl}" 
+           style="display: inline-block; background-color: #B22234; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(178, 34, 52, 0.3);">
+          👤 Bekijk en keur goed
+        </a>
+      </div>
+
+      <div style="background-color: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 24px 0; border-radius: 4px;">
+        <p style="color: #92400e; font-size: 14px; margin: 0; line-height: 1.5;">
+          <strong>⚠️ Actie vereist:</strong> Deze gebruiker kan pas inloggen nadat u het account heeft goedgekeurd.
+        </p>
+      </div>
+    </div>
+  `
+
+  const html = getEmailTemplate(content, "Nieuwe gebruiker wacht op goedkeuring")
+  const plainText = `Nieuwe gebruiker geregistreerd
+
+Er heeft zich een nieuwe gebruiker geregistreerd die wacht op goedkeuring.
+
+Gebruikersgegevens:
+- Naam: ${userName}
+- E-mail: ${userEmail}
+- Bedrijf: ${companyName}
+
+Ga naar het admin dashboard om het account goed te keuren:
+${adminUrl}
+
+Deze gebruiker kan pas inloggen nadat u het account heeft goedgekeurd.`
+
+  return sendEmail({
+    to: adminEmail,
+    subject: `🆕 Nieuwe gebruiker: ${userName} (${companyName}) - Goedkeuring vereist`,
+    html,
+    text: plainText,
+  })
+}
+
+/**
+ * Send approval email to user when their account is approved
+ */
+export async function sendApprovalEmail(
+  userEmail: string,
+  userName: string
+) {
+  const loginUrl = BASE_URL
+  
+  const content = `
+    <div style="color: #1f2937;">
+      <h2 style="color: #1D3557; margin: 0 0 16px 0; font-size: 24px; font-weight: 600;">
+        🎉 Uw account is goedgekeurd!
+      </h2>
+      <p style="color: #4b5563; margin: 0 0 20px 0; font-size: 16px; line-height: 1.6;">
+        Goed nieuws, ${userName}! Uw account bij Autoofy is goedgekeurd en u kunt nu inloggen.
+      </p>
+      
+      <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 24px; margin: 24px 0; text-align: center;">
+        <div style="font-size: 48px; margin-bottom: 16px;">✅</div>
+        <h3 style="color: #166534; margin: 0 0 8px 0; font-size: 20px; font-weight: 600;">
+          Account geactiveerd
+        </h3>
+        <p style="color: #15803d; margin: 0; font-size: 14px;">
+          U heeft nu volledige toegang tot alle functies
+        </p>
+      </div>
+
+      <div style="text-align: center; margin: 32px 0;">
+        <a href="${loginUrl}" 
+           style="display: inline-block; background-color: #B22234; color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(178, 34, 52, 0.3);">
+          🚀 Nu inloggen
+        </a>
+      </div>
+
+      <div style="background-color: #eff6ff; border-left: 4px solid #3b82f6; padding: 16px; margin: 24px 0; border-radius: 4px;">
+        <p style="color: #1e40af; font-size: 14px; margin: 0; line-height: 1.5;">
+          <strong>💡 Tip:</strong> Start met het invullen van uw bedrijfsgegevens zodat deze op alle proefrit formulieren verschijnen.
+        </p>
+      </div>
+
+      <p style="color: #4b5563; margin: 20px 0 0 0; font-size: 15px; line-height: 1.6;">
+        Met vriendelijke groet,<br>
+        <strong style="color: #1D3557;">Het Autoofy Team</strong>
+      </p>
+    </div>
+  `
+
+  const html = getEmailTemplate(content, "Account goedgekeurd!")
+  const plainText = `Uw account is goedgekeurd!
+
+Goed nieuws, ${userName}! Uw account bij Autoofy is goedgekeurd en u kunt nu inloggen.
+
+✅ Account geactiveerd
+U heeft nu volledige toegang tot alle functies.
+
+Log nu in op: ${loginUrl}
+
+Tip: Start met het invullen van uw bedrijfsgegevens zodat deze op alle proefrit formulieren verschijnen.
+
+Met vriendelijke groet,
+Het Autoofy Team`
+
+  return sendEmail({
+    to: userEmail,
+    subject: `🎉 Uw Autoofy account is goedgekeurd!`,
+    html,
+    text: plainText,
+  })
+}

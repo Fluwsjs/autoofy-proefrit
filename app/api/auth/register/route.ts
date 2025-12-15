@@ -6,7 +6,7 @@ import { registerRateLimit, getRateLimitHeaders } from "@/lib/rate-limit"
 import { validatePasswordStrength } from "@/lib/password-validation"
 import { sanitizeString, sanitizeEmail } from "@/lib/sanitize"
 import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
-import { sendVerificationEmail } from "@/lib/email"
+import { sendVerificationEmail, sendNewUserNotificationEmail } from "@/lib/email"
 
 const registerSchema = z.object({
   tenantName: z.string().min(1, "Bedrijfsnaam is verplicht").trim(),
@@ -130,6 +130,24 @@ export async function POST(request: NextRequest) {
       console.error(`❌ [REGISTER] Exception sending verification email to: ${validatedData.email}`)
       console.error("   Error details:", emailError)
       // Don't fail registration if email fails - user can resend later
+    }
+
+    // Send notification to admin about new user registration
+    try {
+      const adminEmail = "support@proefrit-autoofy.nl"
+      console.log(`📧 [REGISTER] Sending admin notification to: ${adminEmail}`)
+      
+      await sendNewUserNotificationEmail(
+        adminEmail,
+        validatedData.userName,
+        validatedData.email,
+        validatedData.tenantName
+      )
+      
+      console.log(`✅ [REGISTER] Admin notification sent successfully`)
+    } catch (adminEmailError) {
+      console.error(`❌ [REGISTER] Failed to send admin notification:`, adminEmailError)
+      // Don't fail registration if admin email fails
     }
 
     // Get rate limit headers
