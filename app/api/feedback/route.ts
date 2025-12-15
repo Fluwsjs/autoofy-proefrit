@@ -43,21 +43,34 @@ export async function GET(request: NextRequest) {
       },
     })
 
-    // Calculate average ratings
+    // Calculate stats
     const totalFeedbacks = feedbacks.length
-    const averages = totalFeedbacks > 0 ? {
-      overall: feedbacks.reduce((sum, f) => sum + f.overallRating, 0) / totalFeedbacks,
-      service: feedbacks.reduce((sum, f) => sum + f.serviceRating, 0) / totalFeedbacks,
-      vehicle: feedbacks.reduce((sum, f) => sum + f.vehicleRating, 0) / totalFeedbacks,
-      info: feedbacks.reduce((sum, f) => sum + f.infoRating, 0) / totalFeedbacks,
-      recommendRate: feedbacks.filter(f => f.wouldRecommend).length / totalFeedbacks * 100,
-    } : null
+    
+    // Count purchase likelihood
+    const purchaseLikelihood: Record<string, number> = {}
+    feedbacks.forEach(f => {
+      purchaseLikelihood[f.purchaseLikelihood] = (purchaseLikelihood[f.purchaseLikelihood] || 0) + 1
+    })
+
+    // Count seller contact ratings
+    const sellerContact: Record<string, number> = {}
+    feedbacks.forEach(f => {
+      sellerContact[f.sellerContact] = (sellerContact[f.sellerContact] || 0) + 1
+    })
+
+    // Count how found us
+    const howFoundUs: Record<string, number> = {}
+    feedbacks.forEach(f => {
+      howFoundUs[f.howFoundUs] = (howFoundUs[f.howFoundUs] || 0) + 1
+    })
 
     return NextResponse.json({
       feedbacks,
       stats: {
         total: totalFeedbacks,
-        averages,
+        purchaseLikelihood,
+        sellerContact,
+        howFoundUs,
       },
     })
   } catch (error) {
@@ -68,4 +81,3 @@ export async function GET(request: NextRequest) {
     )
   }
 }
-

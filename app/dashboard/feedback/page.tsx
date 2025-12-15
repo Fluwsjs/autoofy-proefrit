@@ -3,19 +3,21 @@
 import { useEffect, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, TrendingUp, Users, ArrowLeft, Car, Calendar } from "lucide-react"
+import { MessageSquare, ArrowLeft, Car, Calendar, TrendingUp, Users, ShoppingCart, Search } from "lucide-react"
 import Link from "next/link"
 
 interface Feedback {
   id: string
-  overallRating: number
-  serviceRating: number
-  vehicleRating: number
-  infoRating: number
-  bestPart: string | null
-  improvements: string | null
-  wouldRecommend: boolean
-  additionalComments: string | null
+  purchaseLikelihood: string
+  purchaseComment: string | null
+  notBuyingReason: string
+  notBuyingComment: string | null
+  sellerContact: string
+  sellerComment: string | null
+  improvementArea: string
+  improvementComment: string | null
+  howFoundUs: string
+  howFoundComment: string | null
   createdAt: string
   testride: {
     id: string
@@ -31,13 +33,77 @@ interface Feedback {
 
 interface Stats {
   total: number
-  averages: {
-    overall: number
-    service: number
-    vehicle: number
-    info: number
-    recommendRate: number
-  } | null
+  purchaseLikelihood: Record<string, number>
+  sellerContact: Record<string, number>
+  howFoundUs: Record<string, number>
+}
+
+// Labels for display
+const purchaseLikelihoodLabels: Record<string, string> = {
+  zeer_groot: "Zeer groot",
+  groot: "Groot",
+  twijfel: "Twijfel",
+  klein: "Klein",
+  zeer_klein: "Zeer klein",
+}
+
+const notBuyingReasonLabels: Record<string, string> = {
+  geen_reden: "Geen reden, wil kopen",
+  prijs: "Prijs",
+  inruil: "Inruilvoorstel",
+  uitvoering: "Uitvoering / opties",
+  twijfel_meerdere: "Twijfel meerdere auto's",
+  anders: "Anders",
+}
+
+const sellerContactLabels: Record<string, string> = {
+  zeer_slecht: "Zeer slecht",
+  slecht: "Slecht",
+  neutraal: "Neutraal",
+  goed: "Goed",
+  zeer_goed: "Zeer goed",
+}
+
+const improvementAreaLabels: Record<string, string> = {
+  niets: "Niets, klaar om te kopen",
+  prijs: "Prijs",
+  informatie: "Informatie / uitleg",
+  opvolging: "Opvolging",
+  ander_voertuig: "Ander voertuig",
+  anders: "Anders",
+}
+
+const howFoundUsLabels: Record<string, string> = {
+  autoofy: "Autoofy.nl",
+  online_ad: "Online advertentie",
+  google: "Google / zoekmachine",
+  social_media: "Social media",
+  vrienden: "Familie of vrienden",
+  showroom: "Showroom / langsgereden",
+  anders: "Anders",
+}
+
+// Color helpers
+const getPurchaseLikelihoodColor = (value: string) => {
+  switch (value) {
+    case "zeer_groot": return "bg-green-100 text-green-700 border-green-200"
+    case "groot": return "bg-lime-100 text-lime-700 border-lime-200"
+    case "twijfel": return "bg-yellow-100 text-yellow-700 border-yellow-200"
+    case "klein": return "bg-orange-100 text-orange-700 border-orange-200"
+    case "zeer_klein": return "bg-red-100 text-red-700 border-red-200"
+    default: return "bg-gray-100 text-gray-700 border-gray-200"
+  }
+}
+
+const getSellerContactColor = (value: string) => {
+  switch (value) {
+    case "zeer_goed": return "bg-green-100 text-green-700 border-green-200"
+    case "goed": return "bg-lime-100 text-lime-700 border-lime-200"
+    case "neutraal": return "bg-yellow-100 text-yellow-700 border-yellow-200"
+    case "slecht": return "bg-orange-100 text-orange-700 border-orange-200"
+    case "zeer_slecht": return "bg-red-100 text-red-700 border-red-200"
+    default: return "bg-gray-100 text-gray-700 border-gray-200"
+  }
 }
 
 export default function FeedbackDashboardPage() {
@@ -72,39 +138,15 @@ export default function FeedbackDashboardPage() {
     })
   }
 
-  const StarDisplay = ({ rating }: { rating: number }) => (
-    <div className="flex gap-0.5">
-      {[1, 2, 3, 4, 5].map((star) => (
-        <Star
-          key={star}
-          className={`w-4 h-4 ${
-            star <= rating
-              ? "fill-yellow-400 text-yellow-400"
-              : "text-gray-300"
-          }`}
-        />
-      ))}
-    </div>
-  )
+  // Calculate hot leads (zeer_groot + groot purchase likelihood)
+  const hotLeads = feedbacks.filter(f => 
+    f.purchaseLikelihood === "zeer_groot" || f.purchaseLikelihood === "groot"
+  ).length
 
-  const AverageStarDisplay = ({ rating, label }: { rating: number; label: string }) => (
-    <div className="text-center">
-      <div className="flex justify-center gap-0.5 mb-1">
-        {[1, 2, 3, 4, 5].map((star) => (
-          <Star
-            key={star}
-            className={`w-5 h-5 ${
-              star <= Math.round(rating)
-                ? "fill-yellow-400 text-yellow-400"
-                : "text-gray-300"
-            }`}
-          />
-        ))}
-      </div>
-      <p className="text-2xl font-bold text-gray-900">{rating.toFixed(1)}</p>
-      <p className="text-sm text-gray-500">{label}</p>
-    </div>
-  )
+  // Calculate positive seller contact (goed + zeer_goed)
+  const positiveContact = feedbacks.filter(f => 
+    f.sellerContact === "goed" || f.sellerContact === "zeer_goed"
+  ).length
 
   if (loading) {
     return (
@@ -130,45 +172,48 @@ export default function FeedbackDashboardPage() {
           </Link>
           <div>
             <h1 className="text-2xl font-bold text-autoofy-dark">Klant Feedback</h1>
-            <p className="text-gray-500">Bekijk wat uw klanten vinden van hun proefrit ervaring</p>
+            <p className="text-gray-500">Inzicht in koopkans en klanttevredenheid</p>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      {stats && stats.averages && (
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+      {feedbacks.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
             <CardContent className="pt-6 text-center">
               <Users className="w-8 h-8 text-blue-600 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-blue-900">{stats.total}</p>
+              <p className="text-3xl font-bold text-blue-900">{feedbacks.length}</p>
               <p className="text-sm text-blue-700">Totaal feedback</p>
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-yellow-50 to-amber-100 border-yellow-200">
-            <CardContent className="pt-6">
-              <AverageStarDisplay rating={stats.averages.overall} label="Algeheel" />
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
-            <CardContent className="pt-6">
-              <AverageStarDisplay rating={stats.averages.service} label="Service" />
-            </CardContent>
-          </Card>
-          
-          <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200">
-            <CardContent className="pt-6">
-              <AverageStarDisplay rating={stats.averages.vehicle} label="Voertuig" />
             </CardContent>
           </Card>
           
           <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
             <CardContent className="pt-6 text-center">
-              <ThumbsUp className="w-8 h-8 text-green-600 mx-auto mb-2" />
-              <p className="text-3xl font-bold text-green-900">{stats.averages.recommendRate.toFixed(0)}%</p>
-              <p className="text-sm text-green-700">Zou aanbevelen</p>
+              <ShoppingCart className="w-8 h-8 text-green-600 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-green-900">{hotLeads}</p>
+              <p className="text-sm text-green-700">Warme leads</p>
+              <p className="text-xs text-green-600 mt-1">Grote koopkans</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+            <CardContent className="pt-6 text-center">
+              <TrendingUp className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-purple-900">
+                {feedbacks.length > 0 ? Math.round((positiveContact / feedbacks.length) * 100) : 0}%
+              </p>
+              <p className="text-sm text-purple-700">Tevreden over verkoper</p>
+            </CardContent>
+          </Card>
+          
+          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+            <CardContent className="pt-6 text-center">
+              <Search className="w-8 h-8 text-amber-600 mx-auto mb-2" />
+              <p className="text-3xl font-bold text-amber-900">
+                {feedbacks.filter(f => f.howFoundUs === "google").length}
+              </p>
+              <p className="text-sm text-amber-700">Via Google</p>
             </CardContent>
           </Card>
         </div>
@@ -182,7 +227,7 @@ export default function FeedbackDashboardPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">Nog geen feedback ontvangen</h3>
             <p className="text-gray-500 max-w-md mx-auto">
               Wanneer klanten het feedback formulier invullen na een proefrit, 
-              verschijnen hun beoordelingen hier.
+              verschijnen hun antwoorden hier.
             </p>
           </CardContent>
         </Card>
@@ -191,102 +236,93 @@ export default function FeedbackDashboardPage() {
           {feedbacks.map((feedback) => (
             <Card key={feedback.id} className="overflow-hidden hover:shadow-lg transition-shadow">
               <CardContent className="p-0">
-                <div className="flex flex-col md:flex-row">
-                  {/* Left: Ratings */}
-                  <div className="p-6 bg-gradient-to-br from-slate-50 to-slate-100 md:w-80 border-b md:border-b-0 md:border-r">
+                <div className="flex flex-col lg:flex-row">
+                  {/* Left: Customer Info & Key Metrics */}
+                  <div className="p-5 bg-gradient-to-br from-slate-50 to-slate-100 lg:w-72 border-b lg:border-b-0 lg:border-r">
                     <div className="flex items-center gap-3 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-autoofy-dark text-white flex items-center justify-center font-bold text-lg">
+                      <div className="w-11 h-11 rounded-full bg-autoofy-dark text-white flex items-center justify-center font-bold text-lg">
                         {feedback.testride.customerName.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <p className="font-semibold text-gray-900">{feedback.testride.customerName}</p>
-                        <p className="text-sm text-gray-500">{formatDate(feedback.createdAt)}</p>
+                        <p className="text-xs text-gray-500">{formatDate(feedback.createdAt)}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-gray-600 mb-1">
                       <Car className="w-4 h-4" />
-                      <span>{feedback.testride.carType}</span>
+                      <span className="font-medium">{feedback.testride.carType}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-600 mb-4">
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(feedback.testride.date)}</span>
                     </div>
 
+                    {/* Key Badges */}
                     <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Algeheel</span>
-                        <StarDisplay rating={feedback.overallRating} />
+                      <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border ${getPurchaseLikelihoodColor(feedback.purchaseLikelihood)}`}>
+                        🛒 Koopkans: {purchaseLikelihoodLabels[feedback.purchaseLikelihood]}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Service</span>
-                        <StarDisplay rating={feedback.serviceRating} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Voertuig</span>
-                        <StarDisplay rating={feedback.vehicleRating} />
-                      </div>
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">Informatie</span>
-                        <StarDisplay rating={feedback.infoRating} />
+                      <div className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold border ${getSellerContactColor(feedback.sellerContact)}`}>
+                        👤 Verkoper: {sellerContactLabels[feedback.sellerContact]}
                       </div>
                     </div>
-
-                    <div className="mt-4 pt-4 border-t">
-                      <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                        feedback.wouldRecommend 
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
-                      }`}>
-                        {feedback.wouldRecommend ? (
-                          <>
-                            <ThumbsUp className="w-4 h-4" />
-                            Zou aanbevelen
-                          </>
-                        ) : (
-                          <>
-                            <ThumbsDown className="w-4 h-4" />
-                            Zou niet aanbevelen
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right: Comments */}
-                  <div className="flex-1 p-6">
-                    {feedback.bestPart && (
-                      <div className="mb-4">
-                        <p className="text-sm font-medium text-green-700 mb-1">💎 Wat het beste was:</p>
-                        <p className="text-gray-700 bg-green-50 rounded-lg p-3">{feedback.bestPart}</p>
-                      </div>
-                    )}
-
-                    {feedback.improvements && (
-                      <div className="mb-4">
-                        <p className="text-sm font-medium text-orange-700 mb-1">💡 Verbeterpunten:</p>
-                        <p className="text-gray-700 bg-orange-50 rounded-lg p-3">{feedback.improvements}</p>
-                      </div>
-                    )}
-
-                    {feedback.additionalComments && (
-                      <div>
-                        <p className="text-sm font-medium text-blue-700 mb-1">📝 Overige opmerkingen:</p>
-                        <p className="text-gray-700 bg-blue-50 rounded-lg p-3">{feedback.additionalComments}</p>
-                      </div>
-                    )}
-
-                    {!feedback.bestPart && !feedback.improvements && !feedback.additionalComments && (
-                      <p className="text-gray-400 italic">Geen aanvullende opmerkingen</p>
-                    )}
 
                     {feedback.testride.seller && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm text-gray-500">
+                      <div className="mt-4 pt-3 border-t">
+                        <p className="text-xs text-gray-500">
                           Verkoper: <span className="font-medium text-gray-700">{feedback.testride.seller.name}</span>
                         </p>
                       </div>
                     )}
+                  </div>
+
+                  {/* Right: Detailed Answers */}
+                  <div className="flex-1 p-5">
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {/* Reden niet kopen */}
+                      <div className="bg-orange-50 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-orange-700 mb-1">❓ Reden om niet te kopen</p>
+                        <p className="text-sm font-medium text-gray-900">{notBuyingReasonLabels[feedback.notBuyingReason]}</p>
+                        {feedback.notBuyingComment && (
+                          <p className="text-xs text-gray-600 mt-1 italic">"{feedback.notBuyingComment}"</p>
+                        )}
+                      </div>
+
+                      {/* Wat verbeteren */}
+                      <div className="bg-blue-50 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-blue-700 mb-1">💡 Wat kunnen we verbeteren</p>
+                        <p className="text-sm font-medium text-gray-900">{improvementAreaLabels[feedback.improvementArea]}</p>
+                        {feedback.improvementComment && (
+                          <p className="text-xs text-gray-600 mt-1 italic">"{feedback.improvementComment}"</p>
+                        )}
+                      </div>
+
+                      {/* Hoe gevonden */}
+                      <div className="bg-purple-50 rounded-lg p-3">
+                        <p className="text-xs font-semibold text-purple-700 mb-1">🔍 Hoe bij ons gekomen</p>
+                        <p className="text-sm font-medium text-gray-900">{howFoundUsLabels[feedback.howFoundUs]}</p>
+                        {feedback.howFoundComment && (
+                          <p className="text-xs text-gray-600 mt-1 italic">"{feedback.howFoundComment}"</p>
+                        )}
+                      </div>
+
+                      {/* Koopkans toelichting */}
+                      {feedback.purchaseComment && (
+                        <div className="bg-green-50 rounded-lg p-3">
+                          <p className="text-xs font-semibold text-green-700 mb-1">📝 Toelichting koopkans</p>
+                          <p className="text-xs text-gray-600 italic">"{feedback.purchaseComment}"</p>
+                        </div>
+                      )}
+
+                      {/* Verkoper toelichting */}
+                      {feedback.sellerComment && (
+                        <div className="bg-slate-100 rounded-lg p-3">
+                          <p className="text-xs font-semibold text-slate-700 mb-1">💬 Over de verkoper</p>
+                          <p className="text-xs text-gray-600 italic">"{feedback.sellerComment}"</p>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -297,4 +333,3 @@ export default function FeedbackDashboardPage() {
     </div>
   )
 }
-

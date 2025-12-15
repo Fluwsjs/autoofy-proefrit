@@ -151,17 +151,25 @@ model Feedback {
   testrideId          String   @unique
   testride            Testride @relation(fields: [testrideId], references: [id], onDelete: Cascade)
   
-  // Ratings (1-5 sterren)
-  overallRating       Int      // Algehele ervaring
-  serviceRating       Int      // Service van verkoper
-  vehicleRating       Int      // Staat van het voertuig
-  infoRating          Int      // Informatie voorziening
+  // Vraag 1: Koopkans
+  purchaseLikelihood  String   // zeer_groot, groot, twijfel, klein, zeer_klein
+  purchaseComment     String?  // Toelichting
   
-  // Open vragen
-  bestPart            String?  // Wat vond u het beste?
-  improvements        String?  // Wat kunnen we verbeteren?
-  wouldRecommend      Boolean  // Zou u ons aanbevelen?
-  additionalComments  String?  // Overige opmerkingen
+  // Vraag 2: Reden om niet te kopen
+  notBuyingReason     String   // geen_reden, prijs, inruil, uitvoering, twijfel_meerdere, anders
+  notBuyingComment    String?  // Toelichting
+  
+  // Vraag 3: Contact met verkoper
+  sellerContact       String   // zeer_slecht, slecht, neutraal, goed, zeer_goed
+  sellerComment       String?  // Toelichting
+  
+  // Vraag 4: Wat kunnen we verbeteren
+  improvementArea     String   // niets, prijs, informatie, opvolging, ander_voertuig, anders
+  improvementComment  String?  // Toelichting
+  
+  // Vraag 5: Hoe bij ons gekomen
+  howFoundUs          String   // autoofy, online_ad, google, social_media, vrienden, showroom, anders
+  howFoundComment     String?  // Toelichting
   
   createdAt           DateTime @default(now())
 }
