@@ -6,8 +6,9 @@ import { useSession } from "next-auth/react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { FormInput } from "@/components/FormInput"
-import { ArrowLeft, Building2, Save } from "lucide-react"
+import { ArrowLeft, Building2, Save, Upload, X, Image as ImageIcon } from "lucide-react"
 import { useToast } from "@/components/ui/toast"
+import { Label } from "@/components/ui/label"
 
 export default function CompanyInfoPage() {
   const router = useRouter()
@@ -25,6 +26,7 @@ export default function CompanyInfoPage() {
     companyPhone: "",
     companyKvK: "",
     companyVAT: "",
+    companyLogo: "",
   })
 
   useEffect(() => {
@@ -46,6 +48,7 @@ export default function CompanyInfoPage() {
           companyPhone: data.companyPhone || "",
           companyKvK: data.companyKvK || "",
           companyVAT: data.companyVAT || "",
+          companyLogo: data.companyLogo || "",
         })
       }
     } catch (error) {
@@ -53,6 +56,37 @@ export default function CompanyInfoPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      showToast("Alleen afbeeldingen zijn toegestaan", "error")
+      return
+    }
+
+    // Validate file size (max 500KB)
+    if (file.size > 500 * 1024) {
+      showToast("Logo mag maximaal 500KB zijn", "error")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setCompanyData({ ...companyData, companyLogo: event.target.result as string })
+        showToast("Logo toegevoegd", "success")
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const removeLogo = () => {
+    setCompanyData({ ...companyData, companyLogo: "" })
+    showToast("Logo verwijderd", "info")
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -69,6 +103,7 @@ export default function CompanyInfoPage() {
         companyPhone: companyData.companyPhone,
         companyKvK: companyData.companyKvK || undefined,
         companyVAT: companyData.companyVAT || undefined,
+        companyLogo: companyData.companyLogo || undefined,
       }
 
       const response = await fetch("/api/company-info", {
@@ -226,6 +261,66 @@ export default function CompanyInfoPage() {
                   placeholder="Bijv. NL123456789B01"
                 />
               </div>
+            </div>
+
+            {/* Logo upload section */}
+            <div className="pt-6 border-t">
+              <Label className="text-base font-semibold flex items-center gap-2 mb-3">
+                <ImageIcon className="h-5 w-5 text-autoofy-dark" />
+                Bedrijfslogo
+              </Label>
+              <p className="text-sm text-muted-foreground mb-4">
+                Upload je bedrijfslogo. Dit wordt weergegeven op alle proefrit formulieren en PDF&apos;s.
+                <br />
+                <span className="text-xs">Aanbevolen: PNG of JPG, max 500KB, landscape formaat</span>
+              </p>
+              
+              {companyData.companyLogo ? (
+                <div className="flex items-start gap-4">
+                  <div className="relative group">
+                    <img 
+                      src={companyData.companyLogo} 
+                      alt="Bedrijfslogo" 
+                      className="max-h-24 max-w-xs object-contain rounded-lg border-2 border-gray-200 bg-white p-2"
+                    />
+                    <button
+                      type="button"
+                      onClick={removeLogo}
+                      className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors shadow-md"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm text-green-600 font-medium">✓ Logo geüpload</p>
+                    <label className="cursor-pointer">
+                      <span className="text-sm text-autoofy-dark hover:underline">Wijzig logo</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg"
+                        onChange={handleLogoUpload}
+                        className="sr-only"
+                      />
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-autoofy-red hover:bg-gray-50 transition-colors">
+                  <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                    <Upload className="h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600">
+                      <span className="font-semibold text-autoofy-red">Klik om te uploaden</span> of sleep je logo hierheen
+                    </p>
+                    <p className="text-xs text-gray-400 mt-1">PNG, JPG (max 500KB)</p>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/jpg"
+                    onChange={handleLogoUpload}
+                    className="sr-only"
+                  />
+                </label>
+              )}
             </div>
 
             <div className="flex gap-4 pt-4 border-t">

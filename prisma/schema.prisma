@@ -22,9 +22,11 @@ model Tenant {
   companyPhone    String?   // Telefoonnummer
   companyKvK      String?   // KvK nummer
   companyVAT      String?   // BTW nummer
+  companyLogo     String?   // Bedrijfslogo (base64 of URL)
   createdAt       DateTime  @default(now())
   users           User[]
   testrides       Testride[]
+  sellers         Seller[]
 }
 
 model DealerPlate {
@@ -32,6 +34,18 @@ model DealerPlate {
   plate     String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
+  createdAt DateTime @default(now())
+  testrides Testride[]
+}
+
+model Seller {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tenantId  String
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   testrides Testride[]
 }
@@ -73,8 +87,11 @@ model Testride {
   idCountryOfOrigin   String?  // Land van herkomst ID kaart of rijbewijs
   dealerPlateId       String?
   dealerPlate         DealerPlate? @relation(fields: [dealerPlateId], references: [id], onDelete: SetNull)
+  sellerId            String?  // Verkoper die deze proefrit begeleidt
+  seller              Seller?  @relation(fields: [sellerId], references: [id], onDelete: SetNull)
   idPhotoFrontUrl     String?   // ID foto voorkant
   idPhotoBackUrl      String?  // ID foto achterkant
+  damagePhotos        Json?    // Array van schade foto URLs
   customerSignatureUrl String? // Klant handtekening (per proefrit)
   sellerSignatureUrl   String?  // Verkoper handtekening/stempel (optioneel, kan van User komen)
   completionSignatureUrl String? // Verkoper handtekening bij afronding
@@ -84,6 +101,8 @@ model Testride {
   aantalSleutels      Int      @default(1) // Aantal sleutels meegegeven (1-4)
   status              TestrideStatus @default(PENDING) // Status van de proefrit
   completedAt         DateTime? // Datum/tijd van afronding
+  vehicleSold         Boolean  @default(false) // Voertuig verkocht aan deze klant
+  feedbackEmailSent   Boolean  @default(false) // Feedback verzoek email verstuurd
   startKm             Int
   endKm               Int?
   notes               String?

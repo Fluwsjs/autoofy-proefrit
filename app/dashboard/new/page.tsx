@@ -20,6 +20,11 @@ interface DealerPlate {
   plate: string
 }
 
+interface Seller {
+  id: string
+  name: string
+}
+
 export default function NewTestridePage() {
   const router = useRouter()
   const { data: session } = useSession()
@@ -30,7 +35,9 @@ export default function NewTestridePage() {
   const [sellerSignature, setSellerSignature] = useState("")
   const [idPhotoFrontUrl, setIdPhotoFrontUrl] = useState("")
   const [idPhotoBackUrl, setIdPhotoBackUrl] = useState("")
+  const [damagePhotos, setDamagePhotos] = useState<string[]>([])
   const [dealerPlates, setDealerPlates] = useState<DealerPlate[]>([])
+  const [sellers, setSellers] = useState<Seller[]>([])
   const [loadingPlates, setLoadingPlates] = useState(true)
 
   const [formData, setFormData] = useState({
@@ -46,6 +53,7 @@ export default function NewTestridePage() {
     driverLicenseNumber: "",
     idCountryOfOrigin: "",
     dealerPlateId: "",
+    sellerId: "",
     startKm: "",
     endKm: "",
     notes: "",
@@ -142,6 +150,7 @@ export default function NewTestridePage() {
   useEffect(() => {
     if (session) {
       fetchDealerPlates()
+      fetchSellers()
     }
   }, [session])
 
@@ -161,6 +170,19 @@ export default function NewTestridePage() {
     }
   }
 
+  const fetchSellers = async () => {
+    try {
+      const response = await fetch("/api/sellers")
+      if (response.ok) {
+        const result = await response.json()
+        const sellers = result.data || result
+        setSellers(sellers)
+      }
+    } catch (error) {
+      console.error("Error fetching sellers:", error)
+    }
+  }
+
   const clearFormData = () => {
     if (confirm("Weet u zeker dat u alle ingevulde gegevens wilt wissen?")) {
       setFormData({
@@ -176,6 +198,7 @@ export default function NewTestridePage() {
         driverLicenseNumber: "",
         idCountryOfOrigin: "",
         dealerPlateId: "",
+        sellerId: "",
         startKm: "",
         endKm: "",
         notes: "",
@@ -187,6 +210,7 @@ export default function NewTestridePage() {
       setSellerSignature("")
       setIdPhotoFrontUrl("")
       setIdPhotoBackUrl("")
+      setDamagePhotos([])
       localStorage.removeItem('newTestrideFormData')
       localStorage.removeItem('newTestrideSignatures')
       localStorage.removeItem('newTestridePhotos')
@@ -239,11 +263,13 @@ export default function NewTestridePage() {
           sellerSignatureUrl: sellerSignature || undefined,
           idPhotoFrontUrl: idPhotoFrontUrl || undefined,
           idPhotoBackUrl: idPhotoBackUrl || undefined,
+          damagePhotos: damagePhotos.length > 0 ? damagePhotos : undefined,
           customerPhone: formData.customerPhone || undefined,
           licensePlate: formData.licensePlate || undefined,
           driverLicenseNumber: formData.driverLicenseNumber || undefined,
           idCountryOfOrigin: formData.idCountryOfOrigin || undefined,
           dealerPlateId: formData.dealerPlateId || undefined,
+          sellerId: formData.sellerId || undefined,
           dealerPlateCardGiven: formData.dealerPlateCardGiven,
           eigenRisico: parseInt(formData.eigenRisico),
           aantalSleutels: parseInt(formData.aantalSleutels),
@@ -528,6 +554,29 @@ export default function NewTestridePage() {
               </div>
             </div>
 
+            {/* Verkoper selectie */}
+            <div className="space-y-2">
+              <Label htmlFor="seller">Verkoper</Label>
+              <select
+                id="seller"
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                value={formData.sellerId}
+                onChange={(e) =>
+                  setFormData({ ...formData, sellerId: e.target.value })
+                }
+              >
+                <option value="">Selecteer verkoper...</option>
+                {sellers.map((seller) => (
+                  <option key={seller.id} value={seller.id}>
+                    {seller.name}
+                  </option>
+                ))}
+              </select>
+              <Link href="/dashboard/sellers?returnTo=/dashboard/new" className="text-sm text-autoofy-dark hover:underline">
+                Beheer verkopers
+              </Link>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <FormInput
                 label="Datum *"
@@ -592,6 +641,58 @@ export default function NewTestridePage() {
                 rows={3}
                 placeholder="Bijvoorbeeld: kleine kras op linker portier, klant wil graag langere proefrit, etc."
               />
+              
+              {/* Schade foto's upload */}
+              <div className="mt-4 p-4 bg-orange-50 border border-orange-200 rounded-lg">
+                <label className="text-sm font-medium mb-2 block text-orange-800">
+                  📷 Schade foto&apos;s (optioneel)
+                </label>
+                <p className="text-xs text-orange-700 mb-3">
+                  Voeg foto&apos;s toe van bestaande schades aan het voertuig vóór de proefrit.
+                </p>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {damagePhotos.map((photo, index) => (
+                    <div key={index} className="relative group">
+                      <img 
+                        src={photo} 
+                        alt={`Schade ${index + 1}`} 
+                        className="w-20 h-20 object-cover rounded-lg border-2 border-orange-300"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setDamagePhotos(damagePhotos.filter((_, i) => i !== index))}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full text-xs hover:bg-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = e.target.files
+                    if (files) {
+                      Array.from(files).forEach(file => {
+                        const reader = new FileReader()
+                        reader.onload = (event) => {
+                          if (event.target?.result) {
+                            setDamagePhotos(prev => [...prev, event.target!.result as string])
+                          }
+                        }
+                        reader.readAsDataURL(file)
+                      })
+                    }
+                    e.target.value = '' // Reset input
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-orange-100 file:text-orange-700 hover:file:bg-orange-200 cursor-pointer"
+                />
+                {damagePhotos.length > 0 && (
+                  <p className="text-xs text-orange-600 mt-2">{damagePhotos.length} foto('s) toegevoegd</p>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

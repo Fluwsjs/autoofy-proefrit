@@ -12,6 +12,8 @@ const completeSchema = z.object({
   actualEndTime: z.string(),
   actualEndKm: z.number().int().positive("Eindkilometerstand moet positief zijn"),
   completionNotes: z.string().optional(),
+  vehicleSold: z.boolean().optional(),
+  sendFeedbackEmail: z.boolean().optional(),
 })
 
 export async function POST(
@@ -88,28 +90,32 @@ export async function POST(
         customerCompletionSignatureUrl: validatedData.customerCompletionSignatureUrl,
         endKm: validatedData.actualEndKm,
         completedAt: new Date(validatedData.actualEndTime),
+        vehicleSold: validatedData.vehicleSold || false,
+        feedbackEmailSent: validatedData.sendFeedbackEmail || false,
         notes: validatedData.completionNotes 
           ? `${testride.notes ? testride.notes + '\n\n' : ''}Afrondingsnotities:\n${validatedData.completionNotes}`
           : testride.notes,
       },
     })
 
-    // Send feedback email to customer with tenant's email as Reply-To
-    try {
-      const companyName = testride.tenant?.companyName || "Uw autobedrijf"
-      const tenantEmail = testride.tenant?.email // Bedrijf/dealer hoofdaccount e-mail
-      
-      await sendFeedbackEmail(
-        testride.customerEmail,
-        testride.customerName,
-        companyName,
-        testride.carType,
-        tenantEmail
-      )
-      console.log(`✅ Feedback email sent to ${testride.customerEmail} (Reply-To: ${tenantEmail})`)
-    } catch (emailError) {
-      // Log error but don't fail the request - testride is already completed
-      console.error("⚠️ Error sending feedback email:", emailError)
+    // Send feedback email to customer only if requested
+    if (validatedData.sendFeedbackEmail) {
+      try {
+        const companyName = testride.tenant?.companyName || "Uw autobedrijf"
+        const tenantEmail = testride.tenant?.email // Bedrijf/dealer hoofdaccount e-mail
+        
+        await sendFeedbackEmail(
+          testride.customerEmail,
+          testride.customerName,
+          companyName,
+          testride.carType,
+          tenantEmail
+        )
+        console.log(`✅ Feedback email sent to ${testride.customerEmail} (Reply-To: ${tenantEmail})`)
+      } catch (emailError) {
+        // Log error but don't fail the request - testride is already completed
+        console.error("⚠️ Error sending feedback email:", emailError)
+      }
     }
 
     return NextResponse.json(updatedTestride)

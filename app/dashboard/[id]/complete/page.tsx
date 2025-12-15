@@ -66,6 +66,8 @@ export default function CompleteTestridePage() {
     dealerPlateCardReturned: false,
     greenPlatesNotLost: false,
     allKeysReturned: false,
+    vehicleSold: false,
+    sendFeedbackEmail: false,
     completionNotes: "",
   })
   
@@ -177,6 +179,8 @@ export default function CompleteTestridePage() {
           actualEndTime: actualEndDateTime.toISOString(),
           actualEndKm: parseInt(completionData.actualEndKm),
           completionNotes: completionData.completionNotes || undefined,
+          vehicleSold: completionData.vehicleSold,
+          sendFeedbackEmail: completionData.sendFeedbackEmail,
         }),
       })
 
@@ -550,6 +554,82 @@ export default function CompleteTestridePage() {
                       </label>
                     )
                   })}
+                </div>
+
+                {/* Extra opties */}
+                <div className="mt-6 pt-6 border-t space-y-4">
+                  <h4 className="font-medium text-slate-700">Extra opties</h4>
+                  
+                  {/* Voertuig verkocht */}
+                  <label 
+                    className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                      completionData.vehicleSold 
+                        ? 'border-autoofy-red bg-red-50/50' 
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`mt-1 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+                      completionData.vehicleSold 
+                        ? 'bg-autoofy-red text-white' 
+                        : 'border-2 border-slate-300'
+                    }`}>
+                      {completionData.vehicleSold && <CheckCircle className="h-4 w-4" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={completionData.vehicleSold}
+                      onChange={(e) =>
+                        setCompletionData({ ...completionData, vehicleSold: e.target.checked })
+                      }
+                      className="sr-only"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <Car className={`h-4 w-4 ${completionData.vehicleSold ? 'text-autoofy-red' : 'text-slate-400'}`} />
+                        <span className={`font-medium ${completionData.vehicleSold ? 'text-autoofy-dark' : 'text-slate-700'}`}>
+                          🎉 Voertuig verkocht aan deze klant
+                        </span>
+                      </div>
+                      <p className={`text-sm mt-1 ${completionData.vehicleSold ? 'text-autoofy-red' : 'text-slate-500'}`}>
+                        Markeer als het voertuig is verkocht na de proefrit
+                      </p>
+                    </div>
+                  </label>
+
+                  {/* Feedback email */}
+                  <label 
+                    className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all duration-200 ${
+                      completionData.sendFeedbackEmail 
+                        ? 'border-blue-500 bg-blue-50/50' 
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <div className={`mt-1 w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+                      completionData.sendFeedbackEmail 
+                        ? 'bg-blue-500 text-white' 
+                        : 'border-2 border-slate-300'
+                    }`}>
+                      {completionData.sendFeedbackEmail && <CheckCircle className="h-4 w-4" />}
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={completionData.sendFeedbackEmail}
+                      onChange={(e) =>
+                        setCompletionData({ ...completionData, sendFeedbackEmail: e.target.checked })
+                      }
+                      className="sr-only"
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className={`font-medium ${completionData.sendFeedbackEmail ? 'text-blue-900' : 'text-slate-700'}`}>
+                          📧 Stuur feedback verzoek naar klant
+                        </span>
+                      </div>
+                      <p className={`text-sm mt-1 ${completionData.sendFeedbackEmail ? 'text-blue-700' : 'text-slate-500'}`}>
+                        De klant ontvangt een email om feedback te geven over de proefrit
+                      </p>
+                    </div>
+                  </label>
                 </div>
 
                 <div className="flex justify-between pt-6">

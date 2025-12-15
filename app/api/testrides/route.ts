@@ -24,9 +24,11 @@ const testrideSchema = z.object({
   driverLicenseNumber: z.string().optional(),
   idCountryOfOrigin: z.string().optional(),
   dealerPlateId: z.string().optional(),
+  sellerId: z.string().optional(),
   dealerPlateCardGiven: z.boolean().optional(),
   idPhotoFrontUrl: z.string().optional(),
   idPhotoBackUrl: z.string().optional(),
+  damagePhotos: z.array(z.string()).optional(),
   customerSignatureUrl: z.string().optional(),
   sellerSignatureUrl: z.string().optional(),
   eigenRisico: z.number().int().min(0).max(1000, "Eigen risico moet tussen 0 en 1000 zijn"),
@@ -65,6 +67,7 @@ export async function GET(request: NextRequest) {
       },
       include: {
         dealerPlate: true,
+        seller: true,
       },
       orderBy: {
         createdAt: "desc",

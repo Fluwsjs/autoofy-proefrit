@@ -13,6 +13,7 @@ const companyInfoSchema = z.object({
   companyPhone: z.string().min(1, "Telefoonnummer is verplicht"),
   companyKvK: z.string().optional(),
   companyVAT: z.string().optional(),
+  companyLogo: z.string().optional(), // Base64 encoded logo image
 })
 
 export async function GET(request: NextRequest) {
@@ -36,6 +37,7 @@ export async function GET(request: NextRequest) {
         companyPhone: true,
         companyKvK: true,
         companyVAT: true,
+        companyLogo: true,
       },
     })
 
@@ -55,6 +57,7 @@ export async function GET(request: NextRequest) {
       companyPhone: tenant.companyPhone || null,
       companyKvK: tenant.companyKvK || null,
       companyVAT: tenant.companyVAT || null,
+      companyLogo: tenant.companyLogo || null,
     })
   } catch (error) {
     console.error("Error fetching company info:", error)
@@ -87,13 +90,17 @@ export async function POST(request: NextRequest) {
       companyPhone: sanitizeString(body.companyPhone || ""),
       companyKvK: body.companyKvK ? sanitizeString(body.companyKvK) : undefined,
       companyVAT: body.companyVAT ? sanitizeString(body.companyVAT) : undefined,
+      companyLogo: body.companyLogo || undefined, // Base64 image, don't sanitize
     }
 
     const validatedData = companyInfoSchema.parse(sanitizedBody)
 
     const updatedTenant = await prisma.tenant.update({
       where: { id: session.user.tenantId },
-      data: validatedData,
+      data: {
+        ...validatedData,
+        companyLogo: validatedData.companyLogo || null,
+      },
     })
 
     return NextResponse.json(updatedTenant)
