@@ -25,6 +25,19 @@ export async function GET(
       },
       include: {
         dealerPlate: true,
+        seller: true,
+        tenant: {
+          select: {
+            companyName: true,
+            companyAddress: true,
+            companyZipCode: true,
+            companyCity: true,
+            companyPhone: true,
+            companyKvK: true,
+            companyVAT: true,
+            companyLogo: true,
+          },
+        },
       },
     })
 

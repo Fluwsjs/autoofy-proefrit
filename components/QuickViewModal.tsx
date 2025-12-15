@@ -32,6 +32,11 @@ interface Testride {
   dealerPlate: {
     plate: string
   } | null
+  dealerPlateCardGiven?: boolean
+  seller?: {
+    id: string
+    name: string
+  } | null
   // Optional fields that might come from the API
   idPhotoFrontUrl?: string | null
   idPhotoBackUrl?: string | null
@@ -43,6 +48,18 @@ interface Testride {
   completedAt?: string | null
   notes?: string | null
   createdAt?: string
+  vehicleSold?: boolean
+  damagePhotoUrls?: string[]
+  tenant?: {
+    companyName: string | null
+    companyAddress: string | null
+    companyZipCode: string | null
+    companyCity: string | null
+    companyPhone: string | null
+    companyKvK: string | null
+    companyVAT: string | null
+    companyLogo: string | null
+  }
 }
 
 interface QuickViewModalProps {
@@ -94,6 +111,7 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
         driverLicenseNumber: testride.driverLicenseNumber,
         idCountryOfOrigin: testride.idCountryOfOrigin ?? null,
         dealerPlate: testride.dealerPlate,
+        dealerPlateCardGiven: testride.dealerPlateCardGiven,
         idPhotoFrontUrl: testride.idPhotoFrontUrl ?? null,
         idPhotoBackUrl: testride.idPhotoBackUrl ?? null,
         customerSignatureUrl: testride.customerSignatureUrl ?? null,
@@ -107,6 +125,19 @@ export function QuickViewModal({ testrideId, open, onClose }: QuickViewModalProp
         endKm: testride.endKm,
         notes: testride.notes ?? null,
         createdAt: testride.createdAt ?? new Date().toISOString(),
+        sellerName: testride.seller?.name || null,
+        vehicleSold: testride.vehicleSold,
+        damagePhotoUrls: testride.damagePhotoUrls,
+        companyInfo: testride.tenant ? {
+          companyName: testride.tenant.companyName,
+          companyAddress: testride.tenant.companyAddress,
+          companyZipCode: testride.tenant.companyZipCode,
+          companyCity: testride.tenant.companyCity,
+          companyPhone: testride.tenant.companyPhone,
+          companyKvK: testride.tenant.companyKvK,
+          companyVAT: testride.tenant.companyVAT,
+          companyLogo: testride.tenant.companyLogo,
+        } : undefined,
       }
       
       await exportTestrideToPDF(testrideData)

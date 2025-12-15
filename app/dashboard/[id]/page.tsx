@@ -28,6 +28,11 @@ interface Testride {
     id: string
     plate: string
   } | null
+  dealerPlateCardGiven?: boolean
+  seller: {
+    id: string
+    name: string
+  } | null
   idPhotoFrontUrl: string | null
   idPhotoBackUrl: string | null
   customerSignatureUrl: string | null
@@ -41,6 +46,18 @@ interface Testride {
   endKm: number | null
   notes: string | null
   createdAt: string
+  vehicleSold?: boolean
+  damagePhotoUrls?: string[]
+  tenant?: {
+    companyName: string | null
+    companyAddress: string | null
+    companyZipCode: string | null
+    companyCity: string | null
+    companyPhone: string | null
+    companyKvK: string | null
+    companyVAT: string | null
+    companyLogo: string | null
+  }
 }
 
 export default function TestrideDetailPage() {
@@ -111,6 +128,7 @@ export default function TestrideDetailPage() {
         driverLicenseNumber: testride.driverLicenseNumber,
         idCountryOfOrigin: testride.idCountryOfOrigin,
         dealerPlate: testride.dealerPlate ? { plate: testride.dealerPlate.plate } : null,
+        dealerPlateCardGiven: testride.dealerPlateCardGiven,
         idPhotoFrontUrl: testride.idPhotoFrontUrl,
         idPhotoBackUrl: testride.idPhotoBackUrl,
         customerSignatureUrl: testride.customerSignatureUrl,
@@ -124,6 +142,19 @@ export default function TestrideDetailPage() {
         endKm: testride.endKm,
         notes: testride.notes,
         createdAt: testride.createdAt,
+        sellerName: testride.seller?.name || null,
+        vehicleSold: testride.vehicleSold,
+        damagePhotoUrls: testride.damagePhotoUrls,
+        companyInfo: testride.tenant ? {
+          companyName: testride.tenant.companyName,
+          companyAddress: testride.tenant.companyAddress,
+          companyZipCode: testride.tenant.companyZipCode,
+          companyCity: testride.tenant.companyCity,
+          companyPhone: testride.tenant.companyPhone,
+          companyKvK: testride.tenant.companyKvK,
+          companyVAT: testride.tenant.companyVAT,
+          companyLogo: testride.tenant.companyLogo,
+        } : undefined,
       }
       
       await exportTestrideToPDF(testrideData)
