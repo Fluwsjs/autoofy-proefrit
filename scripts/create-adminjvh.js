@@ -4,9 +4,9 @@ const prisma = new PrismaClient()
 
 async function createAdminJVH() {
   try {
-    const name = "Jordy VH"
-    const email = "adminjvh@admin.local"
-    const password = "Italy024!@"
+    const name = "Support l Proefrit Autoofy"
+    const email = "support@proefrit-autoofy.nl"
+    const password = "Picobello123!@"
     
     console.log('\n=== Super Admin Account Aanmaken ===\n')
     console.log(`Naam: ${name}`)

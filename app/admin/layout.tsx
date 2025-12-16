@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-import { Navbar } from "@/components/Navbar"
 import { ExternalLink } from "lucide-react"
 
 export default async function AdminLayout({
@@ -16,12 +15,43 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <Navbar />
+    <div className="min-h-screen bg-gradient-to-br from-[#0f1729] via-[#1a2744] to-[#0f1729] flex flex-col">
+      {/* Custom Admin Header */}
+      <header className="border-b border-white/10 bg-[#0f1729]/80 backdrop-blur-md sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <a href="https://www.autoofy.nl" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group">
+              <span className="text-2xl font-bold tracking-tight">
+                <span className="text-white">AUTOOFY</span>
+                <span className="text-autoofy-red">•</span>
+                <span className="text-white">NL</span>
+              </span>
+              <ExternalLink className="h-3.5 w-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </a>
+            <nav className="flex items-center gap-4">
+              <a href="/admin" className="text-sm font-medium text-white hover:text-autoofy-red transition-colors">
+                Admin Dashboard
+              </a>
+              <span className="text-slate-600">|</span>
+              <span className="flex items-center gap-2 text-sm text-slate-400">
+                <span className="hidden sm:inline">S</span>
+                <span>{session?.user?.name || "Support"}</span>
+              </span>
+              <a 
+                href="/api/auth/signout" 
+                className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
+              >
+                <ExternalLink className="h-3.5 w-3.5 rotate-180" />
+                <span>Uitloggen</span>
+              </a>
+            </nav>
+          </div>
+        </div>
+      </header>
       <div className="flex-1">{children}</div>
-      <footer className="border-t bg-muted/30 mt-auto">
+      <footer className="border-t border-white/10 bg-[#0f1729]/80 backdrop-blur-md mt-auto">
         <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-400">
             <div className="flex items-center gap-2">
               <span>© {new Date().getFullYear()} Autoofy. Alle rechten voorbehouden.</span>
             </div>
@@ -29,7 +59,7 @@ export default async function AdminLayout({
               href="https://www.autoofy.nl" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-autoofy-dark hover:text-autoofy-red font-medium transition-colors group"
+              className="flex items-center gap-1.5 text-slate-400 hover:text-autoofy-red font-medium transition-colors group"
             >
               <span>Bezoek www.autoofy.nl</span>
               <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />

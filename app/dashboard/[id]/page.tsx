@@ -5,7 +5,7 @@ import { useRouter, useParams } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { formatDate, formatDateTime, formatTime } from "@/lib/utils"
-import { ArrowLeft, Trash2, Download, CheckCircle } from "lucide-react"
+import { ArrowLeft, Trash2, Download, CheckCircle, Car, Loader2 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { exportTestrideToPDF } from "@/lib/pdf-export"
@@ -65,6 +65,7 @@ export default function TestrideDetailPage() {
   const params = useParams()
   const [testride, setTestride] = useState<Testride | null>(null)
   const [loading, setLoading] = useState(true)
+  const [updatingVehicleSold, setUpdatingVehicleSold] = useState(false)
 
   useEffect(() => {
     if (params.id) {
@@ -107,6 +108,33 @@ export default function TestrideDetailPage() {
     } catch (error) {
       console.error("Error deleting testride:", error)
       alert("Fout bij verwijderen proefrit")
+    }
+  }
+
+  const handleToggleVehicleSold = async () => {
+    if (!testride) return
+    
+    setUpdatingVehicleSold(true)
+    try {
+      const response = await fetch(`/api/testrides/${testride.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vehicleSold: !testride.vehicleSold,
+        }),
+      })
+
+      if (response.ok) {
+        const updatedTestride = await response.json()
+        setTestride(updatedTestride)
+      } else {
+        alert("Fout bij bijwerken status")
+      }
+    } catch (error) {
+      console.error("Error updating vehicle sold status:", error)
+      alert("Fout bij bijwerken status")
+    } finally {
+      setUpdatingVehicleSold(false)
     }
   }
 
@@ -479,7 +507,7 @@ export default function TestrideDetailPage() {
           )}
 
           <div className="pt-4 border-t">
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div>
                 <h3 className="font-semibold mb-2">Status</h3>
                 <div className="flex items-center gap-2">
@@ -500,6 +528,47 @@ export default function TestrideDetailPage() {
                   )}
                 </div>
               </div>
+              
+              {/* Voertuig verkocht toggle - alleen tonen bij afgeronde proefritten */}
+              {testride.status === "COMPLETED" && (
+                <div className="flex flex-col items-start md:items-end">
+                  <h3 className="font-semibold mb-2">
+                    {testride.vehicleSold ? "Voertuig verkocht" : "Voertuig niet verkocht"}
+                  </h3>
+                  <button
+                    onClick={handleToggleVehicleSold}
+                    disabled={updatingVehicleSold}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
+                      testride.vehicleSold
+                        ? 'border-green-500 bg-green-50 hover:bg-green-100'
+                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+                    } ${updatingVehicleSold ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
+                  >
+                    {updatingVehicleSold ? (
+                      <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                    ) : (
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
+                        testride.vehicleSold 
+                          ? 'bg-green-500 text-white' 
+                          : 'border-2 border-slate-300'
+                      }`}>
+                        {testride.vehicleSold && <CheckCircle className="h-4 w-4" />}
+                      </div>
+                    )}
+                    <div className="text-left">
+                      <div className="flex items-center gap-2">
+                        <Car className={`h-4 w-4 ${testride.vehicleSold ? 'text-green-600' : 'text-slate-400'}`} />
+                        <span className={`font-medium ${testride.vehicleSold ? 'text-green-700' : 'text-slate-600'}`}>
+                          {testride.vehicleSold ? '🎉 Verkocht!' : 'Niet verkocht'}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500 mt-0.5">
+                        Klik om status te wijzigen
+                      </p>
+                    </div>
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 

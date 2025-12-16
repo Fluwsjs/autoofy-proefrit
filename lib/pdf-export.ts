@@ -280,10 +280,10 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   // Subtitle with date
   doc.setFontSize(10)
   doc.setFont("helvetica", "normal")
-  doc.text(`${formatDate(testride.date)} • ${testride.carType}`, margin, 33)
+  doc.text(`${formatDate(testride.date)} - ${testride.carType}`, margin, 33)
   
   // Status badge
-  const statusText = testride.status === "COMPLETED" ? "✓ AFGEROND" : "⏳ ACTIEF"
+  const statusText = testride.status === "COMPLETED" ? "AFGEROND" : "ACTIEF"
   const statusColor = testride.status === "COMPLETED" ? COLORS.success : COLORS.accent
   const statusWidth = doc.getTextWidth(statusText) + 12
   
@@ -306,13 +306,13 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     
     let companyText = testride.companyInfo.companyName
     if (testride.companyInfo.companyAddress) {
-      companyText += ` • ${testride.companyInfo.companyAddress}`
+      companyText += ` - ${testride.companyInfo.companyAddress}`
     }
     if (testride.companyInfo.companyZipCode && testride.companyInfo.companyCity) {
       companyText += `, ${testride.companyInfo.companyZipCode} ${testride.companyInfo.companyCity}`
     }
     if (testride.companyInfo.companyPhone) {
-      companyText += ` • Tel: ${testride.companyInfo.companyPhone}`
+      companyText += ` - Tel: ${testride.companyInfo.companyPhone}`
     }
     
     doc.text(companyText, margin, yPosition)
@@ -339,7 +339,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   setColor(COLORS.primary)
   doc.setFontSize(11)
   doc.setFont("helvetica", "bold")
-  doc.text("👤 KLANTGEGEVENS", leftCol + 4, leftY)
+  doc.text("KLANTGEGEVENS", leftCol + 4, leftY)
   leftY += 8
   
   leftY += addLabelValue("Naam", testride.customerName, leftCol + 4, leftY, colWidth - 8)
@@ -359,7 +359,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   setColor(COLORS.primary)
   doc.setFontSize(11)
   doc.setFont("helvetica", "bold")
-  doc.text("🚗 VOERTUIGGEGEVENS", rightCol + 4, rightY)
+  doc.text("VOERTUIGGEGEVENS", rightCol + 4, rightY)
   rightY += 8
   
   rightY += addLabelValue("Type / Model", testride.carType, rightCol + 4, rightY, colWidth - 8)
@@ -389,7 +389,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   setColor(COLORS.white)
   doc.setFontSize(10)
   doc.setFont("helvetica", "bold")
-  doc.text("📅 RITGEGEVENS", margin + 6, yPosition + 5.5)
+  doc.text("RITGEGEVENS", margin + 6, yPosition + 5.5)
   yPosition += 12
   
   // Content in boxes
@@ -432,7 +432,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   setColor(COLORS.white)
   doc.setFontSize(10)
   doc.setFont("helvetica", "bold")
-  doc.text("📊 KILOMETERSTAND", margin + 6, yPosition + 5.5)
+  doc.text("KILOMETERSTAND", margin + 6, yPosition + 5.5)
   yPosition += 12
   
   const kmBoxWidth = (contentWidth - 6) / 3
@@ -488,7 +488,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   
   const infoY = yPosition + 6
   const infoItems = [
-    { label: "Eigen risico", value: `€${testride.eigenRisico}` },
+    { label: "Eigen risico", value: `EUR ${testride.eigenRisico}` },
     { label: "Sleutels", value: `${testride.aantalSleutels}x` },
   ]
   
@@ -497,7 +497,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   }
   
   if (testride.vehicleSold) {
-    infoItems.push({ label: "Voertuig verkocht", value: "✓ Ja" })
+    infoItems.push({ label: "Voertuig verkocht", value: "Ja" })
   }
   
   const itemWidth = contentWidth / infoItems.length
@@ -528,7 +528,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     setColor(COLORS.white)
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
-    doc.text("📝 NOTITIES", margin + 6, yPosition + 5.5)
+    doc.text("NOTITIES", margin + 6, yPosition + 5.5)
     yPosition += 12
     
     setColor(COLORS.text)
@@ -599,7 +599,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     setColor(COLORS.white)
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
-    doc.text("🪪 IDENTIFICATIE", margin + 6, yPosition + 5.5)
+    doc.text("IDENTIFICATIE", margin + 6, yPosition + 5.5)
     yPosition += 14
     
     if (testride.idPhotoFrontUrl) {
@@ -618,7 +618,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     setColor(COLORS.white)
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
-    doc.text("⚠️ SCHADE FOTO'S", margin + 6, yPosition + 5.5)
+    doc.text("SCHADE FOTO'S", margin + 6, yPosition + 5.5)
     yPosition += 14
     
     for (let i = 0; i < testride.damagePhotoUrls.length; i++) {
@@ -634,7 +634,7 @@ export async function exportTestrideToPDF(testride: TestrideData) {
     setColor(COLORS.white)
     doc.setFontSize(10)
     doc.setFont("helvetica", "bold")
-    doc.text("✍️ HANDTEKENINGEN", margin + 6, yPosition + 5.5)
+    doc.text("HANDTEKENINGEN", margin + 6, yPosition + 5.5)
     yPosition += 14
     
     if (testride.customerSignatureUrl) {
@@ -649,9 +649,8 @@ export async function exportTestrideToPDF(testride: TestrideData) {
   }
 
   // ============================================
-  // VOORWAARDEN
+  // VOORWAARDEN (altijd op nieuwe pagina)
   // ============================================
-  checkPageBreak(140)
   doc.addPage()
   yPosition = margin
   
@@ -699,12 +698,12 @@ export async function exportTestrideToPDF(testride: TestrideData) {
 
   // Left column terms
   termsLeftY = addTermsSection("Proefrit", [
-    "• De klant ontvangt het voertuig in bruikleen voor een bepaalde periode.",
-    "• Het voertuig blijft eigendom van het autobedrijf.",
-    "• De klant moet het voertuig op de afgesproken datum en tijd inleveren.",
-    "• Verlenging is alleen mogelijk met schriftelijke toestemming.",
-    "• Bij te laat inleveren kunnen kosten in rekening worden gebracht.",
-    "• Bij gebruik van handelaarskenteken mag het voertuig alleen worden getest.",
+    "- De klant ontvangt het voertuig in bruikleen voor een bepaalde periode.",
+    "- Het voertuig blijft eigendom van het autobedrijf.",
+    "- De klant moet het voertuig op de afgesproken datum en tijd inleveren.",
+    "- Verlenging is alleen mogelijk met schriftelijke toestemming.",
+    "- Bij te laat inleveren kunnen kosten in rekening worden gebracht.",
+    "- Bij gebruik van handelaarskenteken mag het voertuig alleen worden getest.",
   ], leftTermsX, termsLeftY, termsColWidth)
 
   termsLeftY = addTermsSection("Kentekendocumenten", [
@@ -717,9 +716,9 @@ export async function exportTestrideToPDF(testride: TestrideData) {
 
   // Right column terms
   termsRightY = addTermsSection("Verzekering", [
-    "• De klant is aansprakelijk voor schades die niet gedekt worden door de verzekering.",
-    "• Schade aan het voertuig moet direct worden gemeld.",
-    "• Bij alleen WA-verzekering is de klant volledig aansprakelijk voor schade aan of verlies van het voertuig indien geen derde aansprakelijk is.",
+    "- De klant is aansprakelijk voor schades die niet gedekt worden door de verzekering.",
+    "- Schade aan het voertuig moet direct worden gemeld.",
+    "- Bij alleen WA-verzekering is de klant volledig aansprakelijk voor schade aan of verlies van het voertuig indien geen derde aansprakelijk is.",
   ], rightTermsX, termsRightY, termsColWidth)
 
   termsRightY = addTermsSection("Persoonsgegevens", [

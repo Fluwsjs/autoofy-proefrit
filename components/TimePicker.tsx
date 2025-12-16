@@ -12,158 +12,199 @@ interface TimePickerProps {
 }
 
 export function TimePicker({ label, value, onChange, required }: TimePickerProps) {
-  // Committed values (what's actually saved)
-  const [committedHours, setCommittedHours] = useState("09")
-  const [committedMinutes, setCommittedMinutes] = useState("00")
-  
-  // Preview values (what's shown while scrolling, not saved yet)
-  const [previewHours, setPreviewHours] = useState("09")
-  const [previewMinutes, setPreviewMinutes] = useState("00")
-  
   const [isOpen, setIsOpen] = useState(false)
+  const [selectedHours, setSelectedHours] = useState("09")
+  const [selectedMinutes, setSelectedMinutes] = useState("00")
+  
   const containerRef = useRef<HTMLDivElement>(null)
   const hoursRef = useRef<HTMLDivElement>(null)
   const minutesRef = useRef<HTMLDivElement>(null)
-  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const hasUserInteracted = useRef(false)
+  const isScrollingRef = useRef(false)
+  const scrollTimeoutHoursRef = useRef<NodeJS.Timeout | null>(null)
+  const scrollTimeoutMinutesRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Parse value prop and sync to committed state (only when value prop changes from parent)
-  useEffect(() => {
-    if (value && value.includes(":")) {
-      const [h, m] = value.split(":")
-      if (h && m) {
-        const normalizedH = h.padStart(2, "0")
-        const normalizedM = m.padStart(2, "0")
-        // Only update if different and user hasn't interacted
-        if (!hasUserInteracted.current && (normalizedH !== committedHours || normalizedM !== committedMinutes)) {
-          setCommittedHours(normalizedH)
-          setCommittedMinutes(normalizedM)
-          setPreviewHours(normalizedH)
-          setPreviewMinutes(normalizedM)
-        }
-      }
-    } else if (!value && !hasUserInteracted.current) {
-      // Set default time only if no value provided and no user interaction
-      const now = new Date()
-      const currentHours = now.getHours().toString().padStart(2, "0")
-      const currentMinutes = now.getMinutes().toString().padStart(2, "0")
-      setCommittedHours(currentHours)
-      setCommittedMinutes(currentMinutes)
-      setPreviewHours(currentHours)
-      setPreviewMinutes(currentMinutes)
-    }
-  }, [value, committedHours, committedMinutes])
+  const ITEM_HEIGHT = 44
+  const VISIBLE_ITEMS = 7
+  const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS
 
   const hoursList = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"))
   const minutesList = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"))
 
-  const scrollToSelected = useCallback((container: HTMLDivElement | null, selectedValue: string) => {
-    if (!container) return
-    const element = container.querySelector(`[data-value="${selectedValue}"]`) as HTMLElement
-    if (element) {
-      const containerHeight = container.clientHeight
-      const elementTop = element.offsetTop - container.offsetTop
-      const elementHeight = element.clientHeight
-      const scrollPosition = elementTop - (containerHeight / 2) + (elementHeight / 2)
-      container.scrollTo({ top: scrollPosition, behavior: "smooth" })
+  // Parse initial value - alleen bij mount of wanneer value van buitenaf verandert en picker NIET open is
+  useEffect(() => {
+    if (!isOpen && value && value.includes(":")) {
+      const [h, m] = value.split(":")
+      if (h && m) {
+        setSelectedHours(h.padStart(2, "0"))
+        setSelectedMinutes(m.padStart(2, "0"))
+      }
     }
+  }, [value, isOpen])
+
+  // Scroll to a specific index
+  const scrollToIndex = useCallback((container: HTMLDivElement | null, index: number, smooth = true) => {
+    if (!container) return
+    const scrollPosition = index * ITEM_HEIGHT
+    container.scrollTo({ 
+      top: scrollPosition, 
+      behavior: smooth ? "smooth" : "auto" 
+    })
   }, [])
 
-  // Handle scroll - only update PREVIEW state, never commit
-  const handleScroll = useCallback((container: HTMLDivElement, type: "hours" | "minutes") => {
-    if (scrollTimeoutRef.current) {
-      clearTimeout(scrollTimeoutRef.current)
+  // Get index from scroll position
+  const getIndexFromScroll = (scrollTop: number) => {
+    return Math.round(scrollTop / ITEM_HEIGHT)
+  }
+
+  // Handle scroll for hours
+  const handleHoursScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    isScrollingRef.current = true
+    
+    if (scrollTimeoutHoursRef.current) {
+      clearTimeout(scrollTimeoutHoursRef.current)
     }
 
-    scrollTimeoutRef.current = setTimeout(() => {
-      const containerHeight = container.clientHeight
-      const scrollTop = container.scrollTop
-      const itemHeight = 40
-      const centerPosition = scrollTop + containerHeight / 2
-      const selectedIndex = Math.round(centerPosition / itemHeight)
-      
-      if (type === "hours") {
-        const selectedHour = hoursList[Math.max(0, Math.min(selectedIndex, 23))]
-        if (selectedHour && selectedHour !== previewHours) {
-          setPreviewHours(selectedHour) // Only update preview, not committed
-        }
-      } else {
-        const selectedMinute = minutesList[Math.max(0, Math.min(selectedIndex, 59))]
-        if (selectedMinute && selectedMinute !== previewMinutes) {
-          setPreviewMinutes(selectedMinute) // Only update preview, not committed
-        }
-      }
-    }, 100)
-  }, [previewHours, previewMinutes, hoursList, minutesList])
-
-  // Commit the preview values to parent
-  const commitValue = useCallback((h: string, m: string) => {
-    const timeString = `${h}:${m}`
-    if (timeString !== value) {
-      hasUserInteracted.current = true
-      setCommittedHours(h)
-      setCommittedMinutes(m)
-      onChange(timeString)
-      // Reset flag after delay
-      setTimeout(() => {
-        hasUserInteracted.current = false
-      }, 200)
+    const index = getIndexFromScroll(container.scrollTop)
+    const clampedIndex = Math.max(0, Math.min(index, 23))
+    const newHour = hoursList[clampedIndex]
+    
+    if (newHour && newHour !== selectedHours) {
+      setSelectedHours(newHour)
     }
-  }, [value, onChange])
 
-  // Close on outside click - DON'T save on outside click, just close
+    scrollTimeoutHoursRef.current = setTimeout(() => {
+      // Snap to nearest item
+      const finalIndex = getIndexFromScroll(container.scrollTop)
+      const clampedFinalIndex = Math.max(0, Math.min(finalIndex, 23))
+      container.scrollTo({ 
+        top: clampedFinalIndex * ITEM_HEIGHT, 
+        behavior: "smooth" 
+      })
+      setSelectedHours(hoursList[clampedFinalIndex])
+      isScrollingRef.current = false
+    }, 150)
+  }, [hoursList, selectedHours])
+
+  // Handle scroll for minutes
+  const handleMinutesScroll = useCallback((e: React.UIEvent<HTMLDivElement>) => {
+    const container = e.currentTarget
+    isScrollingRef.current = true
+    
+    if (scrollTimeoutMinutesRef.current) {
+      clearTimeout(scrollTimeoutMinutesRef.current)
+    }
+
+    const index = getIndexFromScroll(container.scrollTop)
+    const clampedIndex = Math.max(0, Math.min(index, 59))
+    const newMinute = minutesList[clampedIndex]
+    
+    if (newMinute && newMinute !== selectedMinutes) {
+      setSelectedMinutes(newMinute)
+    }
+
+    scrollTimeoutMinutesRef.current = setTimeout(() => {
+      // Snap to nearest item
+      const finalIndex = getIndexFromScroll(container.scrollTop)
+      const clampedFinalIndex = Math.max(0, Math.min(finalIndex, 59))
+      container.scrollTo({ 
+        top: clampedFinalIndex * ITEM_HEIGHT, 
+        behavior: "smooth" 
+      })
+      setSelectedMinutes(minutesList[clampedFinalIndex])
+      isScrollingRef.current = false
+    }, 150)
+  }, [minutesList, selectedMinutes])
+
+  // Open picker
+  const handleOpen = useCallback(() => {
+    // Set initial values from current value prop
+    if (value && value.includes(":")) {
+      const [h, m] = value.split(":")
+      setSelectedHours(h.padStart(2, "0"))
+      setSelectedMinutes(m.padStart(2, "0"))
+    }
+    setIsOpen(true)
+  }, [value])
+
+  // Scroll to position when picker opens
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        // Reset preview to committed values and close
-        setPreviewHours(committedHours)
-        setPreviewMinutes(committedMinutes)
-        setIsOpen(false)
-      }
-    }
-
     if (isOpen) {
-      document.addEventListener("mousedown", handleClickOutside)
-      // Reset preview to committed when opening
-      setPreviewHours(committedHours)
-      setPreviewMinutes(committedMinutes)
-      // Scroll to selected values when opening
-      setTimeout(() => {
-        scrollToSelected(hoursRef.current, committedHours)
-        scrollToSelected(minutesRef.current, committedMinutes)
-      }, 100)
+      document.body.style.overflow = "hidden"
+      
+      // Wait for DOM to be ready
+      requestAnimationFrame(() => {
+        const hourIndex = hoursList.indexOf(selectedHours)
+        const minuteIndex = minutesList.indexOf(selectedMinutes)
+        
+        if (hoursRef.current) {
+          hoursRef.current.scrollTop = hourIndex * ITEM_HEIGHT
+        }
+        if (minutesRef.current) {
+          minutesRef.current.scrollTop = minuteIndex * ITEM_HEIGHT
+        }
+      })
+    } else {
+      document.body.style.overflow = ""
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-      if (scrollTimeoutRef.current) {
-        clearTimeout(scrollTimeoutRef.current)
-      }
+      document.body.style.overflow = ""
     }
-  }, [isOpen, committedHours, committedMinutes, scrollToSelected])
+  }, [isOpen, selectedHours, selectedMinutes, hoursList, minutesList])
 
-  const handleHourClick = useCallback((hour: string) => {
-    setPreviewHours(hour)
-    setCommittedHours(hour)
-    scrollToSelected(hoursRef.current, hour)
-    commitValue(hour, previewMinutes) // Commit immediately on click
-  }, [previewMinutes, scrollToSelected, commitValue])
+  // Cleanup timeouts
+  useEffect(() => {
+    return () => {
+      if (scrollTimeoutHoursRef.current) clearTimeout(scrollTimeoutHoursRef.current)
+      if (scrollTimeoutMinutesRef.current) clearTimeout(scrollTimeoutMinutesRef.current)
+    }
+  }, [])
 
-  const handleMinuteClick = useCallback((minute: string) => {
-    setPreviewMinutes(minute)
-    setCommittedMinutes(minute)
-    scrollToSelected(minutesRef.current, minute)
-    commitValue(previewHours, minute) // Commit immediately on click
-  }, [previewHours, scrollToSelected, commitValue])
-
-  const handleClose = useCallback(() => {
-    // Commit preview values when clicking "Klaar"
-    commitValue(previewHours, previewMinutes)
+  const handleConfirm = useCallback(() => {
+    onChange(`${selectedHours}:${selectedMinutes}`)
     setIsOpen(false)
-  }, [previewHours, previewMinutes, commitValue])
+  }, [selectedHours, selectedMinutes, onChange])
 
-  // Display the committed value, not the preview
-  const displayValue = value || `${committedHours}:${committedMinutes}`
+  const handleCancel = useCallback(() => {
+    // Reset to original value
+    if (value && value.includes(":")) {
+      const [h, m] = value.split(":")
+      setSelectedHours(h.padStart(2, "0"))
+      setSelectedMinutes(m.padStart(2, "0"))
+    }
+    setIsOpen(false)
+  }, [value])
+
+  // Click on item to select
+  const handleHourClick = useCallback((hour: string, index: number) => {
+    setSelectedHours(hour)
+    scrollToIndex(hoursRef.current, index)
+  }, [scrollToIndex])
+
+  const handleMinuteClick = useCallback((minute: string, index: number) => {
+    setSelectedMinutes(minute)
+    scrollToIndex(minutesRef.current, index)
+  }, [scrollToIndex])
+
+  // Get opacity based on distance from center
+  const getItemStyle = (index: number, selectedIndex: number) => {
+    const distance = Math.abs(index - selectedIndex)
+    
+    if (distance === 0) {
+      return { opacity: 1, fontWeight: 600, fontSize: "22px" }
+    } else if (distance === 1) {
+      return { opacity: 0.6, fontWeight: 400, fontSize: "20px" }
+    } else if (distance === 2) {
+      return { opacity: 0.35, fontWeight: 400, fontSize: "18px" }
+    } else {
+      return { opacity: 0.15, fontWeight: 400, fontSize: "16px" }
+    }
+  }
+
+  const displayValue = value || `${selectedHours}:${selectedMinutes}`
+  const selectedHourIndex = hoursList.indexOf(selectedHours)
+  const selectedMinuteIndex = minutesList.indexOf(selectedMinutes)
 
   return (
     <div className="space-y-2" ref={containerRef}>
@@ -174,11 +215,7 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
         <button
           type="button"
           id={`time-${label}`}
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            setIsOpen(!isOpen)
-          }}
+          onClick={handleOpen}
           className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           <span className={value ? "text-foreground font-medium" : "text-muted-foreground"}>
@@ -187,104 +224,132 @@ export function TimePicker({ label, value, onChange, required }: TimePickerProps
           <Clock className="h-4 w-4 text-muted-foreground" />
         </button>
 
+        {/* iOS-style Modal Picker */}
         {isOpen && (
-          <div 
-            className="absolute z-50 mt-1 w-full rounded-md border bg-white shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-            onMouseDown={(e) => e.preventDefault()}
-          >
-            <div className="flex relative max-h-[200px] overflow-hidden">
-              {/* Selection indicator overlay */}
-              <div className="absolute top-1/2 left-0 right-0 h-10 -translate-y-1/2 border-y-2 border-autoofy-dark/30 pointer-events-none z-10"></div>
-              
-              {/* Hours */}
-              <div
-                ref={hoursRef}
-                className="flex-1 overflow-y-auto scroll-smooth"
-                style={{
-                  scrollSnapType: "y mandatory",
-                }}
-                onScroll={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleScroll(e.currentTarget, "hours")
-                }}
-              >
-                {/* Spacer for centering */}
-                <div className="h-[80px]"></div>
-                {hoursList.map((hour) => (
-                  <div
-                    key={hour}
-                    data-value={hour}
-                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
-                      previewHours === hour 
-                        ? "bg-autoofy-dark text-white font-bold text-lg" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleHourClick(hour)
-                    }}
-                  >
-                    {hour}
-                  </div>
-                ))}
-                {/* Spacer for centering */}
-                <div className="h-[80px]"></div>
+          <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
+            {/* Backdrop */}
+            <div 
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={handleCancel}
+            />
+            
+            {/* Picker Container */}
+            <div 
+              className="relative w-full max-w-sm mx-4 mb-4 sm:mb-0 animate-in slide-in-from-bottom-4 duration-300"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="bg-[#2c2c2e] rounded-t-2xl px-4 py-3 flex items-center justify-between border-b border-white/10">
+                <button
+                  type="button"
+                  onClick={handleCancel}
+                  className="text-[#ff9f0a] text-base font-medium hover:opacity-80 transition-opacity"
+                >
+                  Annuleer
+                </button>
+                <span className="text-white/90 text-base font-semibold">{label}</span>
+                <button
+                  type="button"
+                  onClick={handleConfirm}
+                  className="text-[#ff9f0a] text-base font-semibold hover:opacity-80 transition-opacity"
+                >
+                  Klaar
+                </button>
               </div>
 
-              <div className="w-px bg-border"></div>
-
-              {/* Minutes */}
-              <div
-                ref={minutesRef}
-                className="flex-1 overflow-y-auto scroll-smooth"
-                style={{
-                  scrollSnapType: "y mandatory",
-                }}
-                onScroll={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleScroll(e.currentTarget, "minutes")
-                }}
-              >
-                {/* Spacer for centering */}
-                <div className="h-[80px]"></div>
-                {minutesList.map((minute) => (
-                  <div
-                    key={minute}
-                    data-value={minute}
-                    className={`h-10 flex items-center justify-center scroll-snap-align-center transition-colors cursor-pointer ${
-                      previewMinutes === minute 
-                        ? "bg-autoofy-dark text-white font-bold text-lg" 
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                    }`}
-                    onClick={(e) => {
-                      e.preventDefault()
-                      e.stopPropagation()
-                      handleMinuteClick(minute)
+              {/* Picker Wheels */}
+              <div className="bg-[#1c1c1e] rounded-b-2xl overflow-hidden">
+                <div 
+                  className="flex relative"
+                  style={{ height: CONTAINER_HEIGHT }}
+                >
+                  {/* Selection Highlight Bar */}
+                  <div 
+                    className="absolute left-4 right-4 bg-[#3a3a3c] rounded-xl pointer-events-none z-0"
+                    style={{ 
+                      top: "50%", 
+                      transform: "translateY(-50%)",
+                      height: ITEM_HEIGHT 
                     }}
+                  />
+                  
+                  {/* Hours Wheel */}
+                  <div
+                    ref={hoursRef}
+                    className="flex-1 overflow-y-scroll scrollbar-hide relative z-10"
+                    style={{
+                      scrollSnapType: "y mandatory",
+                    }}
+                    onScroll={handleHoursScroll}
                   >
-                    {minute}
+                    {/* Top padding for centering */}
+                    <div style={{ height: ITEM_HEIGHT * 3 }} />
+                    
+                    {hoursList.map((hour, index) => {
+                      const style = getItemStyle(index, selectedHourIndex)
+                      return (
+                        <div
+                          key={hour}
+                          className="flex items-center justify-center text-white transition-opacity duration-100 cursor-pointer select-none"
+                          style={{
+                            height: ITEM_HEIGHT,
+                            scrollSnapAlign: "center",
+                            ...style,
+                          }}
+                          onClick={() => handleHourClick(hour, index)}
+                        >
+                          {hour}
+                        </div>
+                      )
+                    })}
+                    
+                    {/* Bottom padding for centering */}
+                    <div style={{ height: ITEM_HEIGHT * 3 }} />
                   </div>
-                ))}
-                {/* Spacer for centering */}
-                <div className="h-[80px]"></div>
+
+                  {/* Separator : */}
+                  <div 
+                    className="flex items-center justify-center text-white text-2xl font-semibold z-10"
+                    style={{ width: 24 }}
+                  >
+                    :
+                  </div>
+
+                  {/* Minutes Wheel */}
+                  <div
+                    ref={minutesRef}
+                    className="flex-1 overflow-y-scroll scrollbar-hide relative z-10"
+                    style={{
+                      scrollSnapType: "y mandatory",
+                    }}
+                    onScroll={handleMinutesScroll}
+                  >
+                    {/* Top padding for centering */}
+                    <div style={{ height: ITEM_HEIGHT * 3 }} />
+                    
+                    {minutesList.map((minute, index) => {
+                      const style = getItemStyle(index, selectedMinuteIndex)
+                      return (
+                        <div
+                          key={minute}
+                          className="flex items-center justify-center text-white transition-opacity duration-100 cursor-pointer select-none"
+                          style={{
+                            height: ITEM_HEIGHT,
+                            scrollSnapAlign: "center",
+                            ...style,
+                          }}
+                          onClick={() => handleMinuteClick(minute, index)}
+                        >
+                          {minute}
+                        </div>
+                      )
+                    })}
+                    
+                    {/* Bottom padding for centering */}
+                    <div style={{ height: ITEM_HEIGHT * 3 }} />
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="p-2 border-t bg-muted/30">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  handleClose()
-                }}
-                className="w-full px-4 py-2 text-sm font-medium bg-autoofy-dark text-white rounded-md hover:bg-autoofy-dark/90"
-              >
-                Klaar
-              </button>
             </div>
           </div>
         )}

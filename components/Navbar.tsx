@@ -179,6 +179,18 @@ export function Navbar() {
                       </Link>
                       
                       <Link
+                        href="/dashboard/sellers"
+                        onClick={() => setSettingsOpen(false)}
+                        className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"
+                      >
+                        <Users className="h-4 w-4 text-gray-600" />
+                        <div>
+                          <p className="text-sm font-medium">Verkopers</p>
+                          <p className="text-xs text-gray-500">Beheer verkopers</p>
+                        </div>
+                      </Link>
+                      
+                      <Link
                         href="/dashboard/profile"
                         onClick={() => setSettingsOpen(false)}
                         className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors"

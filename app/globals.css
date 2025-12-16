@@ -111,5 +111,14 @@
   .shadow-glow-lg {
     box-shadow: 0 0 40px rgba(59, 130, 246, 0.2);
   }
+  
+  /* iOS-style scrollbar hide for time pickers */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
 }
 
