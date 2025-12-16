@@ -66,6 +66,10 @@ model User {
   sellerSignatureUrl String? // Eenmalige verkoper handtekening/stempel (herbruikbaar)
   twoFactorEnabled  Boolean  @default(false)
   twoFactorSecret   String?
+  // Security: Account lockout
+  failedLoginAttempts Int      @default(0)  // Aantal mislukte login pogingen
+  lockedUntil        DateTime? // Account geblokkeerd tot dit tijdstip
+  lastFailedLogin    DateTime? // Laatste mislukte login poging
   createdAt         DateTime @default(now())
   dealerPlates      DealerPlate[]
   emailVerificationToken VerificationToken?
@@ -124,11 +128,15 @@ enum TestrideStatus {
 }
 
 model SuperAdmin {
-  id        String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
+  id                  String   @id @default(cuid())
+  name                String
+  email               String   @unique
+  password            String
+  // Security: Account lockout
+  failedLoginAttempts Int      @default(0)  // Aantal mislukte login pogingen
+  lockedUntil         DateTime? // Account geblokkeerd tot dit tijdstip
+  lastFailedLogin     DateTime? // Laatste mislukte login poging
+  createdAt           DateTime @default(now())
 }
 
 model VerificationToken {
