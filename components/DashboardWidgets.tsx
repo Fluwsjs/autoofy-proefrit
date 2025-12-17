@@ -1,7 +1,9 @@
 "use client"
 
-import { useMemo } from "react"
+import { useMemo, useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { 
   TrendingUp, 
   Target, 
@@ -12,7 +14,10 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Flame,
-  Activity
+  Activity,
+  Pencil,
+  Check,
+  X
 } from "lucide-react"
 import Link from "next/link"
 import { formatDate, formatTime } from "@/lib/utils"
@@ -46,9 +51,43 @@ interface DashboardWidgetsProps {
     feedbacks: Feedback[]
   }
   monthTarget?: number
+  onTargetChange?: (newTarget: number) => void
 }
 
-export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20 }: DashboardWidgetsProps) {
+export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, onTargetChange }: DashboardWidgetsProps) {
+  const [isEditingTarget, setIsEditingTarget] = useState(false)
+  const [editTargetValue, setEditTargetValue] = useState(monthTarget.toString())
+  const [isSavingTarget, setIsSavingTarget] = useState(false)
+
+  const handleSaveTarget = async () => {
+    const newTarget = parseInt(editTargetValue)
+    if (isNaN(newTarget) || newTarget < 1 || newTarget > 1000) {
+      return
+    }
+    
+    setIsSavingTarget(true)
+    try {
+      const response = await fetch("/api/company-info", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ monthlyTarget: newTarget }),
+      })
+      
+      if (response.ok) {
+        onTargetChange?.(newTarget)
+        setIsEditingTarget(false)
+      }
+    } catch (error) {
+      console.error("Error saving target:", error)
+    } finally {
+      setIsSavingTarget(false)
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setEditTargetValue(monthTarget.toString())
+    setIsEditingTarget(false)
+  }
   // Calculate conversion rate
   const conversionRate = useMemo(() => {
     if (feedbackData.total === 0) return 0
@@ -218,10 +257,53 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20 }: 
             <div className="flex items-start justify-between">
               <div>
                 <p className="text-violet-100 text-sm font-medium mb-1">Maand Target</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-5xl font-bold tracking-tight">{thisMonthCount}</span>
-                  <span className="text-2xl text-violet-200">/ {monthTarget}</span>
-                </div>
+                {isEditingTarget ? (
+                  <div className="flex items-center gap-2 mt-2">
+                    <span className="text-4xl font-bold tracking-tight">{thisMonthCount}</span>
+                    <span className="text-2xl text-violet-200">/</span>
+                    <Input
+                      type="number"
+                      min="1"
+                      max="1000"
+                      value={editTargetValue}
+                      onChange={(e) => setEditTargetValue(e.target.value)}
+                      className="w-20 h-10 text-2xl font-bold text-center bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                      autoFocus
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleSaveTarget}
+                      disabled={isSavingTarget}
+                      className="h-8 w-8 bg-white/20 hover:bg-white/30 text-white"
+                    >
+                      <Check className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleCancelEdit}
+                      className="h-8 w-8 bg-white/20 hover:bg-white/30 text-white"
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-baseline gap-2">
+                    <span className="text-5xl font-bold tracking-tight">{thisMonthCount}</span>
+                    <span className="text-2xl text-violet-200">/ {monthTarget}</span>
+                    <button
+                      onClick={() => {
+                        setEditTargetValue(monthTarget.toString())
+                        setIsEditingTarget(true)
+                      }}
+                      className="ml-2 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      title="Target aanpassen"
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
                 <p className="text-violet-100/80 text-sm mt-2">
                   Proefritten deze maand
                 </p>
@@ -234,7 +316,7 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20 }: 
             <div className="mt-4">
               <div className="flex justify-between text-sm text-violet-200 mb-2">
                 <span>{Math.round(targetProgress)}% behaald</span>
-                <span>{monthTarget - thisMonthCount} te gaan</span>
+                <span>{Math.max(0, monthTarget - thisMonthCount)} te gaan</span>
               </div>
               <div className="h-3 bg-white/20 rounded-full overflow-hidden">
                 <div 

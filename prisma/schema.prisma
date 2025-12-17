@@ -23,6 +23,7 @@ model Tenant {
   companyKvK      String?   // KvK nummer
   companyVAT      String?   // BTW nummer
   companyLogo     String?   // Bedrijfslogo (base64 of URL)
+  monthlyTarget   Int       @default(20) // Maandelijks proefrit target
   createdAt       DateTime  @default(now())
   users           User[]
   testrides       Testride[]

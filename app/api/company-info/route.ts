@@ -14,6 +14,7 @@ const companyInfoSchema = z.object({
   companyKvK: z.string().optional(),
   companyVAT: z.string().optional(),
   companyLogo: z.string().optional(), // Base64 encoded logo image
+  monthlyTarget: z.number().min(1).max(1000).optional(), // Maandelijks proefrit target
 })
 
 export async function GET(request: NextRequest) {
@@ -38,6 +39,7 @@ export async function GET(request: NextRequest) {
         companyKvK: true,
         companyVAT: true,
         companyLogo: true,
+        monthlyTarget: true,
       },
     })
 
@@ -58,6 +60,7 @@ export async function GET(request: NextRequest) {
       companyKvK: tenant.companyKvK || null,
       companyVAT: tenant.companyVAT || null,
       companyLogo: tenant.companyLogo || null,
+      monthlyTarget: tenant.monthlyTarget || 20,
     })
   } catch (error) {
     console.error("Error fetching company info:", error)
@@ -91,6 +94,7 @@ export async function POST(request: NextRequest) {
       companyKvK: body.companyKvK ? sanitizeString(body.companyKvK) : undefined,
       companyVAT: body.companyVAT ? sanitizeString(body.companyVAT) : undefined,
       companyLogo: body.companyLogo || undefined, // Base64 image, don't sanitize
+      monthlyTarget: body.monthlyTarget ? parseInt(body.monthlyTarget) : undefined,
     }
 
     const validatedData = companyInfoSchema.parse(sanitizedBody)
@@ -100,6 +104,7 @@ export async function POST(request: NextRequest) {
       data: {
         ...validatedData,
         companyLogo: validatedData.companyLogo || null,
+        monthlyTarget: validatedData.monthlyTarget || undefined,
       },
     })
 

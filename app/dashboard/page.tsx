@@ -45,6 +45,7 @@ function DashboardContent() {
   const [companyInfoComplete, setCompanyInfoComplete] = useState(false)
   const [hasDealerPlates, setHasDealerPlates] = useState(false)
   const [feedbackStats, setFeedbackStats] = useState<{ total: number; hotLeads: number; feedbacks: any[] }>({ total: 0, hotLeads: 0, feedbacks: [] })
+  const [monthlyTarget, setMonthlyTarget] = useState(20)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -57,8 +58,23 @@ function DashboardContent() {
       fetchTestrides()
       checkOnboardingStatus()
       fetchFeedbackStats()
+      fetchMonthlyTarget()
     }
   }, [session])
+  
+  const fetchMonthlyTarget = async () => {
+    try {
+      const response = await fetch("/api/company-info")
+      if (response.ok) {
+        const data = await response.json()
+        if (data.monthlyTarget) {
+          setMonthlyTarget(data.monthlyTarget)
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching monthly target:", error)
+    }
+  }
   
   const fetchFeedbackStats = async () => {
     try {
@@ -391,7 +407,8 @@ function DashboardContent() {
         <DashboardWidgets 
           testrides={testrides} 
           feedbackData={feedbackStats}
-          monthTarget={20}
+          monthTarget={monthlyTarget}
+          onTargetChange={setMonthlyTarget}
         />
       )}
 
