@@ -15,6 +15,7 @@ import { AnalyticsChart } from "@/components/AnalyticsChart"
 import { CalendarView } from "@/components/CalendarView"
 import { WelcomeWizard } from "@/components/WelcomeWizard"
 import { MobileTestRideCard } from "@/components/MobileTestRideCard"
+import { DashboardWidgets } from "@/components/DashboardWidgets"
 
 interface Testride {
   id: string
@@ -43,7 +44,7 @@ function DashboardContent() {
   const [wizardStep, setWizardStep] = useState(0)
   const [companyInfoComplete, setCompanyInfoComplete] = useState(false)
   const [hasDealerPlates, setHasDealerPlates] = useState(false)
-  const [feedbackStats, setFeedbackStats] = useState({ total: 0, hotLeads: 0 })
+  const [feedbackStats, setFeedbackStats] = useState<{ total: number; hotLeads: number; feedbacks: any[] }>({ total: 0, hotLeads: 0, feedbacks: [] })
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -64,12 +65,14 @@ function DashboardContent() {
       const response = await fetch("/api/feedback")
       if (response.ok) {
         const data = await response.json()
-        const hotLeads = data.feedbacks?.filter((f: any) => 
+        const feedbacks = data.feedbacks || []
+        const hotLeads = feedbacks.filter((f: any) => 
           f.purchaseLikelihood === "zeer_groot" || f.purchaseLikelihood === "groot"
         ).length || 0
         setFeedbackStats({
           total: data.stats?.total || 0,
-          hotLeads
+          hotLeads,
+          feedbacks
         })
       }
     } catch (error) {
@@ -383,135 +386,117 @@ function DashboardContent() {
         </div>
       </div>
 
-      {/* Statistics Cards - Professional Design */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/25">
-                <Car className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Totaal</span>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.total}</p>
-              <p className="text-sm text-slate-500 mt-1">Proefritten</p>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Dashboard Widgets */}
+      {viewMode === "table" && (
+        <DashboardWidgets 
+          testrides={testrides} 
+          feedbackData={feedbackStats}
+          monthTarget={20}
+        />
+      )}
 
-        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-gradient-to-br from-autoofy-red to-red-600 rounded-xl shadow-lg shadow-red-500/25">
-                <Calendar className="h-5 w-5 text-white" />
-              </div>
-              {stats.monthGrowth !== 0 && (
-                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
-                  stats.monthGrowth > 0 
-                    ? 'bg-green-100 text-green-700' 
-                    : 'bg-red-100 text-red-700'
-                }`}>
-                  {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                  {Math.abs(stats.monthGrowth)}%
-                </span>
-              )}
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.thisMonth}</p>
-              <p className="text-sm text-slate-500 mt-1">Deze maand</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25">
-                <Clock className="h-5 w-5 text-white" />
-              </div>
-              {stats.today > 0 && (
-                <span className="flex h-3 w-3">
-                  <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-                </span>
-              )}
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.today}</p>
-              <p className="text-sm text-slate-500 mt-1">Vandaag gepland</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-          <CardContent className="p-5">
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2.5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl shadow-lg shadow-violet-500/25">
-                <CheckCircle className="h-5 w-5 text-white" />
-              </div>
-              <span className="text-xs font-medium text-slate-400">
-                {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
-              </span>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.completed}</p>
-              <p className="text-sm text-slate-500 mt-1">Afgerond</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Link href="/dashboard/feedback" className="block">
-          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full cursor-pointer group">
+      {/* Quick Statistics - Only show in Calendar/Analytics mode */}
+      {viewMode !== "table" && (
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
             <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/25">
-                  <MessageSquare className="h-5 w-5 text-white" />
+                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/25">
+                  <Car className="h-5 w-5 text-white" />
                 </div>
-                {feedbackStats.hotLeads > 0 && (
-                  <span className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-sm">
-                    🔥 {feedbackStats.hotLeads}
+                <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Totaal</span>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.total}</p>
+                <p className="text-sm text-slate-500 mt-1">Proefritten</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-gradient-to-br from-autoofy-red to-red-600 rounded-xl shadow-lg shadow-red-500/25">
+                  <Calendar className="h-5 w-5 text-white" />
+                </div>
+                {stats.monthGrowth !== 0 && (
+                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
+                    stats.monthGrowth > 0 
+                      ? 'bg-green-100 text-green-700' 
+                      : 'bg-red-100 text-red-700'
+                  }`}>
+                    {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                    {Math.abs(stats.monthGrowth)}%
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight">{feedbackStats.total}</p>
-                <p className="text-sm text-slate-500 mt-1 group-hover:text-amber-600 transition-colors">
-                  Klant feedback <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
-                </p>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.thisMonth}</p>
+                <p className="text-sm text-slate-500 mt-1">Deze maand</p>
               </div>
             </CardContent>
           </Card>
-        </Link>
-      </div>
 
-      {/* Quick Actions for Today */}
-      {stats.today > 0 && viewMode === "table" && (
-        <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-0 shadow-sm overflow-hidden">
-          <CardContent className="p-0">
-            <div className="flex items-center justify-between p-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25">
-                  <AlertCircle className="h-5 w-5 text-white" />
+          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25">
+                  <Clock className="h-5 w-5 text-white" />
+                </div>
+                {stats.today > 0 && (
+                  <span className="flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  </span>
+                )}
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.today}</p>
+                <p className="text-sm text-slate-500 mt-1">Vandaag gepland</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl shadow-lg shadow-violet-500/25">
+                  <CheckCircle className="h-5 w-5 text-white" />
+                </div>
+                <span className="text-xs font-medium text-slate-400">
+                  {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
+                </span>
+              </div>
+              <div>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.completed}</p>
+                <p className="text-sm text-slate-500 mt-1">Afgerond</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Link href="/dashboard/feedback" className="block">
+            <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full cursor-pointer group">
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/25">
+                    <MessageSquare className="h-5 w-5 text-white" />
+                  </div>
+                  {feedbackStats.hotLeads > 0 && (
+                    <span className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-sm">
+                      🔥 {feedbackStats.hotLeads}
+                    </span>
+                  )}
                 </div>
                 <div>
-                  <h3 className="font-semibold text-slate-900 text-base">
-                    {stats.today} proefrit{stats.today !== 1 ? 'ten' : ''} gepland voor vandaag
-                  </h3>
-                  <p className="text-sm text-slate-600">
-                    Bereid je voor op de geplande proefritten
+                  <p className="text-3xl font-bold text-slate-900 tracking-tight">{feedbackStats.total}</p>
+                  <p className="text-sm text-slate-500 mt-1 group-hover:text-amber-600 transition-colors">
+                    Klant feedback <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </p>
                 </div>
-              </div>
-              <Button
-                onClick={() => setDateFilter("today")}
-                className="bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
-              >
-                Bekijk planning
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+              </CardContent>
+            </Card>
+          </Link>
+        </div>
       )}
 
       {/* View Content */}
