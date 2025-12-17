@@ -347,23 +347,23 @@ function DashboardContent() {
       )}
       
       {/* Page Header */}
-      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-2">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2">
+        <div className="min-w-0">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-slate-900 truncate">
             Welkom terug, {session?.user?.name?.split(' ')[0] || ""}
           </h1>
-          <p className="text-slate-500 mt-1">
-            Hier is een overzicht van je proefritten
+          <p className="text-slate-500 text-sm sm:text-base mt-0.5 sm:mt-1">
+            Overzicht van je proefritten
           </p>
         </div>
-        <div className="flex items-center gap-3 w-full lg:w-auto">
+        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
           {/* View Mode Toggle */}
-          <div className="flex items-center bg-white rounded-xl p-1 shadow-sm border border-slate-200 flex-1 lg:flex-initial">
+          <div className="flex items-center bg-white rounded-lg sm:rounded-xl p-0.5 sm:p-1 shadow-sm border border-slate-200 flex-1 sm:flex-initial">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("table")}
-              className={`text-sm px-4 rounded-lg transition-all ${
+              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
                 viewMode === "table" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -376,7 +376,7 @@ function DashboardContent() {
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("calendar")}
-              className={`text-sm px-4 rounded-lg transition-all ${
+              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
                 viewMode === "calendar" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -389,7 +389,7 @@ function DashboardContent() {
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("analytics")}
-              className={`text-sm px-4 rounded-lg transition-all ${
+              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
                 viewMode === "analytics" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
@@ -414,100 +414,100 @@ function DashboardContent() {
 
       {/* Quick Statistics - Only show in Calendar/Analytics mode */}
       {viewMode !== "table" && (
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/25">
-                  <Car className="h-5 w-5 text-white" />
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl shadow-lg shadow-blue-500/25">
+                  <Car className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Totaal</span>
+                <span className="text-[10px] sm:text-xs font-medium text-slate-400 uppercase tracking-wide">Totaal</span>
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.total}</p>
-                <p className="text-sm text-slate-500 mt-1">Proefritten</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{stats.total}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">Proefritten</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-autoofy-red to-red-600 rounded-xl shadow-lg shadow-red-500/25">
-                  <Calendar className="h-5 w-5 text-white" />
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-autoofy-red to-red-600 rounded-lg sm:rounded-xl shadow-lg shadow-red-500/25">
+                  <Calendar className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 {stats.monthGrowth !== 0 && (
-                  <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
+                  <span className={`inline-flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-xs font-semibold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full ${
                     stats.monthGrowth > 0 
                       ? 'bg-green-100 text-green-700' 
                       : 'bg-red-100 text-red-700'
                   }`}>
-                    {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                    {stats.monthGrowth > 0 ? <ArrowUpRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" /> : <ArrowDownRight className="h-2.5 w-2.5 sm:h-3 sm:w-3" />}
                     {Math.abs(stats.monthGrowth)}%
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.thisMonth}</p>
-                <p className="text-sm text-slate-500 mt-1">Deze maand</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{stats.thisMonth}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">Deze maand</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25">
-                  <Clock className="h-5 w-5 text-white" />
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl shadow-lg shadow-emerald-500/25">
+                  <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
                 {stats.today > 0 && (
-                  <span className="flex h-3 w-3">
-                    <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                  <span className="flex h-2.5 w-2.5 sm:h-3 sm:w-3 relative">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-full w-full bg-emerald-500"></span>
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.today}</p>
-                <p className="text-sm text-slate-500 mt-1">Vandaag gepland</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{stats.today}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">Vandaag</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between mb-3">
-                <div className="p-2.5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl shadow-lg shadow-violet-500/25">
-                  <CheckCircle className="h-5 w-5 text-white" />
+            <CardContent className="p-3 sm:p-5">
+              <div className="flex items-center justify-between mb-2 sm:mb-3">
+                <div className="p-2 sm:p-2.5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-lg sm:rounded-xl shadow-lg shadow-violet-500/25">
+                  <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                 </div>
-                <span className="text-xs font-medium text-slate-400">
+                <span className="text-[10px] sm:text-xs font-medium text-slate-400">
                   {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
                 </span>
               </div>
               <div>
-                <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.completed}</p>
-                <p className="text-sm text-slate-500 mt-1">Afgerond</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{stats.completed}</p>
+                <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">Afgerond</p>
               </div>
             </CardContent>
           </Card>
 
-          <Link href="/dashboard/feedback" className="block">
+          <Link href="/dashboard/feedback" className="block col-span-2 sm:col-span-1">
             <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full cursor-pointer group">
-              <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/25">
-                    <MessageSquare className="h-5 w-5 text-white" />
+              <CardContent className="p-3 sm:p-5">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
+                  <div className="p-2 sm:p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg sm:rounded-xl shadow-lg shadow-amber-500/25">
+                    <MessageSquare className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
                   {feedbackStats.hotLeads > 0 && (
-                    <span className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-sm">
+                    <span className="px-2 sm:px-2.5 py-0.5 sm:py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-[10px] sm:text-xs font-bold rounded-full shadow-sm">
                       🔥 {feedbackStats.hotLeads}
                     </span>
                   )}
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-slate-900 tracking-tight">{feedbackStats.total}</p>
-                  <p className="text-sm text-slate-500 mt-1 group-hover:text-amber-600 transition-colors">
-                    Klant feedback <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                  <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{feedbackStats.total}</p>
+                  <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 group-hover:text-amber-600 transition-colors">
+                    Feedback <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
                   </p>
                 </div>
               </CardContent>
@@ -520,42 +520,42 @@ function DashboardContent() {
       {viewMode === "analytics" ? (
         <>
           <AnalyticsChart testrides={testrides} />
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-6 mt-4 sm:mt-6">
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50">
-              <CardContent className="pt-6">
+              <CardContent className="p-4 sm:pt-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Totaal proefritten</p>
-                    <p className="text-3xl font-bold text-autoofy-dark">{stats.total}</p>
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Totaal proefritten</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-autoofy-dark">{stats.total}</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg">
-                    <Car className="h-6 w-6 text-white" />
+                  <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-autoofy-dark shadow-lg">
+                    <Car className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50">
-              <CardContent className="pt-6">
+              <CardContent className="p-4 sm:pt-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Deze maand</p>
-                    <p className="text-3xl font-bold text-autoofy-dark">{stats.thisMonth}</p>
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Deze maand</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-autoofy-dark">{stats.thisMonth}</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-autoofy-red shadow-lg">
-                    <Calendar className="h-6 w-6 text-white" />
+                  <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-autoofy-red shadow-lg">
+                    <Calendar className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
                 </div>
               </CardContent>
             </Card>
             <Card className="border-0 shadow-lg bg-gradient-to-br from-blue-50 to-blue-100/50">
-              <CardContent className="pt-6">
+              <CardContent className="p-4 sm:pt-6">
                 <div className="flex items-center justify-between">
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-muted-foreground">Deze week</p>
-                    <p className="text-3xl font-bold text-autoofy-dark">{stats.thisWeek}</p>
+                  <div className="space-y-0.5 sm:space-y-1">
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground">Deze week</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-autoofy-dark">{stats.thisWeek}</p>
                   </div>
-                  <div className="p-3 rounded-xl bg-autoofy-dark shadow-lg">
-                    <TrendingUp className="h-6 w-6 text-white" />
+                  <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-autoofy-dark shadow-lg">
+                    <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                   </div>
                 </div>
               </CardContent>

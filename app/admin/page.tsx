@@ -293,59 +293,64 @@ export default function AdminDashboardPage() {
       <div className="relative overflow-hidden">
         {/* Background decoration */}
         <div className="absolute inset-0 bg-gradient-to-r from-autoofy-dark/30 via-autoofy-red/5 to-autoofy-dark/30"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-autoofy-dark/20 rounded-full blur-3xl"></div>
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-autoofy-red/10 rounded-full blur-3xl"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-autoofy-dark/20 rounded-full blur-3xl hidden sm:block"></div>
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-autoofy-red/10 rounded-full blur-3xl hidden sm:block"></div>
         
         <div className="relative border-b border-white/10">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="absolute inset-0 bg-gradient-to-br from-autoofy-dark to-autoofy-red rounded-2xl blur-lg opacity-50"></div>
-                  <div className="relative p-3 bg-gradient-to-br from-autoofy-dark to-[#2a4a7a] rounded-2xl shadow-xl border border-white/10">
-                    <Shield className="h-8 w-8 text-white" />
+          <div className="container mx-auto px-4 py-5 sm:py-8">
+            <div className="flex flex-col gap-4 sm:gap-6">
+              {/* Title Row */}
+              <div className="flex items-start sm:items-center justify-between gap-3">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-autoofy-dark to-autoofy-red rounded-xl sm:rounded-2xl blur-lg opacity-50"></div>
+                    <div className="relative p-2 sm:p-3 bg-gradient-to-br from-autoofy-dark to-[#2a4a7a] rounded-xl sm:rounded-2xl shadow-xl border border-white/10">
+                      <Shield className="h-5 w-5 sm:h-8 sm:w-8 text-white" />
+                    </div>
+                  </div>
+                  <div>
+                    <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                      Admin Dashboard
+                    </h1>
+                    <p className="text-slate-400 text-xs sm:text-base mt-0.5 sm:mt-1 hidden sm:block">Beheer alle bedrijven en gebruikers</p>
                   </div>
                 </div>
-                <div>
-                  <h1 className="text-3xl font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
-                    Admin Dashboard
-                  </h1>
-                  <p className="text-slate-400 mt-1">Beheer alle bedrijven en gebruikers</p>
-                </div>
+                
+                <Button
+                  onClick={fetchStats}
+                  size="sm"
+                  className="gap-1.5 sm:gap-2 bg-autoofy-dark/50 border border-white/10 text-slate-300 hover:bg-autoofy-dark hover:text-white transition-all duration-300 h-9 px-3 sm:h-10 sm:px-4"
+                >
+                  <RefreshCw className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                  <span className="hidden sm:inline">Vernieuwen</span>
+                </Button>
               </div>
               
-              <div className="flex items-center gap-3">
+              {/* Actions Row - Mobile */}
+              <div className="flex items-center gap-2 sm:gap-3">
                 {/* Pending Approvals Badge */}
                 {pendingApprovals > 0 && (
                   <button
                     onClick={() => setActiveTab("gebruikers")}
-                    className="group flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-xl text-amber-400 hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300"
+                    className="group flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 rounded-lg sm:rounded-xl text-amber-400 hover:from-amber-500/30 hover:to-orange-500/30 transition-all duration-300 text-sm"
                   >
                     <div className="relative">
-                      <AlertCircle className="h-5 w-5" />
+                      <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
                       <span className="absolute -top-1 -right-1 w-2 h-2 bg-amber-400 rounded-full animate-pulse"></span>
                     </div>
-                    <span className="font-semibold">{pendingApprovals} wachtend</span>
+                    <span className="font-semibold">{pendingApprovals} <span className="hidden sm:inline">wachtend</span></span>
                   </button>
                 )}
-                
-                <Button
-                  onClick={fetchStats}
-                  className="gap-2 bg-autoofy-dark/50 border border-white/10 text-slate-300 hover:bg-autoofy-dark hover:text-white transition-all duration-300"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  Vernieuwen
-                </Button>
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex gap-2 mt-8">
+            {/* Tabs - horizontally scrollable on mobile */}
+            <div className="flex gap-2 mt-8 overflow-x-auto pb-2 scrollbar-hide -mx-4 px-4 sm:mx-0 sm:px-0">
               {tabs.map(tab => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`group relative flex items-center gap-2.5 px-5 py-3 rounded-xl font-medium transition-all duration-300 ${
+                  className={`group relative flex items-center gap-2 sm:gap-2.5 px-3 sm:px-5 py-2.5 sm:py-3 rounded-xl font-medium transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
                     activeTab === tab.id
                       ? "bg-white text-autoofy-dark shadow-lg shadow-white/10"
                       : "text-slate-400 hover:text-white hover:bg-white/5"
@@ -354,9 +359,9 @@ export default function AdminDashboardPage() {
                   <span className={activeTab === tab.id ? "text-autoofy-red" : "text-slate-500 group-hover:text-slate-300"}>
                     {tab.icon}
                   </span>
-                  <span>{tab.label}</span>
+                  <span className="text-sm sm:text-base">{tab.label}</span>
                   {tab.count !== undefined && (
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    <span className={`text-xs px-1.5 sm:px-2 py-0.5 rounded-full font-semibold ${
                       activeTab === tab.id 
                         ? "bg-autoofy-red/10 text-autoofy-red" 
                         : "bg-slate-700/50 text-slate-400"
@@ -403,37 +408,50 @@ export default function AdminDashboardPage() {
         {/* Overzicht Tab */}
         {activeTab === "overzicht" && (
           <div className="space-y-8">
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+            {/* Stats Cards - Clickable */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
               {[
-                { label: "Bedrijven", value: stats.overview.totalTenants, icon: Building2, gradient: "from-autoofy-dark to-[#2a4a7a]" },
-                { label: "Gebruikers", value: stats.overview.totalUsers, icon: Users, gradient: "from-autoofy-red to-[#d4384a]" },
-                { label: "Proefritten", value: stats.overview.totalTestrides, icon: Car, gradient: "from-autoofy-dark to-[#2a4a7a]" },
-                { label: "Nieuw (30d)", value: stats.overview.recentTenants, icon: TrendingUp, gradient: "from-emerald-600 to-teal-600", sublabel: "bedrijven" },
-                { label: "Nieuw (30d)", value: stats.overview.recentTestrides, icon: Calendar, gradient: "from-autoofy-red to-[#d4384a]", sublabel: "proefritten" },
+                { label: "Bedrijven", value: stats.overview.totalTenants, icon: Building2, gradient: "from-autoofy-dark to-[#2a4a7a]", tab: "bedrijven" as TabType },
+                { label: "Gebruikers", value: stats.overview.totalUsers, icon: Users, gradient: "from-autoofy-red to-[#d4384a]", tab: "gebruikers" as TabType },
+                { label: "Proefritten", value: stats.overview.totalTestrides, icon: Car, gradient: "from-autoofy-dark to-[#2a4a7a]", tab: null },
+                { label: "Nieuw (30d)", value: stats.overview.recentTenants, icon: TrendingUp, gradient: "from-emerald-600 to-teal-600", sublabel: "bedrijven", tab: "bedrijven" as TabType },
+                { label: "Nieuw (30d)", value: stats.overview.recentTestrides, icon: Calendar, gradient: "from-autoofy-red to-[#d4384a]", sublabel: "proefritten", tab: null },
               ].map((stat, i) => (
-                <div 
-                  key={i} 
-                  className="group relative bg-autoofy-dark/40 backdrop-blur-sm border border-white/10 rounded-2xl p-5 hover:border-autoofy-red/30 transition-all duration-300 hover:-translate-y-1"
+                <button 
+                  key={i}
+                  onClick={() => stat.tab && setActiveTab(stat.tab)}
+                  disabled={!stat.tab}
+                  className={`group relative bg-autoofy-dark/40 backdrop-blur-sm border border-white/10 rounded-2xl p-4 sm:p-5 transition-all duration-300 text-left w-full ${
+                    i === 4 ? 'col-span-2 sm:col-span-1' : ''
+                  } ${
+                    stat.tab 
+                      ? 'hover:border-autoofy-red/30 hover:-translate-y-1 hover:bg-autoofy-dark/60 cursor-pointer' 
+                      : 'cursor-default'
+                  }`}
                 >
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-slate-400 text-sm font-medium">{stat.label}</p>
-                      <p className="text-4xl font-bold text-white mt-2">{stat.value}</p>
+                      <p className="text-slate-400 text-xs sm:text-sm font-medium">{stat.label}</p>
+                      <p className="text-2xl sm:text-4xl font-bold text-white mt-1 sm:mt-2">{stat.value}</p>
                       {stat.sublabel && (
-                        <p className="text-xs text-slate-500 mt-1">{stat.sublabel}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 sm:mt-1">{stat.sublabel}</p>
                       )}
                     </div>
-                    <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg`}>
-                      <stat.icon className="h-5 w-5 text-white" />
+                    <div className={`p-2 sm:p-3 bg-gradient-to-br ${stat.gradient} rounded-lg sm:rounded-xl shadow-lg ${
+                      stat.tab ? 'group-hover:scale-110 transition-transform' : ''
+                    }`}>
+                      <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                     </div>
                   </div>
-                </div>
+                  {stat.tab && (
+                    <div className="absolute inset-0 rounded-2xl ring-2 ring-autoofy-red/0 group-hover:ring-autoofy-red/30 transition-all pointer-events-none" />
+                  )}
+                </button>
               ))}
             </div>
 
             {/* Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {/* Recent Tenants */}
               <div className="bg-autoofy-dark/40 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
                 <div className="p-5 border-b border-white/10 flex items-center justify-between">
@@ -542,33 +560,38 @@ export default function AdminDashboardPage() {
                   {/* Tenant Header */}
                   <button
                     onClick={() => toggleTenantExpand(tenant.id)}
-                    className="w-full p-5 flex items-center justify-between hover:bg-white/5 transition-colors"
+                    className="w-full p-3 sm:p-5 flex items-center justify-between hover:bg-white/5 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-autoofy-dark to-[#2a4a7a] flex items-center justify-center text-white font-bold text-lg shadow-lg shadow-autoofy-dark/50 border border-white/10">
+                    <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl bg-gradient-to-br from-autoofy-dark to-[#2a4a7a] flex items-center justify-center text-white font-bold text-base sm:text-lg shadow-lg shadow-autoofy-dark/50 border border-white/10 flex-shrink-0">
                         {tenant.name.charAt(0).toUpperCase()}
                       </div>
-                      <div className="text-left">
-                        <p className="font-semibold text-white text-lg">{tenant.name}</p>
-                        <p className="text-sm text-slate-400">{tenant.email}</p>
+                      <div className="text-left min-w-0 flex-1">
+                        <p className="font-semibold text-white text-sm sm:text-lg truncate">{tenant.name}</p>
+                        <p className="text-xs sm:text-sm text-slate-400 truncate">{tenant.email}</p>
+                        {/* Mobile stats */}
+                        <div className="flex gap-3 mt-1 sm:hidden text-xs text-slate-500">
+                          <span>{tenant.userCount} gebr.</span>
+                          <span>{tenant.testrideCount} ritten</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-8">
-                      <div className="hidden md:flex gap-6">
+                    <div className="flex items-center gap-4 sm:gap-8 flex-shrink-0">
+                      <div className="hidden sm:flex gap-4 sm:gap-6">
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-white">{tenant.userCount}</p>
+                          <p className="text-xl sm:text-2xl font-bold text-white">{tenant.userCount}</p>
                           <p className="text-xs text-slate-500">gebruikers</p>
                         </div>
                         <div className="text-center">
-                          <p className="text-2xl font-bold text-white">{tenant.testrideCount}</p>
+                          <p className="text-xl sm:text-2xl font-bold text-white">{tenant.testrideCount}</p>
                           <p className="text-xs text-slate-500">proefritten</p>
                         </div>
                       </div>
-                      <div className={`p-2 rounded-lg transition-colors ${expandedTenants.has(tenant.id) ? "bg-autoofy-red/20 text-autoofy-red" : "text-slate-400"}`}>
+                      <div className={`p-1.5 sm:p-2 rounded-lg transition-colors ${expandedTenants.has(tenant.id) ? "bg-autoofy-red/20 text-autoofy-red" : "text-slate-400"}`}>
                         {expandedTenants.has(tenant.id) ? (
-                          <ChevronDown className="h-5 w-5" />
+                          <ChevronDown className="h-4 w-4 sm:h-5 sm:w-5" />
                         ) : (
-                          <ChevronRight className="h-5 w-5" />
+                          <ChevronRight className="h-4 w-4 sm:h-5 sm:w-5" />
                         )}
                       </div>
                     </div>

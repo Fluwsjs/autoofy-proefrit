@@ -1,7 +1,8 @@
 import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
-import { ExternalLink } from "lucide-react"
+import { ExternalLink, Menu, LogOut, Shield } from "lucide-react"
+import { AdminMobileMenu } from "@/components/AdminMobileMenu"
 
 export default async function AdminLayout({
   children,
@@ -20,31 +21,37 @@ export default async function AdminLayout({
       <header className="border-b border-white/10 bg-[#0f1729]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
+            {/* Logo */}
             <a href="https://www.autoofy.nl" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 group">
-              <span className="text-2xl font-bold tracking-tight">
+              <span className="text-xl sm:text-2xl font-bold tracking-tight">
                 <span className="text-white">AUTOOFY</span>
                 <span className="text-autoofy-red">•</span>
-                <span className="text-white">NL</span>
+                <span className="text-white hidden sm:inline">NL</span>
               </span>
-              <ExternalLink className="h-3.5 w-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <ExternalLink className="h-3.5 w-3.5 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:block" />
             </a>
-            <nav className="flex items-center gap-4">
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-4">
               <a href="/admin" className="text-sm font-medium text-white hover:text-autoofy-red transition-colors">
                 Admin Dashboard
               </a>
               <span className="text-slate-600">|</span>
               <span className="flex items-center gap-2 text-sm text-slate-400">
-                <span className="hidden sm:inline">S</span>
+                <Shield className="h-4 w-4" />
                 <span>{session?.user?.name || "Support"}</span>
               </span>
               <a 
                 href="/api/auth/signout" 
                 className="flex items-center gap-1.5 text-sm text-slate-400 hover:text-white transition-colors"
               >
-                <ExternalLink className="h-3.5 w-3.5 rotate-180" />
+                <LogOut className="h-3.5 w-3.5" />
                 <span>Uitloggen</span>
               </a>
             </nav>
+
+            {/* Mobile Menu */}
+            <AdminMobileMenu userName={session?.user?.name || "Support"} />
           </div>
         </div>
       </header>

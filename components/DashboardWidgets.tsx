@@ -209,9 +209,9 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
   const targetProgress = Math.min((thisMonthCount / monthTarget) * 100, 100)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6">
       {/* Hero Stats Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {/* Conversion Rate Widget */}
         <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 border-0 shadow-lg text-white overflow-hidden relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
@@ -330,7 +330,7 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
       </div>
 
       {/* Second Row - Top Cars & Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {/* Top Cars Chart */}
         <Card className="bg-white border-0 shadow-sm">
           <CardHeader className="pb-2">
@@ -447,12 +447,13 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-7 gap-2">
+          {/* Scrollable on mobile, grid on desktop */}
+          <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide sm:grid sm:grid-cols-7 sm:overflow-visible sm:pb-0">
             {weekOverview.map((day) => (
               <div
                 key={day.day}
                 className={`
-                  text-center p-3 rounded-xl transition-all
+                  text-center p-2.5 sm:p-3 rounded-xl transition-all flex-shrink-0 w-16 sm:w-auto
                   ${day.isToday 
                     ? 'bg-autoofy-red text-white shadow-lg shadow-autoofy-red/25' 
                     : day.isPast 
@@ -461,14 +462,14 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
                   }
                 `}
               >
-                <p className={`text-xs font-medium mb-1 ${day.isToday ? 'text-white/80' : ''}`}>
+                <p className={`text-xs font-medium mb-0.5 sm:mb-1 ${day.isToday ? 'text-white/80' : ''}`}>
                   {day.day}
                 </p>
-                <p className={`text-2xl font-bold ${day.isToday ? '' : day.count > 0 ? 'text-slate-900' : ''}`}>
+                <p className={`text-xl sm:text-2xl font-bold ${day.isToday ? '' : day.count > 0 ? 'text-slate-900' : ''}`}>
                   {day.count}
                 </p>
                 {day.isToday && (
-                  <p className="text-xs text-white/80 mt-1">Vandaag</p>
+                  <p className="text-[10px] sm:text-xs text-white/80 mt-0.5 sm:mt-1">Vandaag</p>
                 )}
               </div>
             ))}
@@ -481,23 +482,23 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
         <Link href="/dashboard/feedback">
           <Card className="bg-gradient-to-r from-orange-500 to-red-500 border-0 shadow-lg text-white cursor-pointer hover:shadow-xl transition-shadow overflow-hidden relative group">
             <div className="absolute inset-0 bg-gradient-to-r from-orange-600 to-red-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-            <CardContent className="p-5 relative">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                    <Flame className="h-6 w-6" />
+            <CardContent className="p-4 sm:p-5 relative">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
+                  <div className="p-2.5 sm:p-3 bg-white/20 rounded-xl backdrop-blur-sm flex-shrink-0">
+                    <Flame className="h-5 w-5 sm:h-6 sm:w-6" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-lg">
+                    <h3 className="font-bold text-base sm:text-lg">
                       {feedbackData.hotLeads} Hot Lead{feedbackData.hotLeads !== 1 ? 's' : ''}!
                     </h3>
-                    <p className="text-orange-100 text-sm">
-                      Klanten met hoge koopintentie - neem snel contact op
+                    <p className="text-orange-100 text-xs sm:text-sm">
+                      Klanten met hoge koopintentie
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2 bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
-                  <span className="font-medium">Bekijken</span>
+                <div className="flex items-center justify-center gap-2 bg-white/20 px-4 py-2 rounded-lg backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                  <span className="font-medium text-sm sm:text-base">Bekijken</span>
                   <ArrowUpRight className="h-4 w-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                 </div>
               </div>
