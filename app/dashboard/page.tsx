@@ -14,7 +14,6 @@ import { SkeletonCard, SkeletonTable, SkeletonHeader } from "@/components/Skelet
 import { AnalyticsChart } from "@/components/AnalyticsChart"
 import { CalendarView } from "@/components/CalendarView"
 import { WelcomeWizard } from "@/components/WelcomeWizard"
-import { FloatingActionButton } from "@/components/FloatingActionButton"
 import { MobileTestRideCard } from "@/components/MobileTestRideCard"
 
 interface Testride {
@@ -314,11 +313,8 @@ function DashboardContent() {
   }
 
   return (
-    <div className="space-y-4 animate-in fade-in duration-300 pb-20 lg:pb-0">
+    <div className="space-y-6 animate-in fade-in duration-300">
       {ToastComponent}
-      
-      {/* Floating Action Button - Mobile Only */}
-      <FloatingActionButton />
       
       {/* Welcome Wizard */}
       {showWelcomeWizard && (
@@ -331,150 +327,158 @@ function DashboardContent() {
         />
       )}
       
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4 bg-gradient-to-r from-white via-blue-50/30 to-white p-4 md:p-6 rounded-xl md:rounded-2xl border border-gray-100 shadow-sm">
-        <div className="space-y-1 md:space-y-2">
-          <div className="flex items-center gap-2 md:gap-3">
-            <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-gradient-to-br from-autoofy-dark to-gray-700 flex items-center justify-center text-white font-bold text-lg md:text-xl shadow-lg">
-              {session?.user?.name?.charAt(0).toUpperCase() || "U"}
-            </div>
-            <div>
-              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-autoofy-dark">
-                Welkom, {session?.user?.name?.split(' ')[0] || ""}
-              </h1>
-              <p className="text-gray-600 text-xs md:text-sm flex items-center gap-2">
-                <span className="inline-block w-1.5 h-1.5 md:w-2 md:h-2 bg-green-500 rounded-full animate-pulse"></span>
-                <span className="hidden sm:inline">Bedrijf: </span>{session?.user?.tenantName || ""}
-              </p>
-            </div>
-          </div>
+      {/* Page Header */}
+      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-2">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900">
+            Welkom terug, {session?.user?.name?.split(' ')[0] || ""}
+          </h1>
+          <p className="text-slate-500 mt-1">
+            Hier is een overzicht van je proefritten
+          </p>
         </div>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <div className="flex items-center gap-1 bg-muted rounded-lg p-1 flex-1 sm:flex-initial">
+        <div className="flex items-center gap-3 w-full lg:w-auto">
+          {/* View Mode Toggle */}
+          <div className="flex items-center bg-white rounded-xl p-1 shadow-sm border border-slate-200 flex-1 lg:flex-initial">
             <Button
-              variant={viewMode === "table" ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => setViewMode("table")}
-              className={`text-xs md:text-sm ${viewMode === "table" ? "bg-autoofy-dark text-white" : ""}`}
+              className={`text-sm px-4 rounded-lg transition-all ${
+                viewMode === "table" 
+                  ? "bg-autoofy-dark text-white shadow-sm" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
-              <span className="hidden md:inline">Tabel</span>
-              <span className="md:hidden">📋</span>
+              <span className="hidden sm:inline">Tabel</span>
+              <span className="sm:hidden">📋</span>
             </Button>
             <Button
-              variant={viewMode === "calendar" ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => setViewMode("calendar")}
-              className={`text-xs md:text-sm ${viewMode === "calendar" ? "bg-autoofy-dark text-white" : ""}`}
+              className={`text-sm px-4 rounded-lg transition-all ${
+                viewMode === "calendar" 
+                  ? "bg-autoofy-dark text-white shadow-sm" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
-              <span className="hidden md:inline">Kalender</span>
-              <span className="md:hidden">📅</span>
+              <span className="hidden sm:inline">Kalender</span>
+              <span className="sm:hidden">📅</span>
             </Button>
             <Button
-              variant={viewMode === "analytics" ? "default" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => setViewMode("analytics")}
-              className={`text-xs md:text-sm ${viewMode === "analytics" ? "bg-autoofy-dark text-white" : ""}`}
+              className={`text-sm px-4 rounded-lg transition-all ${
+                viewMode === "analytics" 
+                  ? "bg-autoofy-dark text-white shadow-sm" 
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+              }`}
             >
-              <span className="hidden md:inline">Analytics</span>
-              <span className="md:hidden">📊</span>
+              <span className="hidden sm:inline">Analytics</span>
+              <span className="sm:hidden">📊</span>
             </Button>
           </div>
-          <Link href="/dashboard/new" className="hidden lg:block">
-            <Button className="bg-autoofy-red text-white hover:bg-autoofy-red/90 shadow-lg transition-all duration-300 hover:scale-105 group">
-              <Plus className="h-4 w-4 mr-2 group-hover:rotate-90 transition-transform duration-300" />
-              Nieuwe Proefrit
-            </Button>
-          </Link>
         </div>
       </div>
 
-      {/* Statistics Cards - Compact Design */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <Card className="bg-blue-50 border-blue-100 hover:shadow-md transition-shadow duration-150">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="p-2 bg-blue-500 rounded-lg">
-                <Car className="h-4 w-4 text-white" />
+      {/* Statistics Cards - Professional Design */}
+      <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden group">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg shadow-blue-500/25">
+                <Car className="h-5 w-5 text-white" />
               </div>
+              <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Totaal</span>
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
-              <p className="text-sm text-slate-600 mt-0.5">Totaal proefritten</p>
-              <p className="text-xs text-slate-500 mt-1">Alle tijd</p>
+              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.total}</p>
+              <p className="text-sm text-slate-500 mt-1">Proefritten</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-red-50 border-red-100 hover:shadow-md transition-shadow duration-150">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="p-2 bg-red-500 rounded-lg">
-                <Calendar className="h-4 w-4 text-white" />
+        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-autoofy-red to-red-600 rounded-xl shadow-lg shadow-red-500/25">
+                <Calendar className="h-5 w-5 text-white" />
               </div>
+              {stats.monthGrowth !== 0 && (
+                <span className={`inline-flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${
+                  stats.monthGrowth > 0 
+                    ? 'bg-green-100 text-green-700' 
+                    : 'bg-red-100 text-red-700'
+                }`}>
+                  {stats.monthGrowth > 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                  {Math.abs(stats.monthGrowth)}%
+                </span>
+              )}
             </div>
             <div>
-              <div className="flex items-baseline gap-2">
-                <p className="text-2xl font-bold text-slate-900">{stats.thisMonth}</p>
-                {stats.monthGrowth !== 0 && (
-                  <span className={`text-xs font-semibold ${
-                    stats.monthGrowth > 0 ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {stats.monthGrowth > 0 ? '+' : ''}{stats.monthGrowth}%
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-slate-600 mt-0.5">Deze maand</p>
-              <p className="text-xs text-slate-500 mt-1">vs. vorige maand</p>
+              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.thisMonth}</p>
+              <p className="text-sm text-slate-500 mt-1">Deze maand</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-green-50 border-green-100 hover:shadow-md transition-shadow duration-150">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="p-2 bg-green-500 rounded-lg">
-                <Clock className="h-4 w-4 text-white" />
+        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-xl shadow-lg shadow-emerald-500/25">
+                <Clock className="h-5 w-5 text-white" />
               </div>
+              {stats.today > 0 && (
+                <span className="flex h-3 w-3">
+                  <span className="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+              )}
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">{stats.today}</p>
-              <p className="text-sm text-slate-600 mt-0.5">Vandaag</p>
-              <p className="text-xs text-slate-500 mt-1">Gepland</p>
+              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.today}</p>
+              <p className="text-sm text-slate-500 mt-1">Vandaag gepland</p>
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-purple-50 border-purple-100 hover:shadow-md transition-shadow duration-150">
-          <CardContent className="p-4">
-            <div className="flex items-start justify-between mb-2">
-              <div className="p-2 bg-purple-500 rounded-lg">
-                <CheckCircle className="h-4 w-4 text-white" />
+        <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between mb-3">
+              <div className="p-2.5 bg-gradient-to-br from-violet-500 to-violet-600 rounded-xl shadow-lg shadow-violet-500/25">
+                <CheckCircle className="h-5 w-5 text-white" />
               </div>
+              <span className="text-xs font-medium text-slate-400">
+                {stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}%
+              </span>
             </div>
             <div>
-              <p className="text-2xl font-bold text-slate-900">{stats.completed}</p>
-              <p className="text-sm text-slate-600 mt-0.5">Afgerond</p>
-              <p className="text-xs text-slate-500 mt-1">{stats.total > 0 ? Math.round((stats.completed / stats.total) * 100) : 0}% voltooid</p>
+              <p className="text-3xl font-bold text-slate-900 tracking-tight">{stats.completed}</p>
+              <p className="text-sm text-slate-500 mt-1">Afgerond</p>
             </div>
           </CardContent>
         </Card>
 
         <Link href="/dashboard/feedback" className="block">
-          <Card className="bg-amber-50 border-amber-100 hover:shadow-md transition-shadow duration-150 h-full cursor-pointer hover:bg-amber-100/50">
-            <CardContent className="p-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="p-2 bg-amber-500 rounded-lg">
-                  <MessageSquare className="h-4 w-4 text-white" />
+          <Card className="bg-white border-0 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden h-full cursor-pointer group">
+            <CardContent className="p-5">
+              <div className="flex items-center justify-between mb-3">
+                <div className="p-2.5 bg-gradient-to-br from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-amber-500/25">
+                  <MessageSquare className="h-5 w-5 text-white" />
                 </div>
                 {feedbackStats.hotLeads > 0 && (
-                  <span className="px-2 py-0.5 bg-green-500 text-white text-xs font-bold rounded-full">
+                  <span className="px-2.5 py-1 bg-gradient-to-r from-orange-500 to-red-500 text-white text-xs font-bold rounded-full shadow-sm">
                     🔥 {feedbackStats.hotLeads}
                   </span>
                 )}
               </div>
               <div>
-                <p className="text-2xl font-bold text-slate-900">{feedbackStats.total}</p>
-                <p className="text-sm text-slate-600 mt-0.5">Klant feedback</p>
-                <p className="text-xs text-amber-600 mt-1 font-medium">Bekijk →</p>
+                <p className="text-3xl font-bold text-slate-900 tracking-tight">{feedbackStats.total}</p>
+                <p className="text-sm text-slate-500 mt-1 group-hover:text-amber-600 transition-colors">
+                  Klant feedback <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -483,28 +487,27 @@ function DashboardContent() {
 
       {/* Quick Actions for Today */}
       {stats.today > 0 && viewMode === "table" && (
-        <Card className="bg-amber-50 border-amber-200 border-l-4 border-l-amber-500">
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-500">
+        <Card className="bg-gradient-to-r from-amber-50 to-orange-50 border-0 shadow-sm overflow-hidden">
+          <CardContent className="p-0">
+            <div className="flex items-center justify-between p-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 shadow-lg shadow-amber-500/25">
                   <AlertCircle className="h-5 w-5 text-white" />
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900 text-base">
-                    {stats.today} proefrit{stats.today !== 1 ? 'ten' : ''} vandaag
+                    {stats.today} proefrit{stats.today !== 1 ? 'ten' : ''} gepland voor vandaag
                   </h3>
                   <p className="text-sm text-slate-600">
-                    Vergeet niet om voor te bereiden
+                    Bereid je voor op de geplande proefritten
                   </p>
                 </div>
               </div>
               <Button
                 onClick={() => setDateFilter("today")}
-                size="sm"
-                className="bg-autoofy-red hover:bg-autoofy-red/90 text-white h-9"
+                className="bg-slate-900 hover:bg-slate-800 text-white shadow-sm"
               >
-                Bekijk vandaag
+                Bekijk planning
               </Button>
             </div>
           </CardContent>

@@ -89,15 +89,15 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
   }
 
   return (
-    <Card className="border-0 shadow-xl overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-autoofy-dark via-gray-800 to-autoofy-dark border-b border-gray-700">
+    <Card className="border-0 shadow-sm bg-white overflow-hidden">
+      <CardHeader className="border-b border-slate-100 bg-slate-50/50">
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold text-white flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-white/10">
-              <Car className="h-5 w-5" />
+          <CardTitle className="text-lg font-semibold text-slate-900 flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-autoofy-dark">
+              <Car className="h-4 w-4 text-white" />
             </div>
             Proefritten
-            <span className="text-sm font-normal bg-white/20 px-3 py-1 rounded-full">
+            <span className="text-sm font-medium bg-autoofy-dark/10 text-autoofy-dark px-3 py-1 rounded-full">
               {testrides.length}
             </span>
           </CardTitle>
@@ -167,61 +167,66 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
 
         {/* Desktop Table View */}
         <div className="hidden md:block overflow-x-auto">
-          <table className="w-full border-collapse">
+          <table className="w-full">
             <thead>
-              <tr className="border-b bg-muted/30">
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Klant</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Auto</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Datum</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Tijd</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Kilometers</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Status</th>
-                <th className="text-left p-4 font-semibold text-sm text-muted-foreground">Acties</th>
+              <tr className="border-b border-slate-100">
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Klant</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Auto</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Datum</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Tijd</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">KM Stand</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Status</th>
+                <th className="text-left px-6 py-4 font-semibold text-xs text-slate-500 uppercase tracking-wider">Acties</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-slate-50">
               {testrides.map((testride, index) => (
                 <tr 
                   key={testride.id} 
-                  className="border-b hover:bg-blue-50/50 transition-all duration-200 group animate-in fade-in slide-in-from-bottom-4"
-                  style={{ 
-                    animationDelay: `${index * 50}ms`,
-                    animationDuration: '300ms'
-                  }}
+                  className="hover:bg-slate-50/80 transition-colors duration-150 group"
                 >
-                  <td className="p-4">
-                    <div>
-                      <div className="font-semibold text-foreground">{testride.customerName}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {testride.customerEmail}
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-600 font-semibold text-sm">
+                        {testride.customerName.charAt(0).toUpperCase()}
+                      </div>
+                      <div>
+                        <div className="font-medium text-slate-900">{testride.customerName}</div>
+                        <div className="text-sm text-slate-500">
+                          {testride.customerEmail}
+                        </div>
                       </div>
                     </div>
                   </td>
-                  <td className="p-4">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-autoofy-red/20 text-autoofy-dark border border-autoofy-red/30">
+                  <td className="px-6 py-4">
+                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-700">
                       {testride.carType}
                     </span>
                   </td>
-                  <td className="p-4 font-medium">{formatDate(testride.date)}</td>
-                  <td className="p-4 text-sm text-muted-foreground">
-                    {formatTime(testride.startTime)} - {formatTime(testride.endTime)}
+                  <td className="px-6 py-4">
+                    <span className="font-medium text-slate-900">{formatDate(testride.date)}</span>
                   </td>
-                  <td className="p-4">
-                    <span className="font-medium">{testride.startKm}</span>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    <span className="font-mono">{formatTime(testride.startTime)}</span>
+                    <span className="text-slate-400 mx-1">–</span>
+                    <span className="font-mono">{formatTime(testride.endTime)}</span>
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="font-mono text-slate-900">{testride.startKm.toLocaleString()}</span>
                     {testride.endKm !== null && (
-                      <span className="text-muted-foreground"> → {testride.endKm}</span>
+                      <span className="text-slate-400 font-mono"> → {testride.endKm.toLocaleString()}</span>
                     )}
                   </td>
-                  <td className="p-4">
+                  <td className="px-6 py-4">
                     {getStatusBadge(testride.status)}
                   </td>
-                  <td className="p-4">
-                    <div className="flex items-center gap-1.5">
+                  <td className="px-6 py-4">
+                    <div className="flex items-center gap-1 opacity-70 group-hover:opacity-100 transition-opacity">
                       <Button 
                         variant="ghost" 
                         size="icon"
                         onClick={() => handleQuickView(testride.id)}
-                        className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 hover:scale-110"
+                        className="h-8 w-8 hover:bg-slate-100 hover:text-slate-900"
                         title="Snelle weergave"
                       >
                         <Eye className="h-4 w-4" />
@@ -230,7 +235,7 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="hover:bg-blue-100 hover:text-blue-600 transition-all duration-200 hover:scale-110"
+                          className="h-8 w-8 hover:bg-slate-100 hover:text-slate-900"
                           title="Details bekijken"
                         >
                           <Edit className="h-4 w-4" />
@@ -241,7 +246,7 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="hover:bg-green-100 hover:text-green-600 transition-all duration-200 hover:scale-110"
+                            className="h-8 w-8 hover:bg-green-50 hover:text-green-600"
                             title="Proefrit afronden"
                           >
                             <FileCheck className="h-4 w-4" />
@@ -253,7 +258,7 @@ export function DataTable({ testrides, onDelete, showEmptyState = true }: DataTa
                           variant="ghost"
                           size="icon"
                           onClick={() => onDelete(testride.id)}
-                          className="hover:bg-red-100 hover:text-red-600 transition-all duration-200 hover:scale-110"
+                          className="h-8 w-8 hover:bg-red-50 hover:text-red-600"
                           title="Verwijderen"
                         >
                           <Trash2 className="h-4 w-4" />

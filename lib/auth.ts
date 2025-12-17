@@ -3,11 +3,6 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import { prisma } from "./prisma"
 import bcrypt from "bcryptjs"
 import { authenticator } from "otplib"
-import { checkLoginRateLimit, recordFailedLogin, clearLoginAttempts } from "./rate-limit"
-
-// Security constants
-const MAX_LOGIN_ATTEMPTS = 5
-const LOCKOUT_DURATION_MINUTES = 30
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -155,71 +150,20 @@ export const authOptions: NextAuthOptions = {
           const normalizedEmail = credentials.email.trim().toLowerCase()
           console.log("[AUTH] Normalized email:", normalizedEmail)
 
-          // Check in-memory rate limiting first (fastest check)
-          const rateLimitCheck = checkLoginRateLimit(normalizedEmail)
-          if (rateLimitCheck.limited) {
-            const minutes = Math.ceil((rateLimitCheck.remainingTime || 0) / 60)
-            console.error(`[AUTH] Rate limited: ${normalizedEmail}, try again in ${minutes} minutes`)
-            throw new Error(`Te veel inlogpogingen. Probeer het over ${minutes} minuten opnieuw.`)
-          }
-
           // First check if it's a super admin
           const superAdmin = await prisma.superAdmin.findUnique({
             where: { email: normalizedEmail },
           })
 
           if (superAdmin) {
-            // Check if SuperAdmin account is locked
-            if (superAdmin.lockedUntil && superAdmin.lockedUntil > new Date()) {
-              const remainingMinutes = Math.ceil((superAdmin.lockedUntil.getTime() - Date.now()) / 60000)
-              console.error(`[AUTH] SuperAdmin account locked: ${normalizedEmail}`)
-              throw new Error(`Account is tijdelijk geblokkeerd. Probeer het over ${remainingMinutes} minuten opnieuw.`)
-            }
-
             const isPasswordValid = await bcrypt.compare(
               credentials.password,
               superAdmin.password
             )
 
             if (!isPasswordValid) {
-              // Record failed attempt
-              const newAttempts = (superAdmin.failedLoginAttempts || 0) + 1
-              const lockoutData: { failedLoginAttempts: number; lastFailedLogin: Date; lockedUntil?: Date } = {
-                failedLoginAttempts: newAttempts,
-                lastFailedLogin: new Date(),
-              }
-              
-              // Lock account if too many attempts
-              if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
-                lockoutData.lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000)
-                console.error(`[AUTH] SuperAdmin account locked due to too many attempts: ${normalizedEmail}`)
-              }
-              
-              await prisma.superAdmin.update({
-                where: { id: superAdmin.id },
-                data: lockoutData,
-              })
-              
-              recordFailedLogin(normalizedEmail)
-              
-              const remainingAttempts = Math.max(0, MAX_LOGIN_ATTEMPTS - newAttempts)
-              if (remainingAttempts > 0) {
-                throw new Error(`Ongeldige inloggegevens. Nog ${remainingAttempts} poging(en) over.`)
-              } else {
-                throw new Error(`Account is geblokkeerd voor ${LOCKOUT_DURATION_MINUTES} minuten wegens te veel mislukte pogingen.`)
-              }
+              throw new Error("Ongeldige inloggegevens")
             }
-
-            // Successful login - reset failed attempts
-            await prisma.superAdmin.update({
-              where: { id: superAdmin.id },
-              data: {
-                failedLoginAttempts: 0,
-                lockedUntil: null,
-                lastFailedLogin: null,
-              },
-            })
-            clearLoginAttempts(normalizedEmail)
 
             return {
               id: superAdmin.id,
@@ -241,19 +185,10 @@ export const authOptions: NextAuthOptions = {
 
           if (!user) {
             console.error(`[AUTH] User not found: ${normalizedEmail}`)
-            // Record failed attempt even for non-existent users (prevent user enumeration)
-            recordFailedLogin(normalizedEmail)
             throw new Error("Ongeldige inloggegevens")
           }
           
           console.log(`[AUTH] User found: ${user.email}`)
-
-          // Check if account is locked (database level)
-          if (user.lockedUntil && user.lockedUntil > new Date()) {
-            const remainingMinutes = Math.ceil((user.lockedUntil.getTime() - Date.now()) / 60000)
-            console.error(`[AUTH] Account locked: ${normalizedEmail}`)
-            throw new Error(`Account is tijdelijk geblokkeerd. Probeer het over ${remainingMinutes} minuten opnieuw.`)
-          }
           
           // Check if user account is active
           if (!user.isActive) {
@@ -283,46 +218,8 @@ export const authOptions: NextAuthOptions = {
           
           if (!isPasswordValid) {
             console.error(`[AUTH] Invalid password for: ${normalizedEmail}`)
-            
-            // Record failed attempt in database
-            const newAttempts = (user.failedLoginAttempts || 0) + 1
-            const lockoutData: { failedLoginAttempts: number; lastFailedLogin: Date; lockedUntil?: Date } = {
-              failedLoginAttempts: newAttempts,
-              lastFailedLogin: new Date(),
-            }
-            
-            // Lock account if too many attempts
-            if (newAttempts >= MAX_LOGIN_ATTEMPTS) {
-              lockoutData.lockedUntil = new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000)
-              console.error(`[AUTH] Account locked due to too many attempts: ${normalizedEmail}`)
-            }
-            
-            await prisma.user.update({
-              where: { id: user.id },
-              data: lockoutData,
-            })
-            
-            // Also record in memory for rate limiting
-            recordFailedLogin(normalizedEmail)
-            
-            const remainingAttempts = Math.max(0, MAX_LOGIN_ATTEMPTS - newAttempts)
-            if (remainingAttempts > 0) {
-              throw new Error(`Ongeldige inloggegevens. Nog ${remainingAttempts} poging(en) over.`)
-            } else {
-              throw new Error(`Account is geblokkeerd voor ${LOCKOUT_DURATION_MINUTES} minuten wegens te veel mislukte pogingen.`)
-            }
+            throw new Error("Ongeldige inloggegevens")
           }
-          
-          // Successful login - reset failed attempts
-          await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              failedLoginAttempts: 0,
-              lockedUntil: null,
-              lastFailedLogin: null,
-            },
-          })
-          clearLoginAttempts(normalizedEmail)
           
           console.log(`[AUTH] Login successful for: ${normalizedEmail}`)
 
@@ -345,8 +242,6 @@ export const authOptions: NextAuthOptions = {
           if (error instanceof Error) {
             console.error("[AUTH] Error message:", error.message)
             console.error("[AUTH] Error stack:", error.stack)
-            // Re-throw the error so NextAuth can pass it to the client
-            throw error
           } else {
             console.error("[AUTH] Unknown error:", error)
           }

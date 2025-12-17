@@ -1,10 +1,8 @@
-import { Navbar } from "@/components/Navbar"
+import { Sidebar } from "@/components/Sidebar"
 import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth/next"
 import { authOptions } from "@/lib/auth"
 import type { ReactNode } from "react"
-import Link from "next/link"
-import { ExternalLink } from "lucide-react"
 
 export default async function DashboardLayout({
   children,
@@ -23,27 +21,29 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
-      <Navbar />
-      <main className="container mx-auto px-4 md:px-6 py-4 md:py-6 flex-1">{children}</main>
-      <footer className="border-t bg-muted/30 mt-auto">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <span>© {new Date().getFullYear()} Autoofy. Alle rechten voorbehouden.</span>
-            </div>
-            <a 
-              href="https://www.autoofy.nl" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 text-autoofy-dark hover:text-autoofy-red font-medium transition-colors group"
-            >
-              <span>Bezoek www.autoofy.nl</span>
-              <ExternalLink className="h-3.5 w-3.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-            </a>
-          </div>
+    <div className="min-h-screen bg-slate-100 flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-0">
+        {/* Top Bar for mobile - spacing for hamburger menu */}
+        <div className="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-center shadow-sm">
+          <span className="font-bold text-autoofy-dark text-lg">Autoofy</span>
         </div>
-      </footer>
+        
+        {/* Main Content */}
+        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
+          <div className="max-w-7xl mx-auto">
+            {children}
+          </div>
+        </main>
+        
+        {/* Footer */}
+        <footer className="border-t bg-white/50 py-4 px-6">
+          <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-slate-500">
+            <span>© {new Date().getFullYear()} Autoofy</span>
+            <span className="hidden sm:inline">Proefrit Beheer Systeem</span>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }
