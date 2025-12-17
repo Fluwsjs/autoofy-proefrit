@@ -21,17 +21,17 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex">
+    <div className="min-h-screen bg-slate-100 flex overflow-x-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col min-h-screen lg:ml-0">
+      <div className="flex-1 flex flex-col min-h-screen lg:ml-0 min-w-0">
         {/* Top Bar for mobile - spacing for hamburger menu */}
         <div className="lg:hidden h-16 bg-white border-b border-slate-200 flex items-center justify-center shadow-sm">
           <span className="font-bold text-autoofy-dark text-lg">Autoofy</span>
         </div>
         
         {/* Main Content */}
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-auto">
-          <div className="max-w-7xl mx-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-x-hidden overflow-y-auto">
+          <div className="max-w-7xl mx-auto w-full">
             {children}
           </div>
         </main>

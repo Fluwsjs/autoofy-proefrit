@@ -214,31 +214,31 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         {/* Conversion Rate Widget */}
         <Card className="bg-gradient-to-br from-emerald-500 to-teal-600 border-0 shadow-lg text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-          <div className="absolute bottom-0 left-0 w-24 h-24 bg-white/5 rounded-full -ml-12 -mb-12" />
-          <CardContent className="p-6 relative">
+          <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/10 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16" />
+          <div className="absolute bottom-0 left-0 w-16 sm:w-24 h-16 sm:h-24 bg-white/5 rounded-full -ml-8 sm:-ml-12 -mb-8 sm:-mb-12" />
+          <CardContent className="p-4 sm:p-6 relative">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-emerald-100 text-sm font-medium mb-1">Conversie Rate</p>
-                <div className="flex items-baseline gap-3">
-                  <span className="text-5xl font-bold tracking-tight">{conversionRate}%</span>
+                <p className="text-emerald-100 text-xs sm:text-sm font-medium mb-1">Conversie Rate</p>
+                <div className="flex items-baseline gap-2 sm:gap-3">
+                  <span className="text-3xl sm:text-5xl font-bold tracking-tight">{conversionRate}%</span>
                   {conversionRate > prevConversionRate ? (
-                    <span className="flex items-center text-emerald-200 text-sm font-medium">
-                      <ArrowUpRight className="h-4 w-4" />
+                    <span className="flex items-center text-emerald-200 text-xs sm:text-sm font-medium">
+                      <ArrowUpRight className="h-3 w-3 sm:h-4 sm:w-4" />
                       +{conversionRate - prevConversionRate}%
                     </span>
                   ) : null}
                 </div>
-                <p className="text-emerald-100/80 text-sm mt-2">
+                <p className="text-emerald-100/80 text-xs sm:text-sm mt-1 sm:mt-2">
                   Van proefrit naar koopintentie
                 </p>
               </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <TrendingUp className="h-6 w-6" />
+              <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-sm">
+                <TrendingUp className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
             </div>
             {/* Mini sparkline placeholder */}
-            <div className="mt-4 flex items-end gap-1 h-12">
+            <div className="mt-3 sm:mt-4 flex items-end gap-1 h-8 sm:h-12">
               {[40, 55, 45, 60, 50, 70, conversionRate].map((val, i) => (
                 <div
                   key={i}
@@ -252,22 +252,22 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
 
         {/* Month Target Widget */}
         <Card className="bg-gradient-to-br from-violet-500 to-purple-600 border-0 shadow-lg text-white overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full -mr-16 -mt-16" />
-          <CardContent className="p-6 relative">
+          <div className="absolute top-0 right-0 w-24 sm:w-32 h-24 sm:h-32 bg-white/10 rounded-full -mr-12 sm:-mr-16 -mt-12 sm:-mt-16" />
+          <CardContent className="p-4 sm:p-6 relative">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-violet-100 text-sm font-medium mb-1">Maand Target</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-violet-100 text-xs sm:text-sm font-medium mb-1">Maand Target</p>
                 {isEditingTarget ? (
-                  <div className="flex items-center gap-2 mt-2">
-                    <span className="text-4xl font-bold tracking-tight">{thisMonthCount}</span>
-                    <span className="text-2xl text-violet-200">/</span>
+                  <div className="flex items-center gap-1 sm:gap-2 mt-2 flex-wrap">
+                    <span className="text-2xl sm:text-4xl font-bold tracking-tight">{thisMonthCount}</span>
+                    <span className="text-xl sm:text-2xl text-violet-200">/</span>
                     <Input
                       type="number"
                       min="1"
                       max="1000"
                       value={editTargetValue}
                       onChange={(e) => setEditTargetValue(e.target.value)}
-                      className="w-20 h-10 text-2xl font-bold text-center bg-white/20 border-white/30 text-white placeholder:text-white/50"
+                      className="w-14 sm:w-20 h-8 sm:h-10 text-lg sm:text-2xl font-bold text-center bg-white/20 border-white/30 text-white placeholder:text-white/50"
                       autoFocus
                     />
                     <Button
@@ -275,50 +275,50 @@ export function DashboardWidgets({ testrides, feedbackData, monthTarget = 20, on
                       variant="ghost"
                       onClick={handleSaveTarget}
                       disabled={isSavingTarget}
-                      className="h-8 w-8 bg-white/20 hover:bg-white/30 text-white"
+                      className="h-7 w-7 sm:h-8 sm:w-8 bg-white/20 hover:bg-white/30 text-white"
                     >
-                      <Check className="h-4 w-4" />
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={handleCancelEdit}
-                      className="h-8 w-8 bg-white/20 hover:bg-white/30 text-white"
+                      className="h-7 w-7 sm:h-8 sm:w-8 bg-white/20 hover:bg-white/30 text-white"
                     >
-                      <X className="h-4 w-4" />
+                      <X className="h-3 w-3 sm:h-4 sm:w-4" />
                     </Button>
                   </div>
                 ) : (
-                  <div className="flex items-baseline gap-2">
-                    <span className="text-5xl font-bold tracking-tight">{thisMonthCount}</span>
-                    <span className="text-2xl text-violet-200">/ {monthTarget}</span>
+                  <div className="flex items-baseline gap-1 sm:gap-2">
+                    <span className="text-3xl sm:text-5xl font-bold tracking-tight">{thisMonthCount}</span>
+                    <span className="text-lg sm:text-2xl text-violet-200">/ {monthTarget}</span>
                     <button
                       onClick={() => {
                         setEditTargetValue(monthTarget.toString())
                         setIsEditingTarget(true)
                       }}
-                      className="ml-2 p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
+                      className="ml-1 sm:ml-2 p-1 sm:p-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors"
                       title="Target aanpassen"
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-3 w-3 sm:h-4 sm:w-4" />
                     </button>
                   </div>
                 )}
-                <p className="text-violet-100/80 text-sm mt-2">
+                <p className="text-violet-100/80 text-xs sm:text-sm mt-1 sm:mt-2">
                   Proefritten deze maand
                 </p>
               </div>
-              <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Target className="h-6 w-6" />
+              <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-sm flex-shrink-0">
+                <Target className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
             </div>
             {/* Progress bar */}
-            <div className="mt-4">
-              <div className="flex justify-between text-sm text-violet-200 mb-2">
+            <div className="mt-3 sm:mt-4">
+              <div className="flex justify-between text-xs sm:text-sm text-violet-200 mb-1.5 sm:mb-2">
                 <span>{Math.round(targetProgress)}% behaald</span>
                 <span>{Math.max(0, monthTarget - thisMonthCount)} te gaan</span>
               </div>
-              <div className="h-3 bg-white/20 rounded-full overflow-hidden">
+              <div className="h-2 sm:h-3 bg-white/20 rounded-full overflow-hidden">
                 <div 
                   className="h-full bg-white rounded-full transition-all duration-500 ease-out"
                   style={{ width: `${targetProgress}%` }}

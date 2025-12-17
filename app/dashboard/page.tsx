@@ -356,47 +356,44 @@ function DashboardContent() {
             Overzicht van je proefritten
           </p>
         </div>
-        <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+        <div className="flex items-center w-full sm:w-auto">
           {/* View Mode Toggle */}
-          <div className="flex items-center bg-white rounded-lg sm:rounded-xl p-0.5 sm:p-1 shadow-sm border border-slate-200 flex-1 sm:flex-initial">
+          <div className="flex items-center bg-white rounded-lg sm:rounded-xl p-0.5 shadow-sm border border-slate-200 w-full sm:w-auto">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("table")}
-              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
+              className={`text-xs px-2 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial min-w-0 ${
                 viewMode === "table" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
-              <span className="hidden sm:inline">Tabel</span>
-              <span className="sm:hidden">📋</span>
+              📋
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("calendar")}
-              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
+              className={`text-xs px-2 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial min-w-0 ${
                 viewMode === "calendar" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
-              <span className="hidden sm:inline">Kalender</span>
-              <span className="sm:hidden">📅</span>
+              📅
             </Button>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setViewMode("analytics")}
-              className={`text-xs sm:text-sm px-2.5 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial ${
+              className={`text-xs px-2 sm:px-4 h-8 sm:h-9 rounded-md sm:rounded-lg transition-all flex-1 sm:flex-initial min-w-0 ${
                 viewMode === "analytics" 
                   ? "bg-autoofy-dark text-white shadow-sm" 
                   : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
               }`}
             >
-              <span className="hidden sm:inline">Analytics</span>
-              <span className="sm:hidden">📊</span>
+              📊
             </Button>
           </div>
         </div>
