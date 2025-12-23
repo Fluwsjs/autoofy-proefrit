@@ -57,7 +57,7 @@ export default function NewTestridePage() {
     startKm: "",
     endKm: "",
     notes: "",
-    eigenRisico: "0",
+    eigenRisico: "600",
     aantalSleutels: "1",
     dealerPlateCardGiven: false,
   })
@@ -77,18 +77,28 @@ export default function NewTestridePage() {
         console.error("Error parsing saved form data:", error)
       }
     } else {
-      // No saved data - auto-fill current time and today's date
+      // No saved data - auto-fill current time, end time (+30 min) and today's date
       const now = new Date()
       const currentTime = now.toLocaleTimeString('nl-NL', { 
         hour: '2-digit', 
         minute: '2-digit',
         hour12: false 
       })
+      
+      // Calculate end time (30 minutes later)
+      const endTimeDate = new Date(now.getTime() + 30 * 60 * 1000)
+      const endTime = endTimeDate.toLocaleTimeString('nl-NL', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+      })
+      
       const currentDate = now.toISOString().split('T')[0] // YYYY-MM-DD format
       
       setFormData(prev => ({
         ...prev,
         startTime: currentTime,
+        endTime: endTime,
         date: currentDate
       }))
     }
@@ -202,7 +212,7 @@ export default function NewTestridePage() {
         startKm: "",
         endKm: "",
         notes: "",
-        eigenRisico: "0",
+        eigenRisico: "600",
         aantalSleutels: "1",
         dealerPlateCardGiven: false,
       })
