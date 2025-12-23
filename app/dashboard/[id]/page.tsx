@@ -194,8 +194,9 @@ export default function TestrideDetailPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Laden...</p>
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
+        <Loader2 className="h-8 w-8 animate-spin text-autoofy-red" />
+        <p className="text-sm text-gray-500">Laden...</p>
       </div>
     )
   }
@@ -205,17 +206,73 @@ export default function TestrideDetailPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <Link href="/dashboard">
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Terug naar dashboard
+    <div className="max-w-4xl mx-auto space-y-4 sm:space-y-6 pb-8">
+      {/* Back button */}
+      <Link href="/dashboard" className="inline-block">
+        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 -ml-2 sm:ml-0">
+          <ArrowLeft className="h-4 w-4 mr-1.5" />
+          <span className="text-sm">Terug naar dashboard</span>
         </Button>
       </Link>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between mb-4">
+      <Card className="border-0 sm:border shadow-sm sm:shadow-md overflow-hidden">
+        <CardHeader className="pb-4 sm:pb-6 bg-gradient-to-r from-slate-50 to-white border-b">
+          {/* Mobile Header */}
+          <div className="md:hidden space-y-4">
+            <div className="flex items-center justify-between">
+              <Image
+                src="/autoofy-logo.svg"
+                alt="Autoofy Logo"
+                width={120}
+                height={14}
+                className="object-contain"
+                priority
+              />
+              <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                testride.status === "COMPLETED" 
+                  ? "bg-green-100 text-green-700" 
+                  : "bg-amber-100 text-amber-700"
+              }`}>
+                {testride.status === "COMPLETED" ? "Afgerond" : "Actief"}
+              </span>
+            </div>
+            <h1 className="text-xl font-bold text-gray-900">Proefrit Details</h1>
+            
+            {/* Mobile Action Buttons */}
+            <div className="flex gap-2">
+              {testride.status !== "COMPLETED" && (
+                <Link href={`/dashboard/${testride.id}/complete`} className="flex-1">
+                  <Button
+                    size="sm"
+                    className="w-full bg-green-600 text-white hover:bg-green-700 h-10"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-1.5" />
+                    Afronden
+                  </Button>
+                </Link>
+              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleExportPDF}
+                className={`h-10 ${testride.status === "COMPLETED" ? "flex-1" : ""}`}
+              >
+                <Download className="h-4 w-4 mr-1.5" />
+                PDF
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDelete}
+                className="h-10 text-red-600 border-red-200 hover:bg-red-50 hover:border-red-300"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Desktop Header */}
+          <div className="hidden md:flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Image
                 src="/autoofy-logo.svg"
@@ -227,8 +284,7 @@ export default function TestrideDetailPage() {
               />
               <CardTitle className="mb-0">Proefrit Details</CardTitle>
             </div>
-            {/* Desktop: All buttons visible */}
-            <div className="hidden md:flex gap-2">
+            <div className="flex gap-2">
               {testride.status !== "COMPLETED" && (
                 <Link href={`/dashboard/${testride.id}/complete`}>
                   <Button
@@ -260,184 +316,167 @@ export default function TestrideDetailPage() {
                 Verwijderen
               </Button>
             </div>
-            
-            {/* Mobile: Primary action prominent */}
-            <div className="md:hidden">
-              {testride.status !== "COMPLETED" && (
-                <Link href={`/dashboard/${testride.id}/complete`}>
-                  <Button
-                    size="sm"
-                    className="bg-green-600 text-white hover:bg-green-700 w-full sm:w-auto"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Afronden
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
-          
-          {/* Mobile: Secondary actions */}
-          <div className="md:hidden flex gap-2 mt-3">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleExportPDF}
-              className="flex-1"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              PDF
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDelete}
-              className="text-red-600 border-red-600 hover:bg-red-50"
-            >
-              <Trash2 className="h-4 w-4 mr-2" />
-              Verwijder
-            </Button>
           </div>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2">Klantgegevens</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-muted-foreground">Naam:</span>{" "}
-                  {testride.customerName}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">E-mail:</span>{" "}
-                  {testride.customerEmail}
-                </p>
-                {testride.customerPhone && (
-                  <p>
-                    <span className="text-muted-foreground">Telefoon:</span>{" "}
-                    {testride.customerPhone}
-                  </p>
-                )}
-                <p>
-                  <span className="text-muted-foreground">Adres:</span>{" "}
-                  {testride.address}
-                </p>
+        <CardContent className="space-y-5 sm:space-y-6 px-4 sm:px-6">
+          {/* Klantgegevens */}
+          <section className="space-y-3">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+              <span className="w-1 h-4 bg-blue-500 rounded-full"></span>
+              Klantgegevens
+            </h3>
+            <div className="grid gap-2 text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:gap-2">
+                <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Naam</span>
+                <span className="font-medium text-gray-900">{testride.customerName}</span>
+              </div>
+              <div className="flex flex-col sm:flex-row sm:gap-2">
+                <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">E-mail</span>
+                <span className="font-medium text-gray-900 break-all">{testride.customerEmail}</span>
+              </div>
+              {testride.customerPhone && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Telefoon</span>
+                  <span className="font-medium text-gray-900">{testride.customerPhone}</span>
+                </div>
+              )}
+              <div className="flex flex-col sm:flex-row sm:gap-2">
+                <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Adres</span>
+                <span className="font-medium text-gray-900">{testride.address}</span>
               </div>
             </div>
+          </section>
 
-            <div>
-              <h3 className="font-semibold mb-2">Voertuiggegevens</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-muted-foreground">Testrit voertuig:</span>{" "}
-                  {testride.carType}
-                </p>
-                {testride.licensePlate && (
-                  <p>
-                    <span className="text-muted-foreground">Kenteken voertuig, meldcode of chassisnummer:</span>{" "}
-                    {testride.licensePlate}
-                  </p>
-                )}
-                {testride.dealerPlate && (
-                  <p>
-                    <span className="text-muted-foreground">Handelaarskenteken:</span>{" "}
-                    {testride.dealerPlate.plate}
-                  </p>
-                )}
-                       {testride.driverLicenseNumber && (
-                         <p>
-                           <span className="text-muted-foreground">Rijbewijs of BSN nummer:</span>{" "}
-                           {testride.driverLicenseNumber}
-                         </p>
-                       )}
-                       {testride.idCountryOfOrigin && (
-                         <p>
-                           <span className="text-muted-foreground">Land van herkomst ID/rijbewijs:</span>{" "}
-                           {testride.idCountryOfOrigin}
-                         </p>
-                       )}
+          {/* Voertuiggegevens */}
+          <section className="space-y-3">
+            <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+              <span className="w-1 h-4 bg-green-500 rounded-full"></span>
+              Voertuiggegevens
+            </h3>
+            <div className="grid gap-2 text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
+              <div className="flex flex-col sm:flex-row sm:gap-2">
+                <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Voertuig</span>
+                <span className="font-medium text-gray-900">{testride.carType}</span>
               </div>
+              {testride.licensePlate && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Kenteken</span>
+                  <span className="font-medium text-gray-900">{testride.licensePlate}</span>
+                </div>
+              )}
+              {testride.dealerPlate && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Handelaarskenteken</span>
+                  <span className="font-medium text-gray-900">{testride.dealerPlate.plate}</span>
+                </div>
+              )}
+              {testride.driverLicenseNumber && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Rijbewijs/BSN</span>
+                  <span className="font-medium text-gray-900">{testride.driverLicenseNumber}</span>
+                </div>
+              )}
+              {testride.idCountryOfOrigin && (
+                <div className="flex flex-col sm:flex-row sm:gap-2">
+                  <span className="text-gray-500 text-xs sm:text-sm min-w-[80px]">Land ID</span>
+                  <span className="font-medium text-gray-900">{testride.idCountryOfOrigin}</span>
+                </div>
+              )}
             </div>
+          </section>
 
-            <div>
-              <h3 className="font-semibold mb-2">Ritgegevens</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-muted-foreground">Datum:</span>{" "}
-                  {formatDate(testride.date)}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">Starttijd:</span>{" "}
-                  {formatTime(testride.startTime)}
-                </p>
-                <p>
-                  <span className="text-muted-foreground">Verwachte eindtijd:</span>{" "}
-                  {formatTime(testride.endTime)}
-                </p>
+          {/* Ritgegevens & Kilometerstand - side by side on mobile */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-6">
+            <section className="space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <span className="w-1 h-4 bg-purple-500 rounded-full"></span>
+                Ritgegevens
+              </h3>
+              <div className="grid gap-1.5 text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
+                <div>
+                  <span className="text-gray-500 text-xs block">Datum</span>
+                  <span className="font-medium text-gray-900 text-xs sm:text-sm">{formatDate(testride.date)}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 text-xs block">Starttijd</span>
+                  <span className="font-medium text-gray-900 text-xs sm:text-sm">{formatTime(testride.startTime)}</span>
+                </div>
+                <div>
+                  <span className="text-gray-500 text-xs block">Eindtijd</span>
+                  <span className="font-medium text-gray-900 text-xs sm:text-sm">{formatTime(testride.endTime)}</span>
+                </div>
               </div>
-            </div>
+            </section>
 
-            <div>
-              <h3 className="font-semibold mb-2">Kilometerstand</h3>
-              <div className="space-y-2 text-sm">
-                <p>
-                  <span className="text-muted-foreground">Start:</span>{" "}
-                  {testride.startKm} km
-                </p>
+            <section className="space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <span className="w-1 h-4 bg-amber-500 rounded-full"></span>
+                Kilometers
+              </h3>
+              <div className="grid gap-1.5 text-sm bg-gray-50 rounded-lg p-3 sm:p-4">
+                <div>
+                  <span className="text-gray-500 text-xs block">Start</span>
+                  <span className="font-medium text-gray-900 text-xs sm:text-sm">{testride.startKm} km</span>
+                </div>
                 {testride.endKm !== null && (
                   <>
-                    <p>
-                      <span className="text-muted-foreground">
-                        {testride.status === "COMPLETED" ? "Eind:" : "Verwachte eindkilometerstand:"}
-                      </span>{" "}
-                      {testride.endKm} km
-                    </p>
-                    <div className="pt-2 mt-2 border-t">
-                      <p className="flex items-center gap-2">
-                        <span className="text-muted-foreground">Gereden kilometers:</span>{" "}
-                        <span className="font-bold text-lg text-autoofy-red">
-                          {testride.endKm - testride.startKm} km
-                        </span>
-                      </p>
+                    <div>
+                      <span className="text-gray-500 text-xs block">Eind</span>
+                      <span className="font-medium text-gray-900 text-xs sm:text-sm">{testride.endKm} km</span>
+                    </div>
+                    <div className="pt-1.5 mt-1.5 border-t border-gray-200">
+                      <span className="text-gray-500 text-xs block">Gereden</span>
+                      <span className="font-bold text-autoofy-red text-sm sm:text-base">
+                        {testride.endKm - testride.startKm} km
+                      </span>
                     </div>
                   </>
                 )}
               </div>
-            </div>
+            </section>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-semibold mb-2">Eigen risico</h3>
-              <p className="text-sm">€{testride.eigenRisico}</p>
+          {/* Extra info row */}
+          <div className="grid grid-cols-2 gap-3 sm:gap-6">
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <span className="text-gray-500 text-xs block mb-1">Eigen risico</span>
+              <span className="font-semibold text-gray-900">€{testride.eigenRisico}</span>
             </div>
-            <div>
-              <h3 className="font-semibold mb-2">Aantal sleutels meegegeven</h3>
-              <p className="text-sm">{testride.aantalSleutels}</p>
+            <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+              <span className="text-gray-500 text-xs block mb-1">Sleutels</span>
+              <span className="font-semibold text-gray-900">{testride.aantalSleutels} stuks</span>
             </div>
           </div>
 
           {testride.notes && (
-            <div>
-              <h3 className="font-semibold mb-2">Notities/ eventuele opmerking</h3>
-              <p className="text-sm">{testride.notes}</p>
-            </div>
+            <section className="space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <span className="w-1 h-4 bg-gray-400 rounded-full"></span>
+                Notities
+              </h3>
+              <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
+                <p className="text-sm text-gray-700">{testride.notes}</p>
+              </div>
+            </section>
           )}
 
           {(testride.idPhotoFrontUrl || testride.idPhotoBackUrl) && (
-            <div>
-              <h3 className="font-semibold mb-2">Rijbewijs of ID foto's</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <span className="w-1 h-4 bg-indigo-500 rounded-full"></span>
+                ID Foto's
+              </h3>
+              <div className="grid grid-cols-2 gap-3">
                 {testride.idPhotoFrontUrl && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Voorkant</p>
-                    <div className="border rounded-md p-4 bg-white">
+                    <p className="text-xs text-gray-500 mb-1.5">Voorkant</p>
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white">
                       <Image
                         src={testride.idPhotoFrontUrl}
-                        alt="Rijbewijs of ID foto voorkant"
+                        alt="ID voorkant"
                         width={500}
                         height={300}
-                        className="max-w-full h-auto object-contain rounded"
+                        className="w-full h-auto object-contain rounded"
                         unoptimized
                       />
                     </div>
@@ -445,146 +484,146 @@ export default function TestrideDetailPage() {
                 )}
                 {testride.idPhotoBackUrl && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Achterkant</p>
-                    <div className="border rounded-md p-4 bg-white">
+                    <p className="text-xs text-gray-500 mb-1.5">Achterkant</p>
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white">
                       <Image
                         src={testride.idPhotoBackUrl}
-                        alt="Rijbewijs of ID foto achterkant"
+                        alt="ID achterkant"
                         width={500}
                         height={300}
-                        className="max-w-full h-auto object-contain rounded"
+                        className="w-full h-auto object-contain rounded"
                         unoptimized
                       />
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </section>
           )}
 
           {(testride.customerSignatureUrl || testride.sellerSignatureUrl || testride.completionSignatureUrl) && (
-            <div>
-              <h3 className="font-semibold mb-2">Handtekeningen</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <section className="space-y-3">
+              <h3 className="font-semibold text-gray-900 text-sm sm:text-base flex items-center gap-2">
+                <span className="w-1 h-4 bg-cyan-500 rounded-full"></span>
+                Handtekeningen
+              </h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {testride.customerSignatureUrl && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Klant handtekening</p>
-                    <div className="border rounded-md p-4 bg-white">
+                    <p className="text-xs text-gray-500 mb-1.5">Klant</p>
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white aspect-[3/2] flex items-center justify-center">
                       <img
                         src={testride.customerSignatureUrl}
                         alt="Klant handtekening"
-                        className="max-w-full h-32 object-contain"
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
                   </div>
                 )}
                 {testride.sellerSignatureUrl && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Verkoper handtekening/stempel</p>
-                    <div className="border rounded-md p-4 bg-white">
+                    <p className="text-xs text-gray-500 mb-1.5">Verkoper</p>
+                    <div className="border border-gray-200 rounded-lg p-2 bg-white aspect-[3/2] flex items-center justify-center">
                       <img
                         src={testride.sellerSignatureUrl}
                         alt="Verkoper handtekening"
-                        className="max-w-full h-32 object-contain"
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
                   </div>
                 )}
                 {testride.completionSignatureUrl && (
                   <div>
-                    <p className="text-sm text-muted-foreground mb-2">Handtekening bij afronding</p>
-                    <div className="border rounded-md p-4 bg-white border-green-500">
+                    <p className="text-xs text-gray-500 mb-1.5">Afronding</p>
+                    <div className="border-2 border-green-400 rounded-lg p-2 bg-green-50 aspect-[3/2] flex items-center justify-center">
                       <img
                         src={testride.completionSignatureUrl}
-                        alt="Handtekening bij afronding"
-                        className="max-w-full h-32 object-contain"
+                        alt="Afronding handtekening"
+                        className="max-w-full max-h-full object-contain"
                       />
                     </div>
                   </div>
                 )}
               </div>
-            </div>
+            </section>
           )}
 
-          <div className="pt-4 border-t">
-            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div>
-                <h3 className="font-semibold mb-2">Status</h3>
+          {/* Status Section */}
+          <section className="pt-4 border-t border-gray-200">
+            <div className="flex flex-col gap-4">
+              {/* Status info */}
+              <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {testride.status === "COMPLETED" ? (
                     <>
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <span className="text-green-600 font-medium">Afgerond</span>
-                      {testride.completedAt && (
-                        <span className="text-sm text-muted-foreground ml-2">
-                          op {formatDateTime(testride.completedAt)}
-                        </span>
-                      )}
+                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                      </div>
+                      <div>
+                        <span className="text-green-700 font-semibold text-sm">Afgerond</span>
+                        {testride.completedAt && (
+                          <p className="text-xs text-gray-500">
+                            {formatDateTime(testride.completedAt)}
+                          </p>
+                        )}
+                      </div>
                     </>
                   ) : (
                     <>
-                      <span className="text-yellow-600 font-medium">Bezig met testrit</span>
+                      <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center">
+                        <Car className="h-4 w-4 text-amber-600" />
+                      </div>
+                      <span className="text-amber-700 font-semibold text-sm">Bezig met testrit</span>
                     </>
                   )}
                 </div>
               </div>
               
-              {/* Voertuig verkocht toggle - alleen tonen bij afgeronde proefritten */}
+              {/* Voertuig verkocht toggle */}
               {testride.status === "COMPLETED" && (
-                <div className="flex flex-col items-start md:items-end">
-                  <h3 className="font-semibold mb-2">
-                    {testride.vehicleSold ? "Voertuig verkocht" : "Voertuig niet verkocht"}
-                  </h3>
-                  <button
-                    onClick={handleToggleVehicleSold}
-                    disabled={updatingVehicleSold}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border-2 transition-all duration-200 ${
-                      testride.vehicleSold
-                        ? 'border-green-500 bg-green-50 hover:bg-green-100'
-                        : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
-                    } ${updatingVehicleSold ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-                  >
+                <button
+                  onClick={handleToggleVehicleSold}
+                  disabled={updatingVehicleSold}
+                  className={`w-full flex items-center justify-between p-3 sm:p-4 rounded-xl border-2 transition-all duration-200 ${
+                    testride.vehicleSold
+                      ? 'border-green-400 bg-green-50'
+                      : 'border-gray-200 bg-gray-50 hover:border-gray-300'
+                  } ${updatingVehicleSold ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer active:scale-[0.99]'}`}
+                >
+                  <div className="flex items-center gap-3">
                     {updatingVehicleSold ? (
-                      <Loader2 className="h-5 w-5 animate-spin text-slate-400" />
+                      <Loader2 className="h-5 w-5 animate-spin text-gray-400" />
                     ) : (
                       <div className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
                         testride.vehicleSold 
                           ? 'bg-green-500 text-white' 
-                          : 'border-2 border-slate-300'
+                          : 'border-2 border-gray-300 bg-white'
                       }`}>
                         {testride.vehicleSold && <CheckCircle className="h-4 w-4" />}
                       </div>
                     )}
                     <div className="text-left">
-                      <div className="flex items-center gap-2">
-                        <Car className={`h-4 w-4 ${testride.vehicleSold ? 'text-green-600' : 'text-slate-400'}`} />
-                        <span className={`font-medium ${testride.vehicleSold ? 'text-green-700' : 'text-slate-600'}`}>
-                          {testride.vehicleSold ? '🎉 Verkocht!' : 'Niet verkocht'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        Klik om status te wijzigen
-                      </p>
+                      <span className={`font-medium text-sm ${testride.vehicleSold ? 'text-green-700' : 'text-gray-700'}`}>
+                        {testride.vehicleSold ? '🎉 Voertuig verkocht!' : 'Voertuig niet verkocht'}
+                      </span>
+                      <p className="text-xs text-gray-500">Tik om te wijzigen</p>
                     </div>
-                  </button>
-                </div>
+                  </div>
+                  <Car className={`h-5 w-5 ${testride.vehicleSold ? 'text-green-500' : 'text-gray-400'}`} />
+                </button>
               )}
             </div>
-          </div>
+          </section>
 
-          <div className="pt-4 border-t space-y-1">
-            <p className="text-xs text-muted-foreground">
-              Aangemaakt op: {formatDateTime(testride.createdAt)}
+          {/* Footer info */}
+          <div className="pt-4 border-t border-gray-100">
+            <p className="text-xs text-gray-400">
+              Aangemaakt: {formatDateTime(testride.createdAt)}
             </p>
-            {testride.status === "COMPLETED" && testride.completedAt && (
-              <p className="text-xs font-medium text-green-600">
-                Afgerond op: {formatDateTime(testride.completedAt)}
-              </p>
-            )}
           </div>
 
           {/* Voorwaarden */}
-          <div className="pt-6 border-t mt-6">
+          <div className="pt-4 border-t border-gray-200">
             <TermsAndConditions />
           </div>
         </CardContent>
