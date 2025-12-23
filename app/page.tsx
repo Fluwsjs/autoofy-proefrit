@@ -12,7 +12,7 @@ import Image from "next/image"
 import { 
   Mail, Lock, Building2, User, ArrowRight, Car, Clock, FileCheck, 
   ChevronRight, CheckCircle2, BarChart3, Shield, Zap, Users,
-  ChevronLeft, Eye, EyeOff, Sparkles
+  ChevronLeft, Eye, EyeOff, Sparkles, RefreshCw, AlertCircle, Inbox, MailWarning
 } from "lucide-react"
 
 function HomePageForm() {
@@ -36,6 +36,14 @@ function HomePageForm() {
     email: "",
     password: "",
   })
+
+  // States for resend verification
+  const [showResendForm, setShowResendForm] = useState(false)
+  const [resendEmail, setResendEmail] = useState("")
+  const [resendLoading, setResendLoading] = useState(false)
+  const [resendSuccess, setResendSuccess] = useState(false)
+  const [registrationComplete, setRegistrationComplete] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState("")
 
   useEffect(() => {
     const verified = searchParams.get("verified")
@@ -108,7 +116,9 @@ function HomePageForm() {
       if (!res.ok) {
         setError(data.error || "Er is een fout opgetreden")
       } else {
-        setSuccessMessage("Account succesvol aangemaakt! Controleer uw e-mail om uw account te activeren.")
+        // Show registration success screen with email instructions
+        setRegistrationComplete(true)
+        setRegisteredEmail(registerData.email)
         setRegisterData({
           tenantName: "",
           userName: "",
@@ -122,6 +132,63 @@ function HomePageForm() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleResendVerification = async (emailToResend?: string) => {
+    const email = emailToResend || resendEmail
+    if (!email) {
+      setError("Vul uw e-mailadres in")
+      return
+    }
+
+    setResendLoading(true)
+    setError("")
+
+    try {
+      const res = await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await res.json()
+
+      if (res.ok) {
+        setResendSuccess(true)
+        setSuccessMessage(data.message || "Verificatie e-mail opnieuw verstuurd!")
+        if (data.alreadyVerified) {
+          setShowResendForm(false)
+          setIsLogin(true)
+          setLoginData(prev => ({ ...prev, email }))
+        }
+      } else {
+        setError(data.error || "Er is een fout opgetreden")
+      }
+    } catch (err) {
+      setError("Er is een fout opgetreden")
+    } finally {
+      setResendLoading(false)
+    }
+  }
+
+  // Reset states when switching between login/register
+  const handleSwitchToLogin = () => {
+    setIsLogin(true)
+    setError("")
+    setSuccessMessage("")
+    setRegistrationComplete(false)
+    setShowResendForm(false)
+    setResendSuccess(false)
+  }
+
+  const handleSwitchToRegister = () => {
+    setIsLogin(false)
+    setError("")
+    setSuccessMessage("")
+    setRegisterStep(1)
+    setRegistrationComplete(false)
+    setShowResendForm(false)
+    setResendSuccess(false)
   }
 
   return (
@@ -246,11 +313,7 @@ function HomePageForm() {
               {/* Tabs */}
               <div className="grid grid-cols-2 p-1 bg-gray-100/80 rounded-t-xl">
                 <button
-                  onClick={() => {
-                    setIsLogin(true)
-                    setError("")
-                    setSuccessMessage("")
-                  }}
+                  onClick={handleSwitchToLogin}
                   className={`py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
                     isLogin
                       ? "bg-white text-gray-900 shadow-sm"
@@ -260,12 +323,7 @@ function HomePageForm() {
                   Inloggen
                 </button>
                 <button
-                  onClick={() => {
-                    setIsLogin(false)
-                    setError("")
-                    setSuccessMessage("")
-                    setRegisterStep(1)
-                  }}
+                  onClick={handleSwitchToRegister}
                   className={`py-3 px-4 rounded-lg font-semibold text-sm transition-all ${
                     !isLogin
                       ? "bg-white text-gray-900 shadow-sm"
@@ -292,8 +350,97 @@ function HomePageForm() {
                   </div>
                 )}
 
-                {/* Login Form */}
-                {isLogin ? (
+                {/* Registration Complete Screen with Email Instructions */}
+                {registrationComplete ? (
+                  <div className="space-y-5">
+                    <div className="text-center">
+                      <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-green-100 mb-4">
+                        <CheckCircle2 className="w-8 h-8 text-green-600" />
+                      </div>
+                      <h2 className="text-2xl font-bold text-gray-900">Account aangemaakt!</h2>
+                      <p className="text-sm text-gray-600 mt-2">
+                        We hebben een verificatie e-mail gestuurd naar:
+                      </p>
+                      <p className="font-semibold text-gray-900 mt-1">{registeredEmail}</p>
+                    </div>
+
+                    {/* Email Instructions */}
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-3">
+                      <h3 className="font-semibold text-blue-900 flex items-center gap-2">
+                        <Inbox className="w-5 h-5" />
+                        E-mail niet ontvangen?
+                      </h3>
+                      <ul className="text-sm text-blue-800 space-y-2">
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                          <span>Check uw <strong>spam/junk folder</strong></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                          <span>Zoek naar e-mails van <code className="bg-blue-100 px-1 rounded">support@proefrit-autoofy.nl</code></span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <CheckCircle2 className="w-4 h-4 mt-0.5 flex-shrink-0 text-blue-600" />
+                          <span>Voeg ons toe aan uw contacten voor toekomstige e-mails</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    {/* Warning for custom domains */}
+                    <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <MailWarning className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <h4 className="font-semibold text-amber-900 text-sm">Zakelijk e-mailadres?</h4>
+                          <p className="text-xs text-amber-800 mt-1">
+                            Bedrijfs-emailservers kunnen e-mails blokkeren. Controleer ook uw quarantaine folder of vraag uw IT-afdeling.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Resend Button */}
+                    <div className="pt-2">
+                      {resendSuccess ? (
+                        <div className="p-3 bg-green-50 border border-green-200 rounded-xl text-center">
+                          <p className="text-sm text-green-800 font-medium flex items-center justify-center gap-2">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Verificatie e-mail opnieuw verstuurd!
+                          </p>
+                        </div>
+                      ) : (
+                        <Button
+                          type="button"
+                          onClick={() => handleResendVerification(registeredEmail)}
+                          disabled={resendLoading}
+                          className="w-full h-11 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium transition-all"
+                        >
+                          {resendLoading ? (
+                            <span className="flex items-center gap-2">
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                              Versturen...
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-2">
+                              <RefreshCw className="w-4 h-4" />
+                              Verificatie e-mail opnieuw versturen
+                            </span>
+                          )}
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Back to Login */}
+                    <div className="text-center pt-2">
+                      <button
+                        onClick={handleSwitchToLogin}
+                        className="text-sm text-autoofy-red hover:text-red-700 font-medium"
+                      >
+                        ← Terug naar inloggen
+                      </button>
+                    </div>
+                  </div>
+                ) : isLogin ? (
                   <form onSubmit={handleLogin} className="space-y-5">
                     <div className="space-y-2">
                       <h2 className="text-2xl font-bold text-gray-900">Welkom terug</h2>
@@ -348,6 +495,67 @@ function HomePageForm() {
                         Wachtwoord vergeten?
                       </Link>
                     </div>
+
+                    {/* Resend Verification Section */}
+                    {showResendForm ? (
+                      <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl space-y-3">
+                        <h4 className="font-semibold text-blue-900 text-sm flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Verificatie e-mail opnieuw versturen
+                        </h4>
+                        <FormInput
+                          label=""
+                          type="email"
+                          value={resendEmail}
+                          onChange={(e) => setResendEmail(e.target.value)}
+                          placeholder="Uw e-mailadres"
+                          autoComplete="email"
+                        />
+                        <div className="flex gap-2">
+                          <Button
+                            type="button"
+                            onClick={() => handleResendVerification()}
+                            disabled={resendLoading}
+                            className="flex-1 h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                          >
+                            {resendLoading ? (
+                              <RefreshCw className="w-4 h-4 animate-spin" />
+                            ) : (
+                              "Versturen"
+                            )}
+                          </Button>
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              setShowResendForm(false)
+                              setResendEmail("")
+                              setError("")
+                            }}
+                            className="h-9 bg-gray-200 hover:bg-gray-300 text-gray-700 text-sm px-3"
+                          >
+                            Annuleren
+                          </Button>
+                        </div>
+                        {resendSuccess && (
+                          <p className="text-sm text-green-700 flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" />
+                            E-mail verstuurd! Check ook uw spam folder.
+                          </p>
+                        )}
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowResendForm(true)
+                          setResendEmail(loginData.email)
+                        }}
+                        className="text-sm text-gray-500 hover:text-autoofy-red transition-colors flex items-center gap-1"
+                      >
+                        <AlertCircle className="w-4 h-4" />
+                        Verificatie e-mail niet ontvangen?
+                      </button>
+                    )}
 
                     <Button
                       type="submit"

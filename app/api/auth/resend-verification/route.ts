@@ -1,14 +1,9 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
-import { z } from "zod"
-import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
-import { resendVerificationEmail } from "@/lib/email"
 import { emailVerificationRateLimit } from "@/lib/rate-limit"
 import { sanitizeEmail } from "@/lib/sanitize"
-
-const resendVerificationSchema = z.object({
-  email: z.string().email("Ongeldig e-mailadres").trim().toLowerCase(),
-})
+import { generateVerificationToken, getVerificationTokenExpiry } from "@/lib/auth-utils"
+import { resendVerificationEmail } from "@/lib/email"
 
 export async function POST(request: NextRequest) {
   try {
@@ -19,68 +14,81 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const sanitizedBody = {
-      email: sanitizeEmail(body.email || ""),
-    }
-    
-    const validatedData = resendVerificationSchema.parse(sanitizedBody)
+    const email = sanitizeEmail(body.email || "")
 
-    // Find user by email
-    const user = await prisma.user.findUnique({
-      where: { email: validatedData.email },
-      include: { tenant: true },
-    })
-
-    // Don't reveal if email exists or not (security best practice)
-    // Always return success, even if user doesn't exist or is already verified
-    if (user && !user.emailVerified) {
-      // Delete existing verification token if any
-      await prisma.verificationToken.deleteMany({
-        where: { userId: user.id },
-      })
-
-      // Generate new verification token
-      const verificationToken = generateVerificationToken()
-      const expiresAt = getVerificationTokenExpiry()
-
-      await prisma.verificationToken.create({
-        data: {
-          token: verificationToken,
-          userId: user.id,
-          expiresAt,
-        },
-      })
-
-      // Send verification email
-      const emailResult = await resendVerificationEmail(
-        user.email,
-        verificationToken,
-        user.name
-      )
-
-      if (!emailResult.success) {
-        console.error("Failed to resend verification email:", emailResult.error)
-        // Still return success to prevent email enumeration
-      } else {
-        console.log("Verification email resent successfully")
-      }
-    }
-
-    // Always return success to prevent email enumeration
-    return NextResponse.json(
-      {
-        message: "Als dit e-mailadres bij ons geregistreerd is en nog niet geverifieerd, ontvangt u een nieuwe verificatie e-mail.",
-      },
-      { status: 200 }
-    )
-  } catch (error) {
-    if (error instanceof z.ZodError) {
+    if (!email) {
       return NextResponse.json(
-        { error: error.errors[0].message },
+        { error: "E-mailadres is verplicht" },
         { status: 400 }
       )
     }
 
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    })
+
+    if (!user) {
+      // Don't reveal if user exists or not for security
+      return NextResponse.json({
+        success: true,
+        message: "Als dit e-mailadres bij ons bekend is, ontvangt u een nieuwe verificatie e-mail.",
+      })
+    }
+
+    // Check if already verified
+    if (user.emailVerified) {
+      return NextResponse.json({
+        success: true,
+        message: "Uw e-mailadres is al geverifieerd. U kunt inloggen.",
+        alreadyVerified: true,
+      })
+    }
+
+    // Delete any existing verification tokens for this user
+    await prisma.verificationToken.deleteMany({
+      where: { userId: user.id },
+    })
+
+    // Generate new verification token
+    const verificationToken = generateVerificationToken()
+    const tokenExpiresAt = getVerificationTokenExpiry()
+
+    // Create new verification token
+    await prisma.verificationToken.create({
+      data: {
+        token: verificationToken,
+        userId: user.id,
+        expiresAt: tokenExpiresAt,
+      },
+    })
+
+    // Send verification email
+    console.log(`🔄 [RESEND] Sending verification email to: ${email}`)
+    
+    try {
+      const emailResult = await resendVerificationEmail(
+        email,
+        verificationToken,
+        user.name
+      )
+
+      if (emailResult.success) {
+        console.log(`✅ [RESEND] Verification email sent successfully to: ${email}`)
+      } else {
+        console.error(`❌ [RESEND] Failed to send verification email to: ${email}`)
+        console.error(`   Error: ${emailResult.error}`)
+      }
+    } catch (emailError) {
+      console.error(`❌ [RESEND] Exception sending verification email:`, emailError)
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "Als dit e-mailadres bij ons bekend is, ontvangt u een nieuwe verificatie e-mail.",
+    })
+
+  } catch (error) {
     console.error("Resend verification error:", error)
     return NextResponse.json(
       { error: "Er is een fout opgetreden" },
@@ -88,4 +96,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

@@ -34,7 +34,9 @@ import {
   Unlock,
   Ban,
   Globe,
-  Timer
+  Timer,
+  Send,
+  MailCheck
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import Image from "next/image"
@@ -108,6 +110,9 @@ export default function AdminDashboardPage() {
   const [rateLimitLoading, setRateLimitLoading] = useState(false)
   const [unblockingKey, setUnblockingKey] = useState<string | null>(null)
   const [manualUnblockIp, setManualUnblockIp] = useState("")
+  
+  // Resend verification states
+  const [resendingVerificationId, setResendingVerificationId] = useState<string | null>(null)
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -383,6 +388,34 @@ export default function AdminDashboardPage() {
       fetchRateLimits()
     }
   }, [activeTab])
+
+  // Resend verification email function
+  const handleResendVerification = async (userId: string, userEmail: string) => {
+    setResendingVerificationId(userId)
+    try {
+      const response = await fetch("/api/admin/resend-verification", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        if (data.alreadyVerified) {
+          showToast(`${userEmail} is al geverifieerd`, "success")
+        } else {
+          showToast(`Verificatie e-mail verstuurd naar ${userEmail}`, "success")
+        }
+      } else {
+        showToast(data.error || "Fout bij versturen", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    } finally {
+      setResendingVerificationId(null)
+    }
+  }
 
   if (status === "loading" || loading) {
     return (
@@ -867,10 +900,12 @@ export default function AdminDashboardPage() {
                       onDelete={handleDeleteUser}
                       onToggleActive={handleToggleActive}
                       onResetPassword={handleResetPassword}
+                      onResendVerification={handleResendVerification}
                       approvingUserId={approvingUserId}
                       deletingUserId={deletingUserId}
                       togglingUserId={togglingUserId}
                       resettingUserId={resettingUserId}
+                      resendingVerificationId={resendingVerificationId}
                       setResettingUserId={setResettingUserId}
                       newPassword={newPassword}
                       setNewPassword={setNewPassword}
@@ -906,10 +941,12 @@ export default function AdminDashboardPage() {
                       onDelete={handleDeleteUser}
                       onToggleActive={handleToggleActive}
                       onResetPassword={handleResetPassword}
+                      onResendVerification={handleResendVerification}
                       approvingUserId={approvingUserId}
                       deletingUserId={deletingUserId}
                       togglingUserId={togglingUserId}
                       resettingUserId={resettingUserId}
+                      resendingVerificationId={resendingVerificationId}
                       setResettingUserId={setResettingUserId}
                       newPassword={newPassword}
                       setNewPassword={setNewPassword}
@@ -1124,10 +1161,12 @@ function UserRow({
   onDelete,
   onToggleActive,
   onResetPassword,
+  onResendVerification,
   approvingUserId,
   deletingUserId,
   togglingUserId,
   resettingUserId,
+  resendingVerificationId,
   setResettingUserId,
   newPassword,
   setNewPassword,
@@ -1139,10 +1178,12 @@ function UserRow({
   onDelete: (id: string, name: string) => void
   onToggleActive: (id: string, current: boolean) => void
   onResetPassword: (id: string) => void
+  onResendVerification: (id: string, email: string) => void
   approvingUserId: string | null
   deletingUserId: string | null
   togglingUserId: string | null
   resettingUserId: string | null
+  resendingVerificationId: string | null
   setResettingUserId: (id: string | null) => void
   newPassword: string
   setNewPassword: (v: string) => void
@@ -1172,9 +1213,27 @@ function UserRow({
         {/* Status */}
         <div className="flex gap-2">
           {user.emailVerified ? (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium">Geverifieerd</span>
+            <span className="text-xs px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-medium flex items-center gap-1">
+              <MailCheck className="h-3 w-3" />
+              Geverifieerd
+            </span>
           ) : (
-            <span className="text-xs px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-medium">Niet geverifieerd</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs px-3 py-1.5 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30 font-medium">Niet geverifieerd</span>
+              <button
+                onClick={() => onResendVerification(user.id, user.email)}
+                disabled={resendingVerificationId === user.id}
+                className="text-xs px-2.5 py-1.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30 font-medium hover:bg-blue-500/30 transition-colors flex items-center gap-1"
+                title="Verstuur verificatie e-mail opnieuw"
+              >
+                {resendingVerificationId === user.id ? (
+                  <RefreshCw className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Send className="h-3 w-3" />
+                )}
+                <span className="hidden sm:inline">Verstuur email</span>
+              </button>
+            </div>
           )}
           {user.isApproved ? (
             <span className="text-xs px-3 py-1.5 rounded-full bg-autoofy-dark/50 text-slate-300 border border-white/20 font-medium">Goedgekeurd</span>
