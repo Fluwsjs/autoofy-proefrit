@@ -34,15 +34,20 @@ function hasXSSInParams(url: URL): boolean {
 export function middleware(request: NextRequest) {
   const url = new URL(request.url)
   
+  // Get client IP from headers (works behind proxies/CDNs like Netlify)
+  const clientIp = request.headers.get('x-forwarded-for')?.split(',')[0].trim()
+    || request.headers.get('x-real-ip')
+    || 'unknown'
+
   // Security: Block requests with XSS payloads in URL parameters
   try {
     if (hasXSSInParams(url)) {
-      console.warn(`🛡️ [SECURITY] Blocked potential XSS attack from ${request.ip || 'unknown'}: ${url.pathname}${url.search}`)
+      console.warn(`🛡️ [SECURITY] Blocked potential XSS attack from ${clientIp}: ${url.pathname}${url.search}`)
       return new NextResponse("Bad Request", { status: 400 })
     }
   } catch (e) {
     // If URL parsing fails, it might be a malformed attack
-    console.warn(`🛡️ [SECURITY] Blocked malformed request: ${e}`)
+    console.warn(`🛡️ [SECURITY] Blocked malformed request from ${clientIp}: ${e}`)
     return new NextResponse("Bad Request", { status: 400 })
   }
 
