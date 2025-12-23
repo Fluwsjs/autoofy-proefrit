@@ -306,7 +306,7 @@ export default function NewTestridePage() {
   }
 
         return (
-          <div className="max-w-4xl mx-auto space-y-4 pb-20 lg:pb-0">
+          <div className="max-w-4xl mx-auto space-y-4 pb-24 lg:pb-0">
             {ToastComponent}
             <div className="flex items-center justify-between gap-2">
               <Button 
@@ -771,8 +771,8 @@ export default function NewTestridePage() {
               <p className="text-sm text-destructive">{error}</p>
             )}
 
-            {/* Sticky Submit Button for Mobile */}
-            <div className="flex flex-col sm:flex-row gap-2 sticky bottom-0 left-0 right-0 bg-white p-3 -mx-4 -mb-4 md:mb-0 border-t border-slate-200 md:border-t-0 md:static md:bg-transparent md:p-0 md:mx-0 shadow-lg md:shadow-none z-10">
+            {/* Sticky Submit Button for Mobile - positioned above bottom nav */}
+            <div className="flex flex-col sm:flex-row gap-2 fixed bottom-20 left-0 right-0 bg-white p-3 border-t border-slate-200 shadow-lg z-30 lg:relative lg:bottom-auto lg:border-t-0 lg:shadow-none lg:p-0 lg:bg-transparent">
               <Button 
                 type="submit" 
                 disabled={loading}
