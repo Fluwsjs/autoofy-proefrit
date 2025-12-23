@@ -16,6 +16,8 @@ import { CalendarView } from "@/components/CalendarView"
 import { WelcomeWizard } from "@/components/WelcomeWizard"
 import { MobileTestRideCard } from "@/components/MobileTestRideCard"
 import { DashboardWidgets } from "@/components/DashboardWidgets"
+import { MobileFilterPanel } from "@/components/MobileFilterPanel"
+import { PullToRefresh } from "@/components/PullToRefresh"
 
 interface Testride {
   id: string
@@ -580,36 +582,48 @@ function DashboardContent() {
         <CalendarView testrides={testrides} />
       ) : (
         <>
-          {/* Search and Filter */}
-          <SearchAndFilter
+          {/* Desktop Search and Filter */}
+          <div className="hidden lg:block">
+            <SearchAndFilter
+              searchQuery={searchQuery}
+              onSearchChange={setSearchQuery}
+              dateFilter={dateFilter}
+              onDateFilterChange={setDateFilter}
+            />
+
+            {/* Results count */}
+            {searchQuery || dateFilter !== "all" ? (
+              <div className="flex items-center justify-between gap-2 animate-in fade-in slide-in-from-left-4 mt-4">
+                <p className="text-sm text-muted-foreground">
+                  {filteredTestrides.length} van {testrides.length} proefritten
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSearchQuery("")
+                    setDateFilter("all")
+                  }}
+                  className="text-muted-foreground hover:text-autoofy-red transition-colors"
+                >
+                  Filters wissen
+                </Button>
+              </div>
+            ) : null}
+          </div>
+
+          {/* Mobile Filter Panel */}
+          <MobileFilterPanel
             searchQuery={searchQuery}
             onSearchChange={setSearchQuery}
             dateFilter={dateFilter}
             onDateFilterChange={setDateFilter}
+            resultCount={filteredTestrides.length}
+            totalCount={testrides.length}
           />
 
-          {/* Results count */}
-          {searchQuery || dateFilter !== "all" ? (
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 animate-in fade-in slide-in-from-left-4">
-              <p className="text-sm text-muted-foreground">
-                {filteredTestrides.length} van {testrides.length} proefritten
-              </p>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSearchQuery("")
-                  setDateFilter("all")
-                }}
-                className="text-muted-foreground hover:text-autoofy-red transition-colors"
-              >
-                Filters wissen
-              </Button>
-            </div>
-          ) : null}
-
           {/* Desktop Table View */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <DataTable 
               testrides={filteredTestrides} 
               onDelete={handleDelete}
@@ -617,21 +631,55 @@ function DashboardContent() {
             />
           </div>
 
-          {/* Mobile Card View */}
-          <div className="md:hidden space-y-2">
-            {filteredTestrides.length === 0 ? (
-              <Card className="p-8 text-center">
-                <p className="text-gray-500">Geen proefritten gevonden</p>
-              </Card>
-            ) : (
-              filteredTestrides.map((testride) => (
-                <MobileTestRideCard
-                  key={testride.id}
-                  testride={testride}
-                  onDelete={handleDelete}
-                />
-              ))
-            )}
+          {/* Mobile Card View with Pull to Refresh */}
+          <div className="lg:hidden">
+            <PullToRefresh onRefresh={async () => {
+              await fetchTestrides()
+            }}>
+              <div className="space-y-3">
+                {filteredTestrides.length === 0 ? (
+                  <Card className="p-8 text-center border-0 shadow-sm">
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                        <Car className="h-6 w-6 text-gray-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900">Geen proefritten</p>
+                        <p className="text-sm text-gray-500 mt-1">
+                          {searchQuery || dateFilter !== "all" 
+                            ? "Probeer andere filters" 
+                            : "Start je eerste proefrit"}
+                        </p>
+                      </div>
+                      {!searchQuery && dateFilter === "all" && (
+                        <Link href="/dashboard/new">
+                          <Button size="sm" className="mt-2 bg-autoofy-red hover:bg-autoofy-red/90">
+                            <Plus className="h-4 w-4 mr-1" />
+                            Nieuwe proefrit
+                          </Button>
+                        </Link>
+                      )}
+                    </div>
+                  </Card>
+                ) : (
+                  <>
+                    {/* Swipe hint - only show once */}
+                    {filteredTestrides.length > 0 && !localStorage.getItem('swipeHintShown') && (
+                      <div className="text-center py-2 text-xs text-gray-400 animate-pulse">
+                        ← Swipe voor acties →
+                      </div>
+                    )}
+                    {filteredTestrides.map((testride) => (
+                      <MobileTestRideCard
+                        key={testride.id}
+                        testride={testride}
+                        onDelete={handleDelete}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
+            </PullToRefresh>
           </div>
         </>
       )}
