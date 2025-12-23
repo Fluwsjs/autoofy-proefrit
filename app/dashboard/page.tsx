@@ -161,10 +161,17 @@ function DashboardContent() {
       }
       
       // Check if we should open wizard from query params
+      // Security: Only accept specific known parameter values
       const openWizard = searchParams.get("openWizard")
       const stepParam = searchParams.get("step")
       if (openWizard === "true") {
-        setWizardStep(stepParam ? parseInt(stepParam) : 0)
+        // Validate step is a number between 0-10
+        const step = stepParam ? parseInt(stepParam, 10) : 0
+        if (!isNaN(step) && step >= 0 && step <= 10) {
+          setWizardStep(step)
+        } else {
+          setWizardStep(0)
+        }
         setShowWelcomeWizard(true)
         router.replace("/dashboard")
         return
@@ -192,9 +199,19 @@ function DashboardContent() {
   }
 
   useEffect(() => {
+    // Security: Only accept exact expected parameter values (whitelist approach)
     const success = searchParams.get("success")
     if (success === "true") {
       showToast("Proefrit succesvol aangemaakt!", "success")
+      router.replace("/dashboard")
+    }
+    
+    // Clean up any unexpected URL parameters for security
+    const allowedParams = ["success", "openWizard", "step"]
+    const currentParams = Array.from(searchParams.keys())
+    const hasUnexpectedParams = currentParams.some(p => !allowedParams.includes(p))
+    if (hasUnexpectedParams && currentParams.length > 0) {
+      // Strip unknown parameters
       router.replace("/dashboard")
     }
   }, [searchParams, router, showToast])
