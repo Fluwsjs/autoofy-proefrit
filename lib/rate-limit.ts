@@ -167,3 +167,57 @@ export const emailVerificationRateLimit = rateLimitByEmail({
   windowMs: 60 * 60 * 1000, // 1 hour
 })
 
+/**
+ * Unblock a specific IP address
+ */
+export function unblockIp(ip: string): boolean {
+  const key = `rate-limit:${ip}`
+  if (rateLimitStore.has(key)) {
+    rateLimitStore.delete(key)
+    return true
+  }
+  return false
+}
+
+/**
+ * Unblock by email
+ */
+export function unblockEmail(email: string): boolean {
+  const key = `rate-limit:email:${email.toLowerCase()}`
+  if (rateLimitStore.has(key)) {
+    rateLimitStore.delete(key)
+    return true
+  }
+  return false
+}
+
+/**
+ * Get all currently rate-limited entries
+ */
+export function getBlockedEntries(): Array<{ key: string; count: number; resetAt: Date; remainingSeconds: number }> {
+  const now = Date.now()
+  const entries: Array<{ key: string; count: number; resetAt: Date; remainingSeconds: number }> = []
+  
+  for (const [key, entry] of rateLimitStore.entries()) {
+    if (entry.resetAt > now) {
+      entries.push({
+        key: key.replace('rate-limit:', ''),
+        count: entry.count,
+        resetAt: new Date(entry.resetAt),
+        remainingSeconds: Math.ceil((entry.resetAt - now) / 1000)
+      })
+    }
+  }
+  
+  return entries
+}
+
+/**
+ * Clear all rate limit entries (use with caution!)
+ */
+export function clearAllRateLimits(): number {
+  const count = rateLimitStore.size
+  rateLimitStore.clear()
+  return count
+}
+

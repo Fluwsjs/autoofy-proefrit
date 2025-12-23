@@ -29,7 +29,12 @@ import {
   Shield,
   BarChart3,
   X,
-  Sparkles
+  Sparkles,
+  ShieldOff,
+  Unlock,
+  Ban,
+  Globe,
+  Timer
 } from "lucide-react"
 import { formatDate } from "@/lib/utils"
 import Image from "next/image"
@@ -71,7 +76,14 @@ interface AdminStats {
   monthlyStats: Record<string, number>
 }
 
-type TabType = "overzicht" | "bedrijven" | "gebruikers"
+type TabType = "overzicht" | "bedrijven" | "gebruikers" | "beveiliging"
+
+interface RateLimitEntry {
+  key: string
+  count: number
+  resetAt: string
+  remainingSeconds: number
+}
 
 export default function AdminDashboardPage() {
   const { data: session, status } = useSession()
@@ -90,6 +102,12 @@ export default function AdminDashboardPage() {
   const [togglingUserId, setTogglingUserId] = useState<string | null>(null)
   const [newPassword, setNewPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  
+  // Rate limit states
+  const [rateLimitEntries, setRateLimitEntries] = useState<RateLimitEntry[]>([])
+  const [rateLimitLoading, setRateLimitLoading] = useState(false)
+  const [unblockingKey, setUnblockingKey] = useState<string | null>(null)
+  const [manualUnblockIp, setManualUnblockIp] = useState("")
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -261,6 +279,111 @@ export default function AdminDashboardPage() {
     }
   }
 
+  // Rate limit functions
+  const fetchRateLimits = async () => {
+    setRateLimitLoading(true)
+    try {
+      const response = await fetch("/api/admin/rate-limit")
+      if (response.ok) {
+        const data = await response.json()
+        setRateLimitEntries(data.entries || [])
+      } else {
+        showToast("Fout bij ophalen rate limits", "error")
+      }
+    } catch (error) {
+      console.error("Error fetching rate limits:", error)
+      showToast("Fout bij ophalen rate limits", "error")
+    } finally {
+      setRateLimitLoading(false)
+    }
+  }
+
+  const handleUnblock = async (key: string) => {
+    setUnblockingKey(key)
+    try {
+      // Determine if it's an IP or email based on the key format
+      const isEmail = key.startsWith("email:")
+      const body = isEmail 
+        ? { email: key.replace("email:", "") }
+        : { ip: key }
+
+      const response = await fetch("/api/admin/rate-limit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        showToast(data.message, "success")
+        fetchRateLimits()
+      } else {
+        showToast("Fout bij deblokkeren", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    } finally {
+      setUnblockingKey(null)
+    }
+  }
+
+  const handleManualUnblock = async () => {
+    if (!manualUnblockIp.trim()) {
+      showToast("Voer een IP-adres of email in", "error")
+      return
+    }
+
+    const isEmail = manualUnblockIp.includes("@")
+    const body = isEmail 
+      ? { email: manualUnblockIp.trim() }
+      : { ip: manualUnblockIp.trim() }
+
+    try {
+      const response = await fetch("/api/admin/rate-limit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        showToast(data.message, "success")
+        setManualUnblockIp("")
+        fetchRateLimits()
+      } else {
+        showToast("Fout bij deblokkeren", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    }
+  }
+
+  const handleClearAllRateLimits = async () => {
+    if (!confirm("Weet je zeker dat je ALLE rate limits wilt wissen? Dit kan de beveiliging tijdelijk verzwakken.")) {
+      return
+    }
+
+    try {
+      const response = await fetch("/api/admin/rate-limit", { method: "DELETE" })
+      if (response.ok) {
+        const data = await response.json()
+        showToast(data.message, "success")
+        fetchRateLimits()
+      } else {
+        showToast("Fout bij wissen", "error")
+      }
+    } catch (error) {
+      showToast("Er is een fout opgetreden", "error")
+    }
+  }
+
+  // Fetch rate limits when switching to beveiliging tab
+  useEffect(() => {
+    if (activeTab === "beveiliging") {
+      fetchRateLimits()
+    }
+  }, [activeTab])
+
   if (status === "loading" || loading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
@@ -283,6 +406,7 @@ export default function AdminDashboardPage() {
     { id: "overzicht", label: "Overzicht", icon: <BarChart3 className="h-4 w-4" /> },
     { id: "bedrijven", label: "Bedrijven", icon: <Building2 className="h-4 w-4" />, count: stats.overview.totalTenants },
     { id: "gebruikers", label: "Gebruikers", icon: <Users className="h-4 w-4" />, count: stats.overview.totalUsers },
+    { id: "beveiliging", label: "Beveiliging", icon: <ShieldOff className="h-4 w-4" />, count: rateLimitEntries.length > 0 ? rateLimitEntries.length : undefined },
   ]
 
   return (
@@ -798,9 +922,199 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Beveiliging Tab */}
+        {activeTab === "beveiliging" && (
+          <div className="space-y-6">
+            {/* Info Card */}
+            <div className="bg-gradient-to-r from-autoofy-dark/60 to-[#1a2744]/60 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
+              <div className="flex items-start gap-4">
+                <div className="p-3 bg-gradient-to-br from-autoofy-red to-[#d4384a] rounded-xl shadow-lg">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white text-lg">Rate Limiting Beveiliging</h3>
+                  <p className="text-slate-400 text-sm mt-1">
+                    Hier zie je IP-adressen en emails die tijdelijk geblokkeerd zijn vanwege te veel mislukte pogingen.
+                    Je kunt ze handmatig deblokkeren als dat nodig is.
+                  </p>
+                  <div className="flex flex-wrap gap-4 mt-4 text-xs text-slate-500">
+                    <span className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-autoofy-red"></div>
+                      Login: 5 pogingen / 15 min
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-amber-500"></div>
+                      Registratie: 10 pogingen / 1 uur
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <div className="w-2 h-2 rounded-full bg-emerald-500"></div>
+                      Wachtwoord reset: 3 pogingen / 1 uur
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Manual Unblock */}
+            <div className="bg-autoofy-dark/40 backdrop-blur-sm border border-white/10 rounded-2xl p-5">
+              <h3 className="font-semibold text-white flex items-center gap-2 mb-4">
+                <Unlock className="h-5 w-5 text-emerald-400" />
+                Handmatig Deblokkeren
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Globe className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder="IP-adres of email invoeren..."
+                    value={manualUnblockIp}
+                    onChange={(e) => setManualUnblockIp(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3 bg-autoofy-dark/50 border border-white/10 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500/50 transition-all"
+                    onKeyDown={(e) => e.key === 'Enter' && handleManualUnblock()}
+                  />
+                </div>
+                <Button
+                  onClick={handleManualUnblock}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25 px-6"
+                >
+                  <Unlock className="h-4 w-4 mr-2" />
+                  Deblokkeren
+                </Button>
+              </div>
+            </div>
+
+            {/* Blocked Entries List */}
+            <div className="bg-autoofy-dark/40 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden">
+              <div className="p-5 border-b border-white/10 flex items-center justify-between">
+                <h3 className="font-semibold text-white flex items-center gap-2">
+                  <Ban className="h-5 w-5 text-autoofy-red" />
+                  Geblokkeerde IP's & Emails
+                  {rateLimitEntries.length > 0 && (
+                    <span className="bg-autoofy-red text-white text-xs px-2.5 py-1 rounded-full font-semibold">
+                      {rateLimitEntries.length}
+                    </span>
+                  )}
+                </h3>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={fetchRateLimits}
+                    size="sm"
+                    disabled={rateLimitLoading}
+                    className="gap-1.5 bg-autoofy-dark/50 border border-white/10 text-slate-300 hover:bg-autoofy-dark hover:text-white"
+                  >
+                    <RefreshCw className={`h-3.5 w-3.5 ${rateLimitLoading ? 'animate-spin' : ''}`} />
+                    <span className="hidden sm:inline">Vernieuwen</span>
+                  </Button>
+                  {rateLimitEntries.length > 0 && (
+                    <Button
+                      onClick={handleClearAllRateLimits}
+                      size="sm"
+                      className="gap-1.5 bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 hover:text-red-300"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span className="hidden sm:inline">Alles wissen</span>
+                    </Button>
+                  )}
+                </div>
+              </div>
+              
+              {rateLimitLoading ? (
+                <div className="p-12 text-center">
+                  <div className="animate-spin rounded-full h-12 w-12 border-4 border-autoofy-red/20 border-t-autoofy-red mx-auto"></div>
+                  <p className="text-slate-400 mt-4">Laden...</p>
+                </div>
+              ) : rateLimitEntries.length === 0 ? (
+                <div className="p-12 text-center">
+                  <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-emerald-500/20 mb-4">
+                    <CheckCircle className="h-8 w-8 text-emerald-400" />
+                  </div>
+                  <p className="text-slate-400 font-medium text-lg">Geen geblokkeerde IP's of emails</p>
+                  <p className="text-slate-500 text-sm mt-1">Alle gebruikers hebben vrije toegang</p>
+                </div>
+              ) : (
+                <div className="divide-y divide-white/5">
+                  {rateLimitEntries.map((entry) => {
+                    const isEmail = entry.key.startsWith("email:")
+                    const displayKey = isEmail ? entry.key.replace("email:", "") : entry.key
+                    
+                    return (
+                      <div key={entry.key} className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:bg-white/5 transition-colors">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                            isEmail 
+                              ? 'bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30' 
+                              : 'bg-gradient-to-br from-autoofy-red/20 to-[#d4384a]/20 border border-autoofy-red/30'
+                          }`}>
+                            {isEmail ? (
+                              <Mail className="h-5 w-5 text-amber-400" />
+                            ) : (
+                              <Globe className="h-5 w-5 text-autoofy-red" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="font-medium text-white font-mono">{displayKey}</p>
+                            <div className="flex items-center gap-3 mt-1">
+                              <span className="text-xs text-slate-400">
+                                {isEmail ? 'Email' : 'IP-adres'}
+                              </span>
+                              <span className="text-xs px-2 py-0.5 rounded-full bg-autoofy-red/20 text-autoofy-red border border-autoofy-red/30">
+                                {entry.count} pogingen
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="flex items-center gap-4">
+                          <div className="text-right">
+                            <div className="flex items-center gap-1.5 text-amber-400">
+                              <Timer className="h-4 w-4" />
+                              <span className="font-medium">{formatTimeRemaining(entry.remainingSeconds)}</span>
+                            </div>
+                            <p className="text-xs text-slate-500 mt-0.5">tot automatische deblokkering</p>
+                          </div>
+                          <Button
+                            onClick={() => handleUnblock(entry.key)}
+                            disabled={unblockingKey === entry.key}
+                            size="sm"
+                            className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                          >
+                            {unblockingKey === entry.key ? (
+                              <RefreshCw className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <>
+                                <Unlock className="h-4 w-4 mr-1.5" />
+                                Deblokkeren
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
+}
+
+// Helper function to format remaining time
+function formatTimeRemaining(seconds: number): string {
+  if (seconds < 60) {
+    return `${seconds}s`
+  } else if (seconds < 3600) {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}m ${secs}s`
+  } else {
+    const hours = Math.floor(seconds / 3600)
+    const mins = Math.floor((seconds % 3600) / 60)
+    return `${hours}u ${mins}m`
+  }
 }
 
 // User Row Component
